@@ -1,0 +1,3219 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCA – Profielrailgeleiding Configurator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fugue:wght@300;400;500;600;700&family=Fugue+:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --linear: #be0068;
+      --navy: #0c2c65;
+      --lavender: #9fa0d0;
+      --offwhite: #f4f6f8;
+      --white: #ffffff;
+      --border: #dde2ec;
+      --text: #1a1a2e;
+      --muted: #6b7594;
+      /* Aliassen zodat de (hergebruikte) koppel-configurator CSS/JS ongewijzigd werkt */
+      --motion: var(--navy);
+      --robotics: var(--lavender);
+      --ok: #1a8754;
+      --warn: #c85a00;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Fugue', Trebuchet MS;
+      background: var(--offwhite);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--navy);
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      border-bottom: 3px solid var(--linear);
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-box {
+      width: 36px;
+      height: 36px;
+      background: var(--linear);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-text {
+      font-family: 'Fugue', Trebuchet MS;
+      font-weight: 400;
+      font-size: 22px;
+      color: white;
+      letter-spacing: 0.04em;
+    }
+
+    .logo-text span {
+      color: var(--lavender);
+      font-weight: 400;
+    }
+
+    .header-tag {
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--lavender);
+      border: 2px solid #9fa0d04d;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #0a2255 100%);
+      padding: 32px 40px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      right: -60px;
+      top: -40px;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      border: 60px solid rgba(190, 0, 104, 0.08);
+      pointer-events: none;
+    }
+
+    .hero-label {
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--linear);
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 300;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 40px 60px;
+    }
+
+    .steps-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .step-card {
+      background: white;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .step-card.active {
+      border-color: var(--linear);
+      box-shadow: 0 0 0 3px rgba(190, 0, 104, 0.07);
+    }
+
+    .step-card.done {
+      border-color: var(--navy);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fugue', Trebuchet MS;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+      transition: background 0.2s, color 0.2s;
+      background: var(--border);
+      color: var(--muted);
+    }
+
+    .step-card.active .step-num {
+      background: var(--linear);
+      color: white;
+    }
+
+    .step-card.done .step-num {
+      background: var(--navy);
+      color: white;
+    }
+
+    .step-title-wrap {
+      flex: 1;
+    }
+
+    .step-title {
+      font-family: 'Fugue', Trebuchet MS;
+      font-weight: 600;
+      font-size: 16px;
+      color: #0c2c65;
+    }
+
+    .step-selected {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .step-card.done .step-selected {
+      color: var(--linear);
+      font-weight: 500;
+    }
+
+    .step-chevron {
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+
+    .step-card.active .step-chevron {
+      transform: rotate(180deg);
+      color: var(--linear);
+    }
+
+    .step-body {
+      display: none;
+      padding: 0 20px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .step-card.active .step-body {
+      display: block;
+    }
+
+    .step-desc {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 12px 0 14px;
+      line-height: 1.5;
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+    }
+
+    .option-grid.wide {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .opt-btn {
+      background: var(--offwhite);
+      border: 1.2px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+      font-family: 'Fugue', Trebuchet MS;
+    }
+
+    .opt-btn:hover {
+      border-color: var(--linear);
+      background: rgba(190, 0, 104, 0.04);
+    }
+
+    .opt-btn.selected {
+      border-color: var(--linear);
+      background: rgba(190, 0, 104, 0.06);
+    }
+
+    .opt-code {
+      font-family: 'Fugue', Trebuchet MS;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--navy);
+      display: block;
+    }
+
+    .opt-btn.selected .opt-code {
+      color: var(--linear);
+    }
+
+    .opt-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.3;
+      display: block;
+    }
+
+    .length-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .length-input {
+      width: 140px;
+      height: 44px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      padding: 0 14px;
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--navy);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .length-input:focus {
+      border-color: var(--linear);
+    }
+
+    .length-unit {
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .length-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .pitch-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .pitch-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .pitch-group input {
+      width: 100%;
+      height: 40px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      padding: 0 12px;
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 15px;
+      color: var(--navy);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .pitch-group input:focus {
+      border-color: var(--linear);
+    }
+
+    .pitch-locked-notice {
+      font-size: 13px;
+      color: #7a3500;
+      background: #fff7ed;
+      border: 1px solid #f5c98a;
+      border-left: 4px solid var(--warn);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+
+    .wizard-alert {
+      display: none;
+      padding: 11px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-top: 12px;
+      border-left: 4px solid;
+      line-height: 1.6;
+    }
+
+    .wizard-alert.show {
+      display: block;
+    }
+
+    .wizard-alert-err {
+      background: #fff0f5;
+      border-color: var(--linear);
+      color: #7a0040;
+    }
+
+    .wizard-alert-ok {
+      background: #edfbf2;
+      border-color: var(--ok);
+      color: #145235;
+    }
+
+    .wizard-fix-btn {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--offwhite);
+      border: 1.5px solid var(--ok);
+      color: var(--ok);
+      cursor: pointer;
+      transition: all .15s;
+      font-family: 'Fugue', Trebuchet MS;
+      letter-spacing: .03em;
+    }
+
+    .wizard-fix-btn:hover {
+      background: #edfbf2;
+    }
+
+    .wizard-info-box {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 10px;
+      padding: 9px 12px;
+      background: var(--offwhite);
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      line-height: 1.6;
+    }
+
+    .wizard-info-box strong {
+      color: var(--navy);
+    }
+
+    .wizard-sug-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 12px 0 7px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .wizard-sug-pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--offwhite);
+      border: 1.5px solid var(--border);
+      color: var(--navy);
+      cursor: pointer;
+      transition: all .15s;
+      font-family: 'Fugue', Trebuchet MS;
+      letter-spacing: .03em;
+    }
+
+    .wizard-sug-pill:hover {
+      border-color: var(--linear);
+      color: var(--linear);
+      background: #fff0f6;
+    }
+
+    .wizard-sug-pill.best {
+      border-color: var(--ok);
+      color: var(--ok);
+      background: #edfbf2;
+    }
+
+    .next-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      background: var(--linear);
+      color: white;
+      border: none;
+      border-radius: 7px;
+      padding: 10px 20px;
+      font-family: 'Fugue', Trebuchet MS;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .next-btn:hover {
+      background: #9e0056;
+      transform: translateY(-1px);
+    }
+
+    .next-btn:disabled {
+      background: var(--border);
+      color: var(--muted);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 28px;
+      height: fit-content;
+    }
+
+    .illustration-card {
+      background: white;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .illustration-card svg {
+      width: 100%;
+      height: auto;
+    }
+
+    .progress-bar-wrap {
+      margin-bottom: 16px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .progress-pct {
+      font-family: 'Fugue', Trebuchet MS;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--linear);
+    }
+
+    .progress-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--navy), var(--linear));
+      border-radius: 2px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    .code-card {
+      background: var(--navy);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .code-card-label {
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--lavender);
+      margin-bottom: 14px;
+    }
+
+    .code-display {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      align-items: center;
+      min-height: 48px;
+      margin-bottom: 8px;
+    }
+
+    .code-part {
+      font-family: 'Fugue', Trebuchet MS;
+      font-weight: 700;
+      font-size: 18px;
+      color: white;
+    }
+
+    .code-part.empty {
+      color: rgba(255, 255, 255, 0.2);
+      font-weight: 400;
+    }
+
+    .code-separator {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 18px;
+      margin: 0 1px;
+    }
+
+    .code-copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.7);
+      border-radius: 5px;
+      padding: 6px 12px;
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 12px;
+    }
+
+    .code-copy-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: white;
+    }
+
+    .breakdown-card {
+      background: white;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .breakdown-title {
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--offwhite);
+      gap: 12px;
+    }
+
+    .breakdown-row:last-child {
+      border-bottom: none;
+    }
+
+    .bd-field {
+      font-size: 12px;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .bd-value {
+      font-family: 'Fugue', Trebuchet MS;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--navy);
+      text-align: right;
+    }
+
+    .bd-value.warn {
+      color: var(--warn);
+    }
+
+    .cta-card {
+      background: white;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      padding: 20px;
+    }
+
+    .cta-incomplete {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    .request-btn {
+      width: 100%;
+      background: var(--linear);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-family: 'Fugue', Trebuchet MS;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .request-btn:hover {
+      background: #9e0056;
+      transform: translateY(-1px);
+    }
+
+    .request-btn:disabled {
+      background: var(--border);
+      color: var(--muted);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .cta-note {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    .cta-png-notice {
+      display: none;
+      margin-top: 12px;
+      padding: 9px 12px;
+      background: #fff7ed;
+      border: 1px solid #f5c98a;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #7a3500;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+
+      .sidebar {
+        position: static;
+      }
+
+      .hero {
+        padding: 24px 20px;
+      }
+
+      .header {
+        padding: 0 20px;
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+     Stap 12B — Koppelverdeling (hergebruikte logica/stijl uit
+     SBI Gekoppelde Rail Configurator v9.1). Alles hieronder is
+     scoped onder .cp-panel zodat er geen conflicten ontstaan met
+     de bestaande wizard-CSS/JS hierboven.
+     ══════════════════════════════════════════════════════════════ */
+    .step-card.cp-step12b {
+      border-color: var(--warn);
+    }
+
+    .step-card.cp-step12b.active {
+      box-shadow: 0 0 0 3px rgba(200, 90, 0, 0.10);
+    }
+
+    .cp-banner {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 11px 14px;
+      background: #fff7ed;
+      border: 1px solid #f5c98a;
+      border-left: 4px solid var(--warn);
+      border-radius: 6px;
+      font-size: 13px;
+      color: #7a3500;
+      line-height: 1.6;
+      margin: 12px 0 16px;
+    }
+
+    .cp-panel .field {
+      margin-bottom: 14px;
+    }
+
+    .cp-panel label {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--navy);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 5px;
+    }
+
+    .cp-panel .tag {
+      font-weight: 400;
+      text-transform: none;
+      font-size: .68rem;
+      padding: 1px 7px;
+      border-radius: 3px;
+      letter-spacing: 0;
+    }
+
+    .cp-panel .tag-in {
+      background: #ddeeff;
+      color: #1a4a8a;
+    }
+
+    .cp-panel .tag-auto {
+      background: #ffe0f0;
+      color: var(--linear);
+    }
+
+    .cp-panel select,
+    .cp-panel input[type=number] {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: .92rem;
+      color: var(--text);
+      background: var(--offwhite);
+      transition: border-color .15s;
+      outline: none;
+    }
+
+    .cp-panel select:focus,
+    .cp-panel input:focus {
+      border-color: var(--linear);
+      background: #fff;
+    }
+
+    .cp-panel .field-hint {
+      font-size: .74rem;
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.5;
+    }
+
+    .cp-panel .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .cp-panel .info-box {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+      padding: 9px 12px;
+      background: var(--offwhite);
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      line-height: 1.6;
+    }
+
+    .cp-panel .info-box strong {
+      color: var(--navy);
+    }
+
+    .cp-panel .g-mode-toggle {
+      display: flex;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+
+    .cp-panel .g-mode-toggle button {
+      flex: 1;
+      padding: 8px 10px;
+      border: none;
+      background: var(--offwhite);
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: .83rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .cp-panel .g-mode-toggle button.active {
+      background: var(--navy);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .cp-panel .g-mode-toggle button:not(:last-child) {
+      border-right: 1.5px solid var(--border);
+    }
+
+    .cp-panel .maxl-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      background: var(--offwhite);
+      cursor: pointer;
+      transition: border-color .15s;
+      margin-bottom: 5px;
+      user-select: none;
+    }
+
+    .cp-panel .maxl-toggle-row:hover {
+      border-color: var(--navy);
+    }
+
+    .cp-panel .maxl-toggle-row.active {
+      border-color: var(--warn);
+      background: #fff7ed;
+    }
+
+    .cp-panel .maxl-switch {
+      width: 34px;
+      height: 20px;
+      border-radius: 10px;
+      background: var(--border);
+      position: relative;
+      flex-shrink: 0;
+      transition: background .2s;
+    }
+
+    .cp-panel .maxl-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+    }
+
+    .cp-panel .maxl-toggle-row.active .maxl-switch {
+      background: var(--warn);
+    }
+
+    .cp-panel .maxl-toggle-row.active .maxl-switch::after {
+      transform: translateX(14px);
+    }
+
+    .cp-panel .maxl-label {
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .cp-panel .maxl-toggle-row.active .maxl-label {
+      color: var(--warn);
+      font-weight: 600;
+    }
+
+    .cp-panel .out-box {
+      padding: 9px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      background: #eef1f8;
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--navy);
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .cp-panel .out-box .unit {
+      font-size: .8rem;
+      font-weight: 400;
+      color: var(--muted);
+      font-family: 'Fugue', Trebuchet MS;
+    }
+
+    .cp-panel .out-box.ok {
+      border-color: #a8d8b8;
+      background: #edfbf2;
+      color: var(--ok);
+    }
+
+    .cp-panel .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 14px 0;
+    }
+
+    .cp-panel .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+    }
+
+    .cp-panel .results-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .cp-panel .results-table td:first-child {
+      color: var(--muted);
+      font-size: .76rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      width: 54%;
+    }
+
+    .cp-panel .results-table td:last-child {
+      font-weight: 600;
+      color: var(--navy);
+      text-align: right;
+    }
+
+    .cp-panel .results-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .cp-panel .results-table tr.hl td {
+      background: #f8f0f5;
+    }
+
+    .cp-panel .results-table tr.hl td:last-child {
+      color: var(--linear);
+      font-size: 1rem;
+    }
+
+    .cp-panel .results-table tr.warn-row td:last-child {
+      color: var(--warn);
+    }
+
+    .cp-panel .alert {
+      display: none;
+      padding: 11px 14px;
+      border-radius: 6px;
+      font-size: .85rem;
+      margin-top: 12px;
+      border-left: 4px solid;
+      line-height: 1.6;
+    }
+
+    .cp-panel .alert-ok {
+      background: #edfbf2;
+      border-color: var(--ok);
+      color: #145235;
+    }
+
+    .cp-panel .alert-err {
+      background: #fff0f5;
+      border-color: var(--linear);
+      color: #7a0040;
+    }
+
+    .cp-panel .alert-warn {
+      background: #fff7ed;
+      border-color: var(--warn);
+      color: #7a3500;
+    }
+
+    .cp-panel .alert.show {
+      display: block;
+    }
+
+    .cp-panel .sug-pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 600;
+      background: var(--offwhite);
+      border: 1.5px solid var(--border);
+      color: var(--navy);
+      cursor: pointer;
+      transition: all .15s;
+      font-family: 'Fugue', Trebuchet MS;
+      letter-spacing: .03em;
+    }
+
+    .cp-panel .sug-pill:hover {
+      border-color: var(--linear);
+      color: var(--linear);
+      background: #fff0f6;
+    }
+
+    .cp-panel .sug-pill.sug-best {
+      border-color: var(--ok);
+      color: var(--ok);
+      background: #edfbf2;
+    }
+
+    .cp-panel .sug-pill.sug-shorter {
+      border-color: #8898bb;
+      color: #3a4a7a;
+    }
+
+    .cp-panel .rail-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cp-panel .rail-card {
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      font-size: .85rem;
+    }
+
+    .cp-panel .rail-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      font-weight: 600;
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: 1.02rem;
+    }
+
+    .cp-panel .rail-card-header.full {
+      background: #e8eed8;
+      color: #3a4a1a;
+      border-bottom: 1px solid #c8d8a0;
+    }
+
+    .cp-panel .rail-card-header.short {
+      background: #ece0f0;
+      color: #3a1a4a;
+      border-bottom: 1px solid #c8a8d8;
+    }
+
+    .cp-panel .rail-card-body {
+      padding: 9px 14px 11px;
+      background: #fff;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    .cp-panel .rail-card-body strong {
+      color: var(--text);
+    }
+
+    .cp-panel .rail-card-body .formula {
+      display: inline-block;
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: .98rem;
+      color: var(--navy);
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+
+    .cp-panel .rail-card-body .joint-note {
+      font-size: .76rem;
+      color: var(--ok);
+    }
+
+    .cp-panel .viz-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .cp-panel .viz-title {
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: .86rem;
+      font-weight: 700;
+      color: var(--navy);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cp-panel .viz-title .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--linear);
+    }
+
+    .cp-panel .svg-scroll {
+      overflow-x: auto;
+    }
+
+    .cp-panel .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .cp-panel .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .76rem;
+      color: var(--muted);
+    }
+
+    .cp-panel .legend-swatch {
+      width: 13px;
+      height: 13px;
+      border-radius: 2px;
+    }
+
+    .cp-panel .btn-copy {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 5px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--navy);
+      font-family: 'Fugue', Trebuchet MS;
+      font-size: .88rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .15s;
+      width: 100%;
+      margin-top: 8px;
+      justify-content: center;
+    }
+
+    .cp-panel .btn-copy:hover {
+      border-color: var(--navy);
+      background: var(--offwhite);
+    }
+
+    .cp-panel .btn-copy.copied {
+      border-color: var(--ok);
+      color: var(--ok);
+      background: #edfbf2;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="logo-wrap">
+      <div class="logo-box">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"
+          stroke-linecap="round">
+          <path d="M3 12h18M3 6h18M3 18h12M17 15l3-3-3-3" />
+        </svg>
+      </div>
+      <div class="logo-text">MCA <span>Linear Motion</span></div>
+    </div>
+    <div class="header-tag">Productconfigurator</div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-label">SBC Kogelomloopgeleiding – Nauwkeurig &amp; Betrouwbaar</div>
+    <div class="hero-title">Profielrailgeleiding Configurator</div>
+    <div class="hero-sub">Stel uw rail + loopwagen samen en vraag direct een offerte aan · 15 configuratiestappen</div>
+  </div>
+
+  <div class="layout">
+    <div class="steps-wrapper">
+
+      <!-- STEP 1 -->
+      <div class="step-card active" id="step1">
+        <div class="step-header" onclick="toggleStep(1)">
+          <div class="step-num">1</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Model (maatcode)</div>
+            <div class="step-selected" id="sel1">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">Kies het railmodel op basis van de gewenste maatcategorie.</div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(1,'SBI15','Maat 15',this)"><span class="opt-code">SBI15</span><span
+                class="opt-label">Maat 15</span></button>
+            <button class="opt-btn" onclick="select(1,'SBI20','Maat 20',this)"><span class="opt-code">SBI20</span><span
+                class="opt-label">Maat 20</span></button>
+            <button class="opt-btn" onclick="select(1,'SBI25','Maat 25',this)"><span class="opt-code">SBI25</span><span
+                class="opt-label">Maat 25</span></button>
+            <button class="opt-btn" onclick="select(1,'SBI30','Maat 30',this)"><span class="opt-code">SBI30</span><span
+                class="opt-label">Maat 30</span></button>
+            <button class="opt-btn" onclick="select(1,'SBI35','Maat 35',this)"><span class="opt-code">SBI35</span><span
+                class="opt-label">Maat 35</span></button>
+            <button class="opt-btn" onclick="select(1,'SBI45','Maat 45',this)"><span class="opt-code">SBI45</span><span
+                class="opt-label">Maat 45</span></button>
+            <button class="opt-btn" onclick="select(1,'SBI55','Maat 55',this)"><span class="opt-code">SBI55</span><span
+                class="opt-label">Maat 55</span></button>
+            <button class="opt-btn" onclick="select(1,'SBI65','Maat 65',this)"><span class="opt-code">SBI65</span><span
+                class="opt-label">Maat 65</span></button>
+          </div>
+          <button class="next-btn" id="next1" disabled onclick="goNext(1)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step-card" id="step2">
+        <div class="step-header" onclick="toggleStep(2)">
+          <div class="step-num">2</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Bloktype</div>
+            <div class="step-selected" id="sel2">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">Kies hieronder het gewenste bloktype.</div>
+          <div class="option-grid wide">
+            <button class="opt-btn" onclick="select(2,'FL','Flens uitvoering',this)"><span
+                class="opt-code">FL</span><span class="opt-label">Flens uitvoering</span></button>
+            <button class="opt-btn" onclick="select(2,'FLL','Flens uitvoering lang',this)"><span
+                class="opt-code">FLL</span><span class="opt-label">Flens uitvoering lang</span></button>
+            <button class="opt-btn" onclick="select(2,'SL','Blok uitvoering',this)"><span
+                class="opt-code">SL</span><span class="opt-label">Blok uitvoering</span></button>
+            <button class="opt-btn" onclick="select(2,'SLL','Blok uitvoering lang',this)"><span
+                class="opt-code">SLL</span><span class="opt-label">Blok uitvoering lang</span></button>
+            <button class="opt-btn" onclick="select(2,'HL','Lage uitvoering',this)"><span
+                class="opt-code">HL</span><span class="opt-label">Lage uitvoering</span></button>
+            <button class="opt-btn" onclick="select(2,'HLS','Lage uitvoering kort',this)"><span
+                class="opt-code">HLS</span><span class="opt-label">Lage uitvoering kort</span></button>
+            <button class="opt-btn" onclick="select(2,'HLL','Lage uitvoering lang',this)"><span
+                class="opt-code">HLL</span><span class="opt-label">Lage uitvoering lang</span></button>
+            <button class="opt-btn" onclick="select(2,'CL','Compacte uitvoering',this)"><span
+                class="opt-code">CL</span><span class="opt-label">Compacte uitvoering</span></button>
+            <button class="opt-btn" onclick="select(2,'CLS','Compacte uitvoering kort',this)"><span
+                class="opt-code">CLS</span><span class="opt-label">Compacte uitvoering kort</span></button>
+            <button class="opt-btn" onclick="select(2,'CLL','Compacte uitvoering lang',this)"><span
+                class="opt-code">CLL</span><span class="opt-label">Compacte uitvoering lang</span></button>
+            <button class="opt-btn" onclick="select(2,'FV','Flens uitvoering kort',this)"><span
+                class="opt-code">FV</span><span class="opt-label">Flens uitvoering kort</span></button>
+            <button class="opt-btn" onclick="select(2,'SV','Blok uitvoering kort',this)"><span
+                class="opt-code">SV</span><span class="opt-label">Blok uitvoering kort</span></button>
+          </div>
+          <button class="opt-btn opt-btn-skip" style="margin-top:8px;width:100%;text-align:center;border-style:dashed"
+            onclick="selectNoCarriage(this)"><span class="opt-label" style="font-size:16px">Ik heb geen loopwagen nodig,
+              alleen een
+              railconfiguratie <br>(slaat stap 3 t/m 8 automatisch over)</span></button>
+          <button class="next-btn" id="next2" disabled onclick="goNext(2)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-card" id="step3">
+        <div class="step-header" onclick="toggleStep(3)">
+          <div class="step-num">3</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Smeernippelpositie</div>
+            <div class="step-selected" id="sel3">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">Standaard zit de smeernippel aan de voorkant. Voor zijkant neemt MCA contact met u op.
+          </div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(3,'','Voorzijde (standaard)',this)"><span
+                class="opt-code">—</span><span class="opt-label">Voorzijde <br>(geen symbool)</span></button>
+            <button class="opt-btn" onclick="select(3,'N','Zijkant – overleg',this)"><span
+                class="opt-code">N</span><span class="opt-label">Zijkant <br>(contact opnemen)</span></button>
+          </div>
+          <button class="next-btn" id="next3" disabled onclick="goNext(3)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step-card" id="step4">
+        <div class="step-header" onclick="toggleStep(4)">
+          <div class="step-num">4</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Nauwkeurigheidsklasse</div>
+            <div class="step-selected" id="sel4">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">Klasse H (Hoog, voorkeurstype) voor de meeste machinebouwtoepassingen.</div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(4,'H','Hoog (voorkeur)',this)"><span class="opt-code">H</span><span
+                class="opt-label">Hoog <br>(voorkeurstype)</span></button>
+            <button class="opt-btn" onclick="select(4,'P','Precisie – op aanvraag',this)"><span
+                class="opt-code">P</span><span class="opt-label">Precisie <br>(OP AANVRAAG)</span></button>
+          </div>
+          <button class="next-btn" id="next4" disabled onclick="goNext(4)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step-card" id="step5">
+        <div class="step-header" onclick="toggleStep(5)">
+          <div class="step-num">5</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Voorspanning</div>
+            <div class="step-selected" id="sel5">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">K1 is het voorkeurstype voor de meeste toepassingen. K3 voor maximale stijfheid bij
+            zware belasting.</div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(5,'K0','Geen voorspanning',this)"><span
+                class="opt-code">K0</span><span class="opt-label">Geen voorspanning <br>(op aanvraag)</span></button>
+            <button class="opt-btn" onclick="select(5,'K1','Standaard – voorkeur',this)"><span
+                class="opt-code">K1</span><span class="opt-label">Standaard <br>(voorkeurstype)</span></button>
+            <button class="opt-btn" onclick="select(5,'K2','Gemiddeld',this)"><span class="opt-code">K2</span><span
+                class="opt-label">Gemiddelde voorspanning <br>(op aanvraag)</span></button>
+            <button class="opt-btn" onclick="select(5,'K3','Zwaar',this)"><span class="opt-code">K3</span><span
+                class="opt-label">Zware voorspanning <br>(op aanvraag)</span></button>
+          </div>
+          <button class="next-btn" id="next5" disabled onclick="goNext(5)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step-card" id="step6">
+        <div class="step-header" onclick="toggleStep(6)">
+          <div class="step-num">6</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Container / smering</div>
+            <div class="step-selected" id="sel6">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">MF (Zelfsmeermiddel) voor onderhoudsarme toepassingen waarbij nasmeren moeilijk
+            bereikbaar is.</div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(6,'','Standaard',this)"><span class="opt-code">—</span><span
+                class="opt-label">Standaard <br>(geen symbool)</span></button>
+            <button class="opt-btn" onclick="select(6,'MF','Zelfsmeermiddel',this)"><span
+                class="opt-code">MF</span><span class="opt-label">Zelfsmeermiddel</span></button>
+          </div>
+          <button class="next-btn" id="next6" disabled onclick="goNext(6)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step-card" id="step7">
+        <div class="step-header" onclick="toggleStep(7)">
+          <div class="step-num">7</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Afdichting</div>
+            <div class="step-selected" id="sel7">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">Kies afdichting op basis van omgevingsomstandigheden. DD/ZZ/KK voor bescherming tegen
+            stof en spatwater.</div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(7,'','Standaard',this)"><span class="opt-code">—</span><span
+                class="opt-label">Standaard <br>(Normale condities)</span></button>
+            <button class="opt-btn" onclick="select(7,'DD','Dubbele afdichting',this)"><span
+                class="opt-code">DD</span><span class="opt-label">Dubbele afdichting <br>(Stoffige
+                condities)</span></button>
+            <button class="opt-btn" onclick="select(7,'ZZ','Afdichting ZZ',this)"><span class="opt-code">ZZ</span><span
+                class="opt-label">Afdichting ZZ <br>(Lasspatten)</span></button>
+            <button class="opt-btn" onclick="select(7,'KK','Afdichting KK',this)"><span class="opt-code">KK</span><span
+                class="opt-label">Afdichting KK <br>(Stof en spaanders)</span></button>
+          </div>
+          <button class="next-btn" id="next7" disabled onclick="goNext(7)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step-card" id="step8">
+        <div class="step-header" onclick="toggleStep(8)">
+          <div class="step-num">8</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Aantal loopwagens per rail</div>
+            <div class="step-selected" id="sel8">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">Geen symbool = 1 loopwagen per rail. Vermeld het gewenste aantal bij meerdere
+            loopwagens.</div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(8,'1','1 loopwagen',this)"><span class="opt-code">1</span><span
+                class="opt-label">1 loopwagen <br> (geen symbool)</span></button>
+            <button class="opt-btn" onclick="select(8,'2','2 loopwagens',this)"><span class="opt-code">2</span><span
+                class="opt-label">2 loopwagens</span></button>
+            <button class="opt-btn" onclick="select(8,'3','3 loopwagens',this)"><span class="opt-code">3</span><span
+                class="opt-label">3 loopwagens</span></button>
+            <button class="opt-btn" onclick="select(8,'4','4 loopwagens',this)"><span class="opt-code">4</span><span
+                class="opt-label">4 loopwagens</span></button>
+          </div>
+          <button class="next-btn" id="next8" disabled onclick="goNext(8)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 9 -->
+      <div class="step-card" id="step9">
+        <div class="step-header" onclick="toggleStep(9)">
+          <div class="step-num">9</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Eindplaat hoge temperatuur</div>
+            <div class="step-selected" id="sel9">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">HT-eindplaat is vereist bij aanhoudende omgevingstemperaturen boven 80°C.</div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(9,'','Standaard eindplaat',this)"><span
+                class="opt-code">—</span><span class="opt-label">Standaard <br>(geen symbool)</span></button>
+            <button class="opt-btn" onclick="select(9,'HT','Hoge temperatuur',this)"><span
+                class="opt-code">HT</span><span class="opt-label">Hoge temp. eindplaat</span></button>
+          </div>
+          <button class="next-btn" id="next9" disabled onclick="goNext(9)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 10 -->
+      <div class="step-card" id="step10">
+        <div class="step-header" onclick="toggleStep(10)">
+          <div class="step-num">10</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Oppervlaktebehandeling</div>
+            <div class="step-selected" id="sel10">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">FCR (Fluor Carbon Raydent) biedt extra corrosiebescherming voor vochtige of agressieve
+            omgevingen.</div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(10,'','Standaard',this)"><span class="opt-code">—</span><span
+                class="opt-label">Standaard <br>(geen symbool)</span></button>
+            <button class="opt-btn" onclick="select(10,'FCR','Fluor Carbon Raydent',this)"><span
+                class="opt-code">FCR</span><span class="opt-label">Fluor Carbon Raydent</span></button>
+          </div>
+          <button class="next-btn" id="next10" disabled onclick="goNext(10)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 11 -->
+      <div class="step-card" id="step11">
+        <div class="step-header" onclick="toggleStep(11)">
+          <div class="step-num">11</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Rail montage onderzijde</div>
+            <div class="step-selected" id="sel11">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">B = onderste montagerail voor bevestiging van onderen. Standaard = bovenmontage.</div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(11,'','Standaard bovenmontage',this)"><span
+                class="opt-code">—</span><span class="opt-label">Standaard <br>(geen symbool)</span></button>
+            <button class="opt-btn" onclick="select(11,'B','Onderste montagerail',this)"><span
+                class="opt-code">B</span><span class="opt-label">Onderste montagerail</span></button>
+          </div>
+          <button class="next-btn" id="next11" disabled onclick="goNext(11)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 12 -->
+      <div class="step-card" id="step12">
+        <div class="step-header" onclick="toggleStep(12)">
+          <div class="step-num">12</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Raillengte</div>
+            <div class="step-selected" id="sel12">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">Voer de gewenste raillengte in millimeters in. Boven de maximale handelslengte van het
+            gekozen model wordt de rail automatisch opgesplitst in gekoppelde delen (zie stap 12B hieronder).</div>
+          <div class="length-input-wrap">
+            <input type="number" class="length-input" id="lengthInput" placeholder="bv. 800" min="100" max="12000"
+              oninput="onLengthInput()">
+            <span class="length-unit">mm</span>
+          </div>
+          <div class="length-hint" id="lengthHint">Min. 100 mm – kies eerst een model (stap 1) voor de max.
+            handelslengte</div>
+          <div class="wizard-info-box" id="step12Info" style="display:none"></div>
+          <div id="step12SugWrap" style="display:none">
+            <div class="wizard-sug-label">Suggesties in de buurt (nette G1/G2)</div>
+            <div id="step12SugList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+          </div>
+          <div class="cp-banner" id="cpBanner" style="display:none">
+            ⚠ <span id="cpBannerText"></span>
+          </div>
+          <button class="next-btn" id="next12" disabled onclick="goNext(12)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 12B — Koppelverdeling (conditioneel, alleen zichtbaar bij lengte > catalogus-max) -->
+      <div class="step-card cp-step12b" id="step12b" style="display:none">
+        <div class="step-header" onclick="toggleStep('12b')">
+          <div class="step-num" style="background:var(--warn);color:#fff">12B</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Koppelverdeling</div>
+            <div class="step-selected" id="cpSelSummary">Wordt automatisch berekend…</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">Deze rail overschrijdt de maximale handelslengte van het gekozen model en wordt daarom
+            opgesplitst in meerdere gekoppelde delen. Controleer of pas de verdeling hieronder aan.</div>
+
+          <div class="cp-panel">
+            <div class="info-box" id="cpModelInfo">—</div>
+
+            <div class="field">
+              <label>G1 en G2 (eindmaten samenstelling) <span class="tag tag-in">invoer</span></label>
+              <div class="g-mode-toggle">
+                <button id="cpBtnGAuto" class="active" onclick="cpSetGMode('auto')">Automatisch</button>
+                <button id="cpBtnGManual" onclick="cpSetGMode('manual')">Zelf invoeren</button>
+              </div>
+            </div>
+            <div id="cpGInputs" class="field-row" style="display:none">
+              <div class="field">
+                <label>G1 (mm)</label>
+                <input type="number" id="cpG1" value="40" min="1" step="1" oninput="cpCalculate()">
+                <div class="field-hint">Begin → 1e boutgat</div>
+              </div>
+              <div class="field">
+                <label>G2 (mm)</label>
+                <input type="number" id="cpG2" value="40" min="1" step="1" oninput="cpCalculate()">
+                <div class="field-hint">Laatste boutgat → einde</div>
+              </div>
+            </div>
+            <div id="cpGAutoInfo" class="info-box">
+              G1 en G2 worden automatisch berekend uit de totaallengte: G = (totaallengte − n×F) / 2, waarbij n =
+              ⌊totaallengte / F⌋. Als G kleiner is dan het minimum, wordt n met 1 verlaagd.
+            </div>
+
+            <div class="field">
+              <label>Aantal delen <span class="tag tag-in">invoer</span></label>
+              <div style="display:flex;gap:10px;align-items:center">
+                <select id="cpNumPartsMode" onchange="cpOnPartsModeChange()" style="flex:1">
+                  <option value="auto">Automatisch (minimaal aantal delen)</option>
+                  <option value="manual">Zelf invoeren</option>
+                </select>
+                <input type="number" id="cpNumPartsManual" value="3" min="1" max="20" step="1" oninput="cpCalculate()"
+                  style="width:80px;display:none">
+              </div>
+              <div class="field-hint" id="cpNumPartsHint">Configurator bepaalt het minimale aantal delen</div>
+            </div>
+
+            <div class="field">
+              <label>Max. deellengte <span class="tag tag-in">inbouwbeperking</span></label>
+              <div class="maxl-toggle-row" id="cpMaxlToggleRow" onclick="cpToggleMaxL()">
+                <div class="maxl-switch"></div>
+                <span class="maxl-label" id="cpMaxlLabel">Uit — catalogus handelslengte geldt</span>
+              </div>
+              <div id="cpMaxlInputWrap" style="display:none;margin-top:6px">
+                <input type="number" id="cpMaxlValue" value="2000" min="1" step="1" placeholder="Max. deellengte (mm)"
+                  oninput="cpCalculate()">
+                <div class="field-hint" id="cpMaxlHint">Alle delen blijven ≤ deze lengte (bijv. transportbeperking).
+                </div>
+              </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="field-row">
+              <div class="field">
+                <label>Aantal delen <span class="tag tag-auto">automatisch</span></label>
+                <div class="out-box" id="cpOutNumParts">—</div>
+              </div>
+              <div class="field">
+                <label>K (koppelmaat) <span class="tag tag-auto">automatisch</span></label>
+                <div class="out-box" id="cpOutK">— <span class="unit">mm</span></div>
+              </div>
+            </div>
+
+            <div id="cpAlertBox" class="alert"></div>
+
+            <div id="cpSugWrap" style="display:none;margin-top:12px">
+              <div
+                style="font-size:.76rem;color:var(--muted);margin-bottom:7px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">
+                Optioneel: optimale lengtes in de buurt</div>
+              <div id="cpSugList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+            </div>
+
+            <hr class="divider">
+
+            <table class="results-table">
+              <tr>
+                <td>Steek F</td>
+                <td id="cpRF">—</td>
+              </tr>
+              <tr>
+                <td>Koppelmaat K</td>
+                <td id="cpRK">—</td>
+              </tr>
+              <tr>
+                <td>Max. handelslengte</td>
+                <td id="cpRMaxL">—</td>
+              </tr>
+              <tr id="cpRMaxLUserRow" style="display:none" class="warn-row">
+                <td>Max. deellengte (beperking)</td>
+                <td id="cpRMaxLUser">—</td>
+              </tr>
+              <tr>
+                <td>Min. lengte laatste deel</td>
+                <td id="cpRMinLast">—</td>
+              </tr>
+              <tr>
+                <td>Aantal delen</td>
+                <td id="cpRParts">—</td>
+              </tr>
+              <tr>
+                <td>G1 / G2 (samenstelling)</td>
+                <td id="cpRG1G2">—</td>
+              </tr>
+              <tr class="hl">
+                <td>Totale lengte</td>
+                <td id="cpRTotal">—</td>
+              </tr>
+            </table>
+
+            <button class="btn-copy" id="cpBtnCopy" onclick="cpCopySummary()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+              </svg>
+              Kopieer koppelverdeling
+            </button>
+
+            <div class="viz-wrap">
+              <div class="viz-title">
+                <div class="dot"></div> Visualisatie absoluut gatenpatroon
+              </div>
+              <div class="svg-scroll"><svg id="cpRailSvg" style="display:block"></svg></div>
+              <div class="legend">
+                <div class="legend-item">
+                  <div class="legend-swatch" style="background:#2c6fad;border-radius:50%"></div> Boutgat
+                </div>
+                <div class="legend-item">
+                  <div class="legend-swatch" style="background:#e8eed8;border:1px solid #b8c898"></div> Volle rail (≤
+                  max.)
+                </div>
+                <div class="legend-item">
+                  <div class="legend-swatch" style="background:#ece0f0;border:1px solid #c8a8d8"></div> Laatste deel (op
+                  maat)
+                </div>
+                <div class="legend-item">
+                  <div class="legend-swatch" style="background:#be0068;opacity:.35"></div> Koppelmaat K
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px">
+              <div class="viz-title" style="margin-bottom:10px">
+                <div class="dot"></div> Per deel specificatie
+              </div>
+              <div id="cpRailList" class="rail-list">
+                <div style="color:var(--muted);font-size:.88rem">Vul een geldige lengte in om details te zien.</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="next-btn" id="next12b" disabled onclick="cpGoNext12b()" style="margin-top:18px">Volgende stap
+            →</button>
+        </div>
+      </div>
+
+      <!-- STEP 13 -->
+      <div class="step-card" id="step13">
+        <div class="step-header" onclick="toggleStep(13)">
+          <div class="step-num">13</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Steek eerste/laatste gat</div>
+            <div class="step-selected" id="sel13">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc" id="step13Desc">Afstand van het eerste en laatste bevestigingsgat tot het railuiteinde
+            in mm (bv. 20/20).</div>
+          <div class="pitch-row" id="pitchInputsWrap">
+            <div class="pitch-group">
+              <label id="pitchFirstLabel">Eerste gat (mm)</label>
+              <input type="number" id="pitchFirst" placeholder="20" min="5" max="200" oninput="onPitchInput()">
+            </div>
+            <div class="pitch-group">
+              <label id="pitchLastLabel">Laatste gat (mm)</label>
+              <input type="number" id="pitchLast" placeholder="20" min="5" max="200" oninput="onPitchInput()">
+            </div>
+          </div>
+          <div class="pitch-locked-notice" id="pitchLockedNotice" style="display:none">
+            🔒 Dit is ingesteld bij <strong>stap 12B</strong> (G1/G2 staat op automatisch): <strong
+              id="pitchLockedValue">–</strong>
+          </div>
+          <div class="wizard-alert" id="pitchAlertBox"></div>
+          <button class="next-btn" id="next13" disabled onclick="goNext(13)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 14 -->
+      <div class="step-card" id="step14">
+        <div class="step-header" onclick="toggleStep(14)">
+          <div class="step-num">14</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Aantal rails per as</div>
+            <div class="step-selected" id="sel14">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">Standaard is 1 rij. II, III of IV voor parallelle railconfiguraties.</div>
+          <div class="option-grid">
+            <button class="opt-btn" onclick="select(14,'','1 rail (standaard)',this)"><span
+                class="opt-code">I</span><span class="opt-label">1 rij <br>(geen symbool)</span></button>
+            <button class="opt-btn" onclick="select(14,'II','2 rails',this)"><span class="opt-code">II</span><span
+                class="opt-label">2 rijen</span></button>
+            <button class="opt-btn" onclick="select(14,'III','3 rails',this)"><span class="opt-code">III</span><span
+                class="opt-label">3 rijen</span></button>
+            <button class="opt-btn" onclick="select(14,'IV','4 rails',this)"><span class="opt-code">IV</span><span
+                class="opt-label">4 rijen</span></button>
+          </div>
+          <button class="next-btn" id="next14" disabled onclick="goNext(14)">Volgende stap →</button>
+        </div>
+      </div>
+
+      <!-- STEP 15 -->
+      <div class="step-card" id="step15">
+        <div class="step-header" onclick="toggleStep(15)">
+          <div class="step-num">15</div>
+          <div class="step-title-wrap">
+            <div class="step-title">Aantal configuraties</div>
+            <div class="step-selected" id="sel15">Nog niet geselecteerd</div>
+          </div>
+          <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+        <div class="step-body">
+          <div class="step-desc">Hoeveel identieke sets van bovenstaande configuratie wilt u aanvragen?</div>
+          <div class="length-input-wrap">
+            <input type="number" class="length-input" id="qtyInput" value="1" min="1" max="500" step="1"
+              oninput="onQtyInput()">
+            <span class="length-unit">stuks</span>
+          </div>
+          <div class="length-hint">Standaard 1 set — pas aan indien u meerdere identieke configuraties nodig heeft.
+          </div>
+          <button class="next-btn" id="next15" disabled onclick="goNext(15)">Klaar – bekijk bestelcode</button>
+        </div>
+      </div>
+
+    </div><!-- /steps-wrapper -->
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <div class="illustration-card">
+        <svg id="illustrationSvg" viewBox="0 0 340 96" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+
+      <div class="progress-bar-wrap">
+        <div class="progress-header">
+          <span class="progress-label">Voortgang configuratie</span>
+          <span class="progress-pct" id="progressPct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="code-card">
+        <div class="code-card-label">Bestelcode</div>
+        <div class="code-display" id="codeDisplay"><span class="code-part empty">– – –</span></div>
+        <button class="code-copy-btn" onclick="copyCode()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" />
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+          </svg>
+          Kopieer bestelcode
+        </button>
+      </div>
+
+      <div class="breakdown-card">
+        <div class="breakdown-title">Specificatieoverzicht</div>
+        <div class="breakdown-row"><span class="bd-field">Model</span><span class="bd-value" id="bd1">–</span></div>
+        <div class="breakdown-row"><span class="bd-field">Bloktype</span><span class="bd-value" id="bd2">–</span></div>
+        <div class="breakdown-row"><span class="bd-field">Nauwkeurigheid</span><span class="bd-value" id="bd4">–</span>
+        </div>
+        <div class="breakdown-row"><span class="bd-field">Voorspanning</span><span class="bd-value" id="bd5">–</span>
+        </div>
+        <div class="breakdown-row"><span class="bd-field">Afdichting</span><span class="bd-value" id="bd7">–</span>
+        </div>
+        <div class="breakdown-row"><span class="bd-field">Loopwagens / rail</span><span class="bd-value"
+            id="bd8">–</span></div>
+        <div class="breakdown-row"><span class="bd-field">Raillengte</span><span class="bd-value" id="bd12">–</span>
+        </div>
+        <div id="couplingBreakdownWrap" style="display:none">
+          <div class="breakdown-row"><span class="bd-field">Koppeling</span><span class="bd-value warn"
+              id="bdCoupling">–</span></div>
+          <div class="breakdown-row"><span class="bd-field">Aantal delen</span><span class="bd-value warn"
+              id="bdCouplingParts">–</span></div>
+          <div class="breakdown-row"><span class="bd-field">Koppelmaat K</span><span class="bd-value warn"
+              id="bdCouplingK">–</span></div>
+          <div class="breakdown-row"><span class="bd-field">G1 / G2 (samenstelling)</span><span class="bd-value warn"
+              id="bdCouplingG">–</span></div>
+        </div>
+        <div class="breakdown-row"><span class="bd-field">Steek (eerste/laatste)</span><span class="bd-value"
+            id="bd13">–</span></div>
+        <div class="breakdown-row"><span class="bd-field">Rails per as</span><span class="bd-value" id="bd14">–</span>
+        </div>
+        <div class="breakdown-row"><span class="bd-field">Aantal configuraties</span><span class="bd-value"
+            id="bd15">–</span></div>
+      </div>
+
+      <div class="cta-card">
+        <div class="cta-incomplete" id="ctaIncomplete">Vul alle 15 stappen in om een offerte aan te vragen.</div>
+        <button class="request-btn" id="requestBtn" disabled onclick="sendRequest()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+          </svg>
+          Offerte aanvragen
+        </button>
+        <div class="cta-note">Wij nemen binnen 1 tot 3 werkdagen contact op.<br>Altijd vrijblijvend.</div>
+        <div class="cta-png-notice" id="ctaPngNotice">📎 <strong>rail-koppelverdeling.png</strong> is gedownload — voeg
+          dit bestand toe als bijlage aan uw offerte-mail.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ══════════════════════════════════════════════════════════════
+       Bestaande wizard-logica (ongewijzigd)
+       ══════════════════════════════════════════════════════════════ */
+    const TOTAL_STEPS = 15;
+    const selections = {};
+    const labels = {};
+    const bdMap = { 1: 'bd1', 2: 'bd2', 4: 'bd4', 5: 'bd5', 7: 'bd7', 8: 'bd8', 12: 'bd12', 13: 'bd13', 14: 'bd14', 15: 'bd15' };
+    let carriageSkipped = false; // true zodra 'geen loopwagen' gekozen is (stap 3–8 overgeslagen)
+    let defaultsApplied = false; // true zodra de klant voor het eerst iets invult/selecteert
+
+    // Past de voorselecties (stap 3,4,5,7,8,10,11,12,15) pas toe bij de EERSTE
+    // daadwerkelijke interactie van de klant — niet automatisch bij het laden/verversen
+    // van de pagina. Zo staan voortgang, bestelcode en specificatieoverzicht op 0
+    // totdat de klant zelf begint met configureren.
+    function ensureDefaultsApplied() {
+      if (defaultsApplied) return;
+      defaultsApplied = true;
+      preselectDefaults();
+    }
+
+    function select(step, code, label, btn) {
+      ensureDefaultsApplied();
+      // Als eerder 'geen loopwagen' gekozen was en nu bij stap 2 alsnog een echt bloktype
+      // gekozen wordt, herstel stap 3–8 dan naar 'nog niet geselecteerd'.
+      if (step === 2 && code !== '' && carriageSkipped) {
+        restoreCarriageSteps();
+      }
+      selections[step] = code;
+      labels[step] = label;
+      const body = document.querySelector('#step' + step + ' .step-body');
+      body.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('next' + step).disabled = false;
+      document.getElementById('sel' + step).textContent = label;
+      if (bdMap[step]) {
+        document.getElementById(bdMap[step]).textContent = code || 'Standaard';
+      }
+      updateCode();
+      updateProgress();
+      if (step === 1) cpOnModelChange();
+      updateIllustration();
+    }
+
+    // ── 'Geen loopwagen' — alleen railconfiguratie: slaat stap 3 t/m 8 over ──
+    function selectNoCarriage(btn) {
+      select(2, '', 'Geen loopwagen – alleen railconfiguratie', btn);
+      skipCarriageSteps();
+    }
+
+    function skipCarriageSteps() {
+      carriageSkipped = true;
+      [3, 4, 5, 6, 7, 8, 9].forEach(s => {
+        selections[s] = '';
+        labels[s] = 'N.v.t. (geen loopwagen)';
+        const selEl = document.getElementById('sel' + s);
+        if (selEl) selEl.textContent = 'N.v.t. (geen loopwagen)';
+        const nextBtn = document.getElementById('next' + s);
+        if (nextBtn) nextBtn.disabled = false;
+        const card = document.getElementById('step' + s);
+        if (card) { card.classList.remove('active'); card.classList.add('done'); }
+        const opts = document.querySelectorAll('#step' + s + ' .opt-btn');
+        opts.forEach(b => b.classList.remove('selected'));
+      });
+      ['bd2', 'bd4', 'bd5', 'bd7', 'bd8'].forEach(id => { document.getElementById(id).textContent = 'n.v.t.'; });
+
+      const step2card = document.getElementById('step2');
+      step2card.classList.remove('active');
+      step2card.classList.add('done');
+      const stepAfterCard = document.getElementById('step10');
+      stepAfterCard.classList.add('active');
+      setTimeout(() => stepAfterCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+
+      updateCode();
+      updateProgress();
+      updateIllustration();
+    }
+
+    function restoreCarriageSteps() {
+      carriageSkipped = false;
+      [3, 4, 5, 6, 7, 8, 9].forEach(s => {
+        delete selections[s];
+        delete labels[s];
+        const selEl = document.getElementById('sel' + s);
+        if (selEl) selEl.textContent = 'Nog niet geselecteerd';
+        const nextBtn = document.getElementById('next' + s);
+        if (nextBtn) nextBtn.disabled = true;
+        const card = document.getElementById('step' + s);
+        if (card) card.classList.remove('done');
+        const opts = document.querySelectorAll('#step' + s + ' .opt-btn');
+        opts.forEach(b => b.classList.remove('selected'));
+      });
+      ['bd4', 'bd5', 'bd7', 'bd8'].forEach(id => { document.getElementById(id).textContent = '–'; });
+      updateCode();
+      updateProgress();
+      updateIllustration();
+    }
+
+    function onLengthInput() {
+      ensureDefaultsApplied();
+      const val = document.getElementById('lengthInput').value;
+      if (val && parseInt(val) >= 100) {
+        selections[12] = val;
+        labels[12] = val + ' mm';
+        document.getElementById('sel12').textContent = val + ' mm';
+        document.getElementById('bd12').textContent = val + ' mm';
+      } else {
+        delete selections[12];
+      }
+      updateCode();
+      updateProgress();
+      cpUpdateCoupling();
+      updateIllustration();
+      updateLengthSuggestions();
+      syncStep13FromLength();
+    }
+
+    // ── Info + suggesties bij stap 9 (alleen relevant zolang niet gekoppeld hoeft te worden) ──
+    function step9FindSuggestions(desired, F, Gmin, maxL, count = 6) {
+      const results = [];
+      const window = F * 6;
+      for (let delta = -window; delta <= window; delta += F) {
+        const candidate = desired + delta;
+        if (candidate <= 0 || candidate > maxL || candidate === desired) continue;
+        const { G } = cpCalcAutoGDetailed(candidate, F, Gmin);
+        results.push({ len: candidate, delta, G });
+      }
+      results.sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta) || b.delta - a.delta);
+      return results.slice(0, count);
+    }
+
+    function applyLengthSuggestion(len) {
+      document.getElementById('lengthInput').value = len;
+      onLengthInput();
+    }
+
+    function updateLengthSuggestions() {
+      const infoBox = document.getElementById('step12Info');
+      const sugWrap = document.getElementById('step12SugWrap');
+      const sugList = document.getElementById('step12SugList');
+
+      const type = cpGetRailType();
+      const rail = type ? RAILS[type] : null;
+      const val = +document.getElementById('lengthInput').value;
+
+      if (!rail || !val || val <= 0 || val > rail.maxL) {
+        infoBox.style.display = 'none';
+        sugWrap.style.display = 'none';
+        return;
+      }
+
+      const { G, n } = cpCalcAutoGDetailed(val, rail.F, rail.Gmin);
+      infoBox.style.display = 'block';
+      infoBox.innerHTML = `Bij deze lengte: G1 = G2 = <strong>${G} mm</strong> (automatisch, ${n} gaten). Dit wordt al ingevuld bij stap 13.`;
+
+      const sugs = step9FindSuggestions(val, rail.F, rail.Gmin, rail.maxL, 6);
+      if (!sugs.length) { sugWrap.style.display = 'none'; return; }
+      sugWrap.style.display = 'block';
+      sugList.innerHTML = '';
+      sugs.forEach((s, i) => {
+        const sign = s.delta > 0 ? '+' : '';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'wizard-sug-pill' + (i === 0 ? ' best' : '');
+        btn.textContent = `${s.len} mm (${sign}${s.delta}) · G=${s.G}`;
+        btn.onclick = () => applyLengthSuggestion(s.len);
+        sugList.appendChild(btn);
+      });
+    }
+
+    // ── Stap 13 automatisch voorinvullen met de correcte G1/G2 voor de opgegeven lengte ──
+    function syncStep13FromLength() {
+      if (cpCouplingActive) return; // bij koppeling regelt stap 12B / de vergrendeling dit zelf
+      const type = cpGetRailType();
+      const rail = type ? RAILS[type] : null;
+      const val = +document.getElementById('lengthInput').value;
+      if (!rail || !val || val <= 0 || val > rail.maxL) return;
+
+      const { G } = cpCalcAutoGDetailed(val, rail.F, rail.Gmin);
+      document.getElementById('pitchFirst').value = G;
+      document.getElementById('pitchLast').value = G;
+      onPitchInput();
+    }
+
+    function onPitchInput() {
+      ensureDefaultsApplied();
+      const f = document.getElementById('pitchFirst').value;
+      const l = document.getElementById('pitchLast').value;
+      const alertBox = document.getElementById('pitchAlertBox');
+
+      const type = cpGetRailType();
+      const rail = type ? RAILS[type] : null;
+      const totalLen = +(document.getElementById('lengthInput').value || 0);
+
+      function invalidate(msgHtml, selText, bdText) {
+        alertBox.innerHTML = msgHtml;
+        alertBox.className = 'wizard-alert wizard-alert-err show';
+        document.getElementById('next13').disabled = true;
+        document.getElementById('sel13').textContent = selText;
+        document.getElementById('bd13').textContent = bdText;
+        delete selections[13];
+        updateCode();
+        updateProgress();
+      }
+
+      if (f && l) {
+        const fn = +f, ln = +l;
+
+        // Ongeldig/onlogisch getal (leeg, geen getal, nul of negatief)
+        if (!isFinite(fn) || !isFinite(ln) || fn <= 0 || ln <= 0) {
+          invalidate(
+            `⚠ Vul voor beide gaten een geldig getal groter dan 0 in.`,
+            'Ongeldig getal', 'Ongeldig getal'
+          );
+          return;
+        }
+
+        if (rail && (fn < rail.Gmin || ln < rail.Gmin)) {
+          invalidate(
+            `⚠ Eerste gat (${fn} mm) en/of laatste gat (${ln} mm) zijn kleiner dan het minimum van <strong>${rail.Gmin} mm</strong> voor SBI${type}. Dit is niet toegestaan.` +
+            `<br><div style="margin-top:9px;display:flex;flex-wrap:wrap;gap:8px">` +
+            `<button type="button" class="wizard-fix-btn" onclick="pitchApplyMinG(${rail.Gmin})">Zet op minimum (${rail.Gmin} mm)</button>` +
+            `</div>`,
+            'Ongeldig — kleiner dan minimum (' + rail.Gmin + ' mm)', 'Ongeldig (< ' + rail.Gmin + ' mm)'
+          );
+          return;
+        }
+
+        // Controleer of dit gatenpatroon (steek F) daadwerkelijk exact past op de opgegeven raillengte
+        if (rail && totalLen > 0 && totalLen <= rail.maxL) {
+          const nSingle = (totalLen - fn - ln) / rail.F;
+          if (nSingle < 0 || Math.abs(nSingle - Math.round(nSingle)) > 1e-6) {
+            const auto = cpCalcAutoGDetailed(totalLen, rail.F, rail.Gmin);
+            invalidate(
+              `⚠ Met G1=${fn} mm en G2=${ln} mm past het boutgatpatroon (steek F=${rail.F} mm) niet exact op een raillengte van ${totalLen} mm.` +
+              `<br><div style="margin-top:9px;display:flex;flex-wrap:wrap;gap:8px">` +
+              `<button type="button" class="wizard-fix-btn" onclick="pitchApplyExact(${auto.G})">Gebruik correcte waarde (${auto.G} mm)</button>` +
+              `</div>`,
+              'Ongeldig — patroon past niet op raillengte', 'Ongeldig (patroon past niet)'
+            );
+            return;
+          }
+        }
+      }
+
+      alertBox.className = 'wizard-alert';
+      alertBox.innerHTML = '';
+
+      if (f && l) {
+        const code = f + '/' + l;
+        selections[13] = code;
+        labels[13] = code + ' mm';
+        document.getElementById('next13').disabled = false;
+        document.getElementById('sel13').textContent = code + ' mm';
+        document.getElementById('bd13').textContent = code + ' mm';
+      } else {
+        document.getElementById('next13').disabled = true;
+        delete selections[13];
+      }
+      updateCode();
+      updateProgress();
+    }
+
+    function pitchApplyExact(val) {
+      document.getElementById('pitchFirst').value = val;
+      document.getElementById('pitchLast').value = val;
+      onPitchInput();
+    }
+
+    function pitchApplyMinG(minVal) {
+      const f = document.getElementById('pitchFirst');
+      const l = document.getElementById('pitchLast');
+      if (!f.value || +f.value < minVal) f.value = minVal;
+      if (!l.value || +l.value < minVal) l.value = minVal;
+      onPitchInput();
+    }
+
+    function onQtyInput() {
+      ensureDefaultsApplied();
+      const val = document.getElementById('qtyInput').value;
+      if (val && parseInt(val) >= 1) {
+        const n = parseInt(val);
+        selections[15] = val;
+        labels[15] = n + (n === 1 ? ' set' : ' sets');
+        document.getElementById('next15').disabled = false;
+        document.getElementById('sel15').textContent = labels[15];
+        document.getElementById('bd15').textContent = labels[15];
+      } else {
+        document.getElementById('next15').disabled = true;
+        delete selections[15];
+      }
+      updateCode();
+      updateProgress();
+    }
+
+    // ── Voorselecties — worden pas toegepast bij de EERSTE interactie van de klant ──
+    // (via ensureDefaultsApplied), niet automatisch bij het laden/verversen van de pagina.
+    // Stap 3,4,5,8,11,12 -> standaard (geen symbool, 1e optie)
+    // Stap 7 -> K1 Normaal (voorkeurstype, 2e optie)
+    // Stap 10 -> H Hoog (voorkeurstype, enige overgebleven standaardoptie)
+    // Stap 15 -> Aantal configuraties, standaard 1 set
+    function preselectDefaults() {
+      const defaults = [
+        { step: 3, idx: 0 },  // Smeernippelpositie: Voorzijde (geen symbool)
+        { step: 4, idx: 0 },  // Nauwkeurigheidsklasse: H Hoog (voorkeurstype)
+        { step: 5, idx: 1 },  // Voorspanning: K1 Normaal (voorkeurstype)
+        { step: 6, idx: 0 },  // Container/smering: Standaard (geen symbool)
+        { step: 7, idx: 0 },  // Afdichting: Standaard (normale condities)
+        { step: 9, idx: 0 },  // Eindplaat hoge temperatuur: Standaard (geen symbool)
+        { step: 10, idx: 0 }, // Oppervlaktebehandeling: Standaard (geen symbool)
+        { step: 11, idx: 0 }, // Rail montage onderzijde: Standaard (geen symbool)
+      ];
+      defaults.forEach(d => {
+        const btns = document.querySelectorAll('#step' + d.step + ' .opt-btn');
+        if (btns[d.idx]) btns[d.idx].click();
+      });
+      onQtyInput(); // registreert de standaardwaarde (1 set) uit stap 15
+      updateIllustration();
+    }
+
+    // Bij het laden/verversen van de pagina: alleen de illustratie tonen (neutrale
+    // voorbeeldweergave). Voortgang, bestelcode en specificatieoverzicht blijven op 0
+    // totdat de klant zelf iets invult of selecteert.
+    window.addEventListener('DOMContentLoaded', () => {
+      updateIllustration();
+    });
+
+    // ── Dynamische sidebar-illustratie: matcht loopwagens/rail en rails/as ──
+    function getNumWagons() {
+      const v = selections[8];
+      if (v === undefined || v === '') return 1;
+      const n = parseInt(v, 10);
+      return (n >= 1 && n <= 4) ? n : 1;
+    }
+
+    function getNumRails() {
+      const v = selections[14];
+      const map = { 'II': 2, 'III': 3, 'IV': 4 };
+      return map[v] || 1;
+    }
+
+    function wagonPositions(n, railX, railW, wagonW) {
+      const margin = 55; // blijf uit de buurt van de eindkappen
+      const usableStart = railX + margin;
+      const usableEnd = railX + railW - margin;
+      if (n <= 1) return [(usableStart + usableEnd) / 2];
+      const positions = [];
+      for (let i = 0; i < n; i++) {
+        const t = i / (n - 1);
+        positions.push(usableStart + t * (usableEnd - usableStart));
+      }
+      return positions;
+    }
+
+    function updateIllustration() {
+      const svg = document.getElementById('illustrationSvg');
+      if (!svg) return;
+
+      const numWagons = getNumWagons();
+      const numRails = getNumRails();
+      const hasWagon = selections[2] !== '';
+      const lenInput = document.getElementById('lengthInput');
+      const lenVal = lenInput ? lenInput.value : '';
+
+      const railX = 10, railW = 320;
+      const capW = 18, capH = 40, capY0 = 27, rowStride = 74;
+      const wagonSizes = { 1: { w: 84, h: 54 }, 2: { w: 60, h: 50 }, 3: { w: 46, h: 46 }, 4: { w: 36, h: 42 } };
+      const wSize = wagonSizes[numWagons] || wagonSizes[1];
+
+      let html = '';
+
+      for (let r = 0; r < numRails; r++) {
+        const dy = r * rowStride;
+        const capY = capY0 + dy;
+        const baseY = 32 + dy;
+        const grooveY = 39 + dy;
+        const holeY = 47 + dy;
+        const centerY = baseY + 15;
+
+        html += `<rect x="${railX}" y="${baseY}" width="${railW}" height="30" rx="4" fill="#e8edf5" stroke="#0c2c65" stroke-width="1.5"/>`;
+        html += `<rect x="${railX}" y="${grooveY}" width="${railW}" height="16" rx="2" fill="#c8d2e8"/>`;
+        html += `<rect x="${railX}" y="${capY}" width="${capW}" height="${capH}" rx="3" fill="#0c2c65"/>`;
+        html += `<rect x="${railX + railW - capW}" y="${capY}" width="${capW}" height="${capH}" rx="3" fill="#0c2c65"/>`;
+        [railX + 30, railX + 72, railX + railW - 72, railX + railW - 30].forEach(hx => {
+          html += `<circle cx="${hx}" cy="${holeY}" r="4" fill="white" stroke="#0c2c65" stroke-width="1"/>`;
+        });
+
+        if (hasWagon) {
+          wagonPositions(numWagons, railX, railW, wSize.w).forEach(cx => {
+            const wx = cx - wSize.w / 2;
+            const wy = centerY - wSize.h / 2;
+            const dotOffX = wSize.w * 0.24;
+            const dotOffY = wSize.h * 0.185;
+            html += `<rect x="${wx}" y="${wy}" width="${wSize.w}" height="${wSize.h}" rx="5" fill="#0c2c65"/>`;
+            html += `<rect x="${wx + 8}" y="${wy + 8}" width="${wSize.w - 16}" height="${wSize.h - 16}" rx="3" fill="#1a4080"/>`;
+            html += `<circle cx="${cx - dotOffX}" cy="${centerY - dotOffY}" r="3" fill="#be0068"/>`;
+            html += `<circle cx="${cx + dotOffX}" cy="${centerY - dotOffY}" r="3" fill="#be0068"/>`;
+            html += `<circle cx="${cx - dotOffX}" cy="${centerY + dotOffY}" r="3" fill="#be0068"/>`;
+            html += `<circle cx="${cx + dotOffX}" cy="${centerY + dotOffY}" r="3" fill="#be0068"/>`;
+            if (wSize.w >= 80) {
+              html += `<text x="${cx}" y="${centerY + 2}" text-anchor="middle" font-family="Fugue,Trebuchet MS" font-size="9" font-weight="700" fill="white" letter-spacing="0.5">LOOPWAGEN</text>`;
+            }
+          });
+        }
+      }
+
+      const lastCapBottom = capY0 + (numRails - 1) * rowStride + capH;
+      const dashY = lastCapBottom + 13;
+      const textY = lastCapBottom + 24;
+
+      html += `<line x1="${railX}" y1="${dashY}" x2="${railX + railW}" y2="${dashY}" stroke="#be0068" stroke-width="1" stroke-dasharray="3,2"/>`;
+      const lenText = lenVal ? ('Lengte: ' + lenVal + ' mm') : 'Lengte: – mm';
+      html += `<text x="${railX + railW / 2}" y="${textY}" text-anchor="middle" font-family="Fugue,Trebuchet MS" font-size="10" fill="#be0068" font-weight="600">${lenText}</text>`;
+
+      // Korte samenvatting onder de lengte, alleen als het afwijkt van de standaard (1 loopwagen, 1 rail)
+      let captionParts = [];
+      if (!hasWagon) captionParts.push('Geen loopwagen');
+      else if (numWagons > 1) captionParts.push(numWagons + '× loopwagen per rail');
+      if (numRails > 1) captionParts.push(numRails + ' rails parallel');
+      let totalH = textY + 6;
+      if (captionParts.length) {
+        const capTextY = textY + 13;
+        html += `<text x="${railX + railW / 2}" y="${capTextY}" text-anchor="middle" font-family="Fugue,Trebuchet MS" font-size="9" fill="#6b7594" font-weight="500">${captionParts.join(' · ')}</text>`;
+        totalH = capTextY + 6;
+      }
+
+      svg.setAttribute('viewBox', `0 0 340 ${totalH}`);
+      svg.innerHTML = html;
+    }
+
+    // ── Stap 13 vergrendelen wanneer G1/G2 in stap 12B op automatisch staat ──
+    function cpUpdateStep13Lock() {
+      const wrap = document.getElementById('pitchInputsWrap');
+      const notice = document.getElementById('pitchLockedNotice');
+      const desc = document.getElementById('step13Desc');
+      const locked = cpCouplingActive && cpGMode === 'auto' && cpValid;
+
+      if (locked) {
+        wrap.style.display = 'none';
+        notice.style.display = 'block';
+        const val = cpLastG1 + '/' + cpLastG2;
+        document.getElementById('pitchLockedValue').textContent = val + ' mm';
+        selections[13] = val;
+        labels[13] = val + ' mm';
+        document.getElementById('sel13').textContent = val + ' mm (stap 12B)';
+        document.getElementById('bd13').textContent = val + ' mm (stap 12B)';
+        document.getElementById('next13').disabled = false;
+        desc.textContent = 'Automatisch overgenomen van stap 12B: G1/G2 staat daar op automatisch, dus deze waarde kan hier niet los aangepast worden.';
+      } else {
+        wrap.style.display = '';
+        notice.style.display = 'none';
+        desc.textContent = 'Afstand van het eerste en laatste bevestigingsgat tot het railuiteinde in mm (bv. 20/20).';
+        onPitchInput(); // herstel op basis van de daadwerkelijke invoervelden
+      }
+      updateCode();
+      updateProgress();
+    }
+
+    function toggleStep(step) {
+      const card = document.getElementById('step' + step);
+      const isActive = card.classList.contains('active');
+      document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+      if (!isActive) card.classList.add('active');
+    }
+
+    function goNext(step) {
+      const card = document.getElementById('step' + step);
+      card.classList.remove('active');
+      card.classList.add('done');
+      const next = document.getElementById('step' + (step + 1));
+      if (next) {
+        next.classList.add('active');
+        setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+      }
+    }
+
+    function buildCode() {
+      const order = [1, 2, 3, 6, 7, 8, 5, 9, 12, 4, 10, 11, 13, 14]; // bestelcode-veldvolgorde blijft ongewijzigd t.o.v. de vorige stap-nummering
+      return order
+        .filter(s => selections[s] !== undefined && selections[s] !== '')
+        .map(s => selections[s])
+        .join('-');
+    }
+
+    function updateCode() {
+      const code = buildCode();
+      const display = document.getElementById('codeDisplay');
+      if (!code) {
+        display.innerHTML = '<span class="code-part empty">– – –</span>';
+        return;
+      }
+      display.innerHTML = code.split('-').map((p, i, arr) =>
+        '<span class="code-part">' + p + '</span>' + (i < arr.length - 1 ? '<span class="code-separator">·</span>' : '')
+      ).join('');
+    }
+
+    function updateProgress() {
+      const filled = Object.keys(selections).length;
+      const pct = Math.round((filled / TOTAL_STEPS) * 100);
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressPct').textContent = pct + '%';
+      const allDone = filled >= TOTAL_STEPS;
+      document.getElementById('requestBtn').disabled = !allDone;
+      document.getElementById('ctaIncomplete').style.display = allDone ? 'none' : 'block';
+    }
+
+    function copyCode() {
+      const code = buildCode();
+      if (!code) return;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.querySelector('.code-copy-btn');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✓ Gekopieerd!';
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
+      });
+    }
+
+    function sendRequest() {
+      const code = buildCode();
+      let couplingBlock = '';
+      if (cpCouplingActive && cpLastParts) {
+        couplingBlock = '\n\nKoppelverdeling (rail overschrijdt catalogus max. handelslengte, automatisch opgesplitst):\n' + cpBuildBreakdownText();
+        cpDownloadSvgAsPng();
+        document.getElementById('ctaPngNotice').style.display = 'block';
+        couplingBlock += '\n\n[Zie bijgevoegde afbeelding: rail-koppelverdeling.png voor de visualisatie — voeg deze toe als bijlage aan de mail.]';
+      }
+
+      const lines = [
+        'Model: ' + (selections[1] || '–'),
+        'Bloktype: ' + (selections[2] || '–'),
+        'Smeernippel: ' + (selections[3] || 'Voorkant standaard'),
+        'Container: ' + (selections[6] || 'Standaard'),
+        'Afdichting: ' + (selections[7] || 'Standaard'),
+        'Loopwagens/rail: ' + (selections[8] || 'Standaard'),
+        'Voorspanning: ' + (selections[5] || '–'),
+        'Eindplaat: ' + (selections[9] || 'Standaard'),
+        'Raillengte: ' + (selections[12] || '–') + ' mm' + (cpCouplingActive ? ' (gekoppeld, zie koppelverdeling onder)' : ''),
+        'Nauwkeurigheid: ' + (selections[4] || '–'),
+        'Oppervlak: ' + (selections[10] || 'Standaard'),
+        'Rail montage: ' + (selections[11] || 'Standaard'),
+        'Steek: ' + (selections[13] || '–') + ' mm',
+        'Rails per as: ' + (selections[14] || '1'),
+      ].join('\n');
+
+      const subject = encodeURIComponent('Offerte aanvraag SBI profielrailgeleiding \u2013 ' + code);
+      const body = encodeURIComponent(
+        'Geachte MCA-team,\n\nHierbij vraag ik een offerte aan voor de volgende profielrailgeleiding:\n\nBestelcode: ' + code + '\n\nSpecificaties:\n' + lines + couplingBlock + '\n\nAantal configuraties: ' + (selections[15] || '1') + '\n\nMet vriendelijke groet,\n[Uw naam]\n[Bedrijfsnaam]\n[Telefoonnummer / e-mail]'
+      );
+      window.location.href = 'mailto:linear@mcabv.nl?subject=' + subject + '&body=' + body;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       Stap 12B — Koppellogica (hergebruikt uit SBI Gekoppelde Rail
+       Configurator v9.1, aangepast om de wizard-invoer (model uit
+       stap 1, lengte uit stap 12) als bron te gebruiken i.p.v. eigen
+       losse invoervelden). Alle functies/IDs zijn cp-geprefixt.
+       ══════════════════════════════════════════════════════════════ */
+
+    // ── Catalogusdata (SBI_Rail_maatgegevens_absoluut_26-3-26.xlsx) — identiek aan v9.1 ──
+    const RAILS = {
+      15: { F: 60, Gmin: 6, maxL: 2960, minLast: 240 },
+      20: { F: 60, Gmin: 7, maxL: 3960, minLast: 320 },
+      25: { F: 60, Gmin: 8, maxL: 3960, minLast: 320 },
+      30: { F: 80, Gmin: 9, maxL: 3960, minLast: 320 },
+      35: { F: 80, Gmin: 9, maxL: 3960, minLast: 320 },
+      45: { F: 105, Gmin: 12, maxL: 3960, minLast: 420 },
+      55: { F: 120, Gmin: 14, maxL: 3960, minLast: 480 },
+      65: { F: 150, Gmin: 15, maxL: 3960, minLast: 600 },
+    };
+
+    let cpGMode = 'auto';   // 'manual' | 'auto'
+    let cpMaxLEnabled = false;    // inbouwbeperking toggle
+    let cpCouplingActive = false;    // true zodra lengte > catalogus max voor gekozen model
+    let cpValid = false;    // true zodra een geldige verdeling gevonden is
+    let cpLastParts = null;
+    let cpLastG1 = null;
+    let cpLastG2 = null;
+    let cpLastK = null;
+    let cpLastTotal = null;
+
+    function cpGetRailType() {
+      const raw = selections[1]; // bv. 'SBI20'
+      if (!raw) return null;
+      const n = parseInt(raw.replace('SBI', ''), 10);
+      return RAILS[n] ? n : null;
+    }
+
+    // ── Model-wissel (stap 1) ──
+    function cpOnModelChange() {
+      const type = cpGetRailType();
+      const rail = type ? RAILS[type] : null;
+      const hint = document.getElementById('lengthHint');
+      if (rail) {
+        hint.textContent = 'Min. 100 mm – max. handelslengte SBI' + type + ': ' + rail.maxL + ' mm (langere lengtes worden automatisch gekoppeld)';
+      } else {
+        hint.textContent = 'Min. 100 mm – kies eerst een model (stap 1) voor de max. handelslengte';
+      }
+      // Steek-stap (13) toelichting aanscherpen als koppeling actief is
+      cpUpdateCoupling();
+      updateLengthSuggestions();
+      syncStep13FromLength();
+    }
+
+    // ── Max deellengte toggle ──
+    function cpToggleMaxL() {
+      cpMaxLEnabled = !cpMaxLEnabled;
+      const row = document.getElementById('cpMaxlToggleRow');
+      const wrap = document.getElementById('cpMaxlInputWrap');
+      const label = document.getElementById('cpMaxlLabel');
+      row.classList.toggle('active', cpMaxLEnabled);
+      wrap.style.display = cpMaxLEnabled ? '' : 'none';
+      label.textContent = cpMaxLEnabled ? 'Aan — deellengte beperkt' : 'Uit — catalogus handelslengte geldt';
+      if (cpMaxLEnabled) {
+        const rail = RAILS[cpGetRailType()];
+        if (rail) document.getElementById('cpMaxlHint').textContent =
+          `Alle delen blijven ≤ deze lengte. Minimum voor dit type: ${rail.minLast} mm (minLast).`;
+      }
+      document.getElementById('cpRMaxLUserRow').style.display = cpMaxLEnabled ? '' : 'none';
+      cpCalculate();
+    }
+
+    // ── UI helpers ──
+    function cpSetAlert(msg, type) {
+      const el = document.getElementById('cpAlertBox');
+      el.innerHTML = msg;
+      el.className = 'alert show alert-' + type;
+    }
+    function cpClearAlert() { document.getElementById('cpAlertBox').className = 'alert'; }
+    function cpSetOut(id, html, cls) {
+      const el = document.getElementById(id);
+      el.innerHTML = html;
+      el.className = 'out-box' + (cls ? ' ' + cls : '');
+    }
+
+    // ── G-berekening ──
+    function cpCalcAutoG(totalLen, F, Gmin) {
+      const n = Math.floor(totalLen / F);
+      const steekTotal = n * F;
+      const G_calc = (totalLen - steekTotal) / 2;
+      const G_final = G_calc < Gmin ? (totalLen - steekTotal + F) / 2 : G_calc;
+      return G_final;
+    }
+
+    // Zelfde formule als cpCalcAutoG, maar geeft ook n (aantal steek-intervallen) terug
+    function cpCalcAutoGDetailed(totalLen, F, Gmin) {
+      const n0 = Math.floor(totalLen / F);
+      const G_calc = (totalLen - n0 * F) / 2;
+      if (G_calc < Gmin) {
+        const n1 = n0 - 1;
+        return { G: (totalLen - n1 * F) / 2, n: n1 };
+      }
+      return { G: G_calc, n: n0 };
+    }
+
+    function cpSyncAutoG() {
+      const type = cpGetRailType();
+      const rail = type ? RAILS[type] : null;
+      const desired = +document.getElementById('lengthInput').value;
+      if (!rail || !desired) return;
+      const G = cpCalcAutoG(desired, rail.F, rail.Gmin);
+      document.getElementById('cpG1').value = G;
+      document.getElementById('cpG2').value = G;
+    }
+
+    function cpApplyMinG(minVal) {
+      const g1el = document.getElementById('cpG1');
+      const g2el = document.getElementById('cpG2');
+      if (+g1el.value < minVal) g1el.value = minVal;
+      if (+g2el.value < minVal) g2el.value = minVal;
+      cpCalculate();
+    }
+
+    function cpSetGMode(mode) {
+      cpGMode = mode;
+      document.getElementById('cpBtnGManual').classList.toggle('active', mode === 'manual');
+      document.getElementById('cpBtnGAuto').classList.toggle('active', mode === 'auto');
+      document.getElementById('cpGInputs').style.display = mode === 'manual' ? '' : 'none';
+      document.getElementById('cpGAutoInfo').style.display = mode === 'auto' ? '' : 'none';
+      if (mode === 'auto') cpSyncAutoG();
+      cpCalculate();
+      cpUpdateStep13Lock();
+    }
+
+    function cpOnPartsModeChange() {
+      const manual = document.getElementById('cpNumPartsMode').value === 'manual';
+      document.getElementById('cpNumPartsManual').style.display = manual ? 'block' : 'none';
+      document.getElementById('cpNumPartsHint').textContent = manual
+        ? 'Vul het gewenste aantal delen in'
+        : 'Configurator bepaalt het minimale aantal delen';
+      cpCalculate();
+    }
+
+    // ── Kernalgoritme (identiek aan v9.1) ──
+    function cpComputeParts(totalLen, G1, G2, F, K, maxL, minLast, numParts) {
+      const n1max = Math.floor((maxL - G1 - K) / F);
+      const nmidMax = Math.floor((maxL - 2 * K) / F);
+      if (n1max < 0 || nmidMax < 0) return null;
+
+      const LmidFull = K + nmidMax * F + K;
+
+      if (numParts === 1) {
+        const nSingle = (totalLen - G1 - G2) / F;
+        if (nSingle < 0 || Math.abs(nSingle - Math.round(nSingle)) > 1e-9) return null;
+        const n = Math.round(nSingle);
+        if (totalLen > maxL) return null;
+        if (totalLen < minLast) return null;
+        return [{ L: totalLen, gStart: G1, n, gEnd: G2, isFirst: true, isLast: true }];
+      }
+
+      for (let n1 = n1max; n1 >= 0; n1--) {
+        const L1 = G1 + n1 * F + K;
+        if (L1 > maxL) continue;
+
+        const midCount = numParts - 2;
+        const remaining = totalLen - L1 - midCount * LmidFull;
+        const Lp = remaining;
+
+        if (Lp <= 0 || Lp > maxL) continue;
+        if (Lp < minLast) continue;
+
+        const npf = (Lp - K - G2) / F;
+        if (Math.abs(npf - Math.round(npf)) > 1e-9) continue;
+        const np = Math.round(npf);
+        if (np < 0) continue;
+
+        const parts = [];
+        parts.push({ L: L1, gStart: G1, n: n1, gEnd: K, isFirst: true, isLast: numParts === 1 });
+        for (let m = 0; m < midCount; m++) {
+          parts.push({ L: LmidFull, gStart: K, n: nmidMax, gEnd: K, isFirst: false, isLast: false });
+        }
+        parts.push({ L: Lp, gStart: K, n: np, gEnd: G2, isFirst: false, isLast: true });
+        return parts;
+      }
+      return null;
+    }
+
+    function cpFindSuggestions(desired, G1, G2, F, K, maxL, minLast, count = 5) {
+      const results = [];
+      const step = F;
+      const window = maxL * 3;
+
+      for (let delta = -window; delta <= window; delta += step) {
+        const candidate = desired + delta;
+        if (candidate <= 0) continue;
+        if (candidate === desired) continue;
+        const parts = cpComputeParts(candidate, G1, G2, F, K, maxL, minLast,
+          Math.max(1, Math.ceil(candidate / maxL)));
+        if (parts) {
+          results.push({ len: candidate, delta: delta, parts: parts, numParts: parts.length, lastLen: parts[parts.length - 1].L });
+        }
+      }
+
+      results.sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta) || b.delta - a.delta);
+
+      const seen = new Set();
+      return results.filter(r => { if (seen.has(r.len)) return false; seen.add(r.len); return true; }).slice(0, count);
+    }
+
+    function cpApplySuggestion(len) {
+      document.getElementById('lengthInput').value = len;
+      onLengthInput();
+    }
+
+    function cpShowSuggestions(desired, G1, G2, F, K, maxL, minLast) {
+      const sugs = cpFindSuggestions(desired, G1, G2, F, K, maxL, minLast, 6);
+      const wrap = document.getElementById('cpSugWrap');
+      const list = document.getElementById('cpSugList');
+      if (!sugs.length) { wrap.style.display = 'none'; return; }
+
+      wrap.style.display = 'block';
+      list.innerHTML = '';
+      sugs.forEach((s, i) => {
+        const sign = s.delta > 0 ? '+' : '';
+        const cls = i === 0 ? 'sug-pill sug-best' : s.delta < 0 ? 'sug-pill sug-shorter' : 'sug-pill';
+        const btn = document.createElement('button');
+        btn.className = cls;
+        btn.textContent = `${s.len} mm (${sign}${s.delta}, ${s.numParts}× delen)`;
+        btn.title = `Laatste deel: ${s.lastLen} mm`;
+        btn.onclick = () => cpApplySuggestion(s.len);
+        list.appendChild(btn);
+      });
+    }
+
+    function cpHideSuggestions() {
+      document.getElementById('cpSugWrap').style.display = 'none';
+    }
+
+    function cpAutoNumParts(totalLen, G1, G2, F, K, maxL, minLast) {
+      const minParts = Math.max(1, Math.ceil(totalLen / maxL));
+      for (let p = minParts; p <= 30; p++) {
+        const result = cpComputeParts(totalLen, G1, G2, F, K, maxL, minLast, p);
+        if (result) return { numParts: p, parts: result };
+      }
+      return null;
+    }
+
+    // ── Zichtbaarheid stap 12B ──
+    function cpShowStep12b() {
+      const card = document.getElementById('step12b');
+      card.style.display = '';
+      if (!card.classList.contains('done')) card.classList.add('active');
+      document.getElementById('cpBanner').style.display = 'flex';
+      document.getElementById('couplingBreakdownWrap').style.display = '';
+    }
+
+    function cpHideStep12b() {
+      const card = document.getElementById('step12b');
+      card.style.display = 'none';
+      card.classList.remove('active', 'done');
+      document.getElementById('cpBanner').style.display = 'none';
+      document.getElementById('couplingBreakdownWrap').style.display = 'none';
+      document.getElementById('next12b').disabled = true;
+      cpValid = false;
+      cpUpdateStep13Lock();
+    }
+
+    // ── Hoofdorkestratie: wordt aangeroepen bij elke lengte- of modelwijziging ──
+    function cpUpdateCoupling() {
+      const type = cpGetRailType();
+      const rail = type ? RAILS[type] : null;
+      const desired = +document.getElementById('lengthInput').value;
+
+      document.getElementById('next12').disabled = !(rail && desired && desired >= 100);
+
+      if (!rail || !desired || desired <= 0) {
+        cpCouplingActive = false;
+        cpHideStep12b();
+        document.getElementById('next12').disabled = true;
+        return;
+      }
+
+      if (desired <= rail.maxL) {
+        cpCouplingActive = false;
+        cpHideStep12b();
+        document.getElementById('next12').disabled = false;
+        return;
+      }
+
+      // Koppeling nodig
+      cpCouplingActive = true;
+      document.getElementById('cpBannerText').textContent =
+        `Deze lengte (${desired} mm) overschrijdt de maximale handelslengte van ${rail.maxL} mm voor SBI${type}. De rail wordt automatisch opgesplitst in gekoppelde delen — vul stap 12B in om door te gaan.`;
+      document.getElementById('cpModelInfo').innerHTML =
+        `Geselecteerd model: <strong>SBI${type}</strong> — F=${rail.F} mm, K=${rail.F / 2} mm, max. handelslengte ${rail.maxL} mm, min. laatste deel ${rail.minLast} mm.`;
+      document.getElementById('next12').disabled = true; // doorgaan kan alleen via stap 12B
+      cpShowStep12b();
+      if (cpGMode === 'auto') cpSyncAutoG();
+      cpCalculate();
+    }
+
+    // ── Hoofdberekening (adaptatie van v9.1 calculate()) ──
+    function cpCalculate() {
+      const type = cpGetRailType();
+      const rail = type ? RAILS[type] : null;
+      const desired = +document.getElementById('lengthInput').value;
+      if (!rail || !desired || desired <= 0) { cpClearOutputs(); return; }
+
+      const { F, Gmin, maxL, minLast } = rail;
+      const K = F / 2;
+
+      let effectiveMaxL = maxL;
+      if (cpMaxLEnabled) {
+        const userMaxL = +document.getElementById('cpMaxlValue').value;
+        if (!userMaxL || userMaxL <= 0) {
+          cpSetAlert('⚠ Vul een geldige max. deellengte in.', 'err');
+          cpClearOutputs(); return;
+        }
+        if (userMaxL < minLast) {
+          cpSetAlert(`⚠ Max. deellengte (${userMaxL} mm) is kleiner dan de minimale maat van het laatste deel (${minLast} mm) voor SBI${type}. Verhoog de limiet.`, 'err');
+          cpClearOutputs(); return;
+        }
+        effectiveMaxL = Math.min(maxL, userMaxL);
+        document.getElementById('cpRMaxLUser').textContent = `${userMaxL} mm → effectief ${effectiveMaxL} mm`;
+      }
+
+      let g1, g2;
+      if (cpGMode === 'auto') {
+        const G = cpCalcAutoG(desired, F, Gmin);
+        g1 = g2 = G;
+        document.getElementById('cpG1').value = G;
+        document.getElementById('cpG2').value = G;
+      } else {
+        g1 = +document.getElementById('cpG1').value;
+        g2 = +document.getElementById('cpG2').value;
+      }
+      if (!g1 || !g2) return;
+
+      cpClearAlert();
+
+      if (cpGMode === 'manual' && (g1 < Gmin || g2 < Gmin)) {
+        const autoG = cpCalcAutoG(desired, F, Gmin);
+        cpSetAlert(
+          `⚠ G1 (${g1} mm) en/of G2 (${g2} mm) zijn kleiner dan het minimum van <strong>${Gmin} mm</strong> voor SBI${type}. Dit is niet toegestaan.` +
+          `<br><div style="margin-top:9px;display:flex;flex-wrap:wrap;gap:8px">` +
+          `<button type="button" class="sug-pill sug-best" onclick="cpApplyMinG(${Gmin})">Zet op minimum (${Gmin} mm)</button>` +
+          `<button type="button" class="sug-pill" onclick="cpSetGMode('auto')">Gebruik automatische berekening (${autoG} mm)</button>` +
+          `</div>`,
+          'err'
+        );
+        cpClearOutputs();
+        return;
+      }
+
+      const mode = document.getElementById('cpNumPartsMode').value;
+      let numParts, parts;
+
+      if (mode === 'auto') {
+        const result = cpAutoNumParts(desired, g1, g2, F, K, effectiveMaxL, minLast);
+        if (!result) {
+          cpSetAlert(`⚠ Geen geldige verdeling gevonden voor ${desired} mm. Kies een andere totaallengte of pas G1/G2 aan.`, 'err');
+          cpShowSuggestions(desired, g1, g2, F, K, effectiveMaxL, minLast);
+          cpClearOutputs();
+          return;
+        }
+        numParts = result.numParts;
+        parts = result.parts;
+      } else {
+        numParts = +document.getElementById('cpNumPartsManual').value;
+        if (numParts < 1) return;
+        parts = cpComputeParts(desired, g1, g2, F, K, effectiveMaxL, minLast, numParts);
+        if (!parts) {
+          const auto = cpAutoNumParts(desired, g1, g2, F, K, effectiveMaxL, minLast);
+          cpSetAlert(
+            `⚠ Geen geldige verdeling mogelijk met <strong>${numParts} delen</strong>. ` +
+            (auto ? `Minimaal benodigde aantal: <strong>${auto.numParts} delen</strong>.` : ''),
+            'err'
+          );
+          cpShowSuggestions(desired, g1, g2, F, K, effectiveMaxL, minLast);
+          cpClearOutputs();
+          return;
+        }
+      }
+
+      const totalAct = parts.reduce((s, p) => s + p.L, 0);
+
+      const lastL = parts[parts.length - 1].L;
+      cpHideSuggestions();
+
+      if (cpGMode === 'auto' || (g1 >= Gmin && g2 >= Gmin)) {
+        if (Math.abs(totalAct - desired) > 0.01) {
+          cpSetAlert(`⚠ Berekende totaal ${totalAct} mm wijkt af van gewenst ${desired} mm.`, 'warn');
+          cpShowSuggestions(desired, g1, g2, F, K, effectiveMaxL, minLast);
+        } else if (lastL < minLast) {
+          cpSetAlert(`⚠ Laatste deel is <strong>${lastL} mm</strong> — korter dan de minimale maat van <strong>${minLast} mm</strong> voor SBI${type}. Kies een andere totaallengte.`, 'warn');
+          cpShowSuggestions(desired, g1, g2, F, K, effectiveMaxL, minLast);
+        } else {
+          cpClearAlert();
+          cpSetAlert(`✓ Verdeling correct. ${numParts} ${numParts === 1 ? 'deel' : 'delen'}, K = ${K} mm.`, 'ok');
+          cpShowSuggestions(desired, g1, g2, F, K, effectiveMaxL, minLast);
+        }
+      }
+
+      cpSetOut('cpOutNumParts', `<strong style="font-size:1.3rem">${numParts}</strong> <span class="unit">${numParts === 1 ? 'deel' : 'delen'}</span>`, 'ok');
+      cpSetOut('cpOutK', `${K} <span class="unit">mm</span>`, 'ok');
+
+      document.getElementById('cpRF').textContent = `${F} mm`;
+      document.getElementById('cpRK').textContent = `${K} mm (= F/2)`;
+      document.getElementById('cpRMaxL').textContent = cpMaxLEnabled ? `${maxL} mm (catalogus)` : `${maxL} mm`;
+      document.getElementById('cpRMinLast').textContent = `${minLast} mm`;
+      document.getElementById('cpRParts').textContent = `${numParts}`;
+      document.getElementById('cpRG1G2').textContent = `${g1} / ${g2} mm`;
+      document.getElementById('cpRTotal').textContent = `${totalAct} mm${Math.abs(totalAct - desired) < 0.01 ? ' ✓' : ''}`;
+
+      cpRenderParts(parts, F, K, numParts);
+      cpDrawSvg(parts, g1, g2, F, K, totalAct);
+
+      // Status opslaan voor bestelcode / offerte-integratie
+      cpValid = true;
+      cpLastParts = parts;
+      cpLastG1 = g1;
+      cpLastG2 = g2;
+      cpLastK = K;
+      cpLastTotal = totalAct;
+
+      document.getElementById('next12b').disabled = false;
+      document.getElementById('cpSelSummary').textContent = `${numParts} ${numParts === 1 ? 'deel' : 'delen'} · K=${K} mm · G1/G2 = ${g1}/${g2} mm`;
+
+      // Specificatieoverzicht bijwerken
+      document.getElementById('bdCoupling').textContent = 'Ja — SBI' + type + ' > ' + maxL + ' mm handelslengte';
+      document.getElementById('bdCouplingParts').textContent = numParts + (numParts === 1 ? ' deel' : ' delen');
+      document.getElementById('bdCouplingK').textContent = K + ' mm';
+      document.getElementById('bdCouplingG').textContent = g1 + ' / ' + g2 + ' mm';
+
+      cpUpdateStep13Lock();
+    }
+
+    function cpClearOutputs() {
+      cpHideSuggestions();
+      cpValid = false;
+      cpLastParts = null;
+      ['cpOutNumParts', 'cpOutK'].forEach(id => cpSetOut(id, '—', ''));
+      ['cpRF', 'cpRK', 'cpRMaxL', 'cpRMinLast', 'cpRParts', 'cpRG1G2', 'cpRTotal'].forEach(id => {
+        document.getElementById(id).textContent = '—';
+      });
+      document.getElementById('cpRailList').innerHTML = '<div style="color:var(--muted);font-size:.88rem">Geen geldige verdeling.</div>';
+      document.getElementById('cpRailSvg').innerHTML = '';
+      document.getElementById('next12b').disabled = true;
+      document.getElementById('cpSelSummary').textContent = 'Geen geldige verdeling gevonden';
+      document.getElementById('bdCoupling').textContent = 'Nog niet geldig';
+      document.getElementById('bdCouplingParts').textContent = '–';
+      document.getElementById('bdCouplingK').textContent = '–';
+      document.getElementById('bdCouplingG').textContent = '–';
+
+      cpUpdateStep13Lock();
+    }
+
+    function cpRenderParts(parts, F, K, numParts) {
+      const list = document.getElementById('cpRailList');
+      list.innerHTML = '';
+      parts.forEach((p, i) => {
+        const isShort = p.isLast && numParts > 1;
+        const startLbl = p.isFirst ? `G1=${p.gStart}` : `K=${p.gStart}`;
+        const endLbl = p.isLast ? `G2=${p.gEnd}` : `K=${p.gEnd}`;
+        const formula = `${startLbl} / ${p.n}×${F} / ${endLbl}`;
+
+        const div = document.createElement('div');
+        div.className = 'rail-card';
+        div.innerHTML =
+          `<div class="rail-card-header ${isShort ? 'short' : 'full'}">` +
+          `<span>Deel ${i + 1}</span>` +
+          `<span style="font-size:.8rem;font-weight:400;margin-left:auto">${isShort ? 'op maat' : ''}</span>` +
+          `<strong style="font-family:'Fugue';font-size:1.1rem">${p.L} mm</strong>` +
+          `</div>` +
+          `<div class="rail-card-body">` +
+          `<span class="formula">${formula}</span>` +
+          ` &nbsp;·&nbsp; ${p.n} gaten` +
+          (p.isFirst ? ` &nbsp;·&nbsp; G1: <strong>${p.gStart} mm</strong>` : '') +
+          (p.isLast ? ` &nbsp;·&nbsp; G2: <strong>${p.gEnd} mm</strong>` : '') +
+          (!p.isLast ? `<br><span class="joint-note">→ koppelpunt naar deel ${i + 2}: K = ${K} mm aan beide zijden</span>` : '') +
+          `</div>`;
+        list.appendChild(div);
+      });
+    }
+
+    // ── SVG (identiek aan v9.1) ──
+    function cpDrawSvg(parts, g1, g2, F, K, totalLen) {
+      const svg = document.getElementById('cpRailSvg');
+      const W = Math.max(480, svg.parentElement.clientWidth - 4);
+      const mg = 36;
+      const sc = (W - mg * 2) / totalLen;
+      const rH = 38, rY = 80, hR = 3.5, hY = rY + rH / 2, svgH = 175;
+
+      const colFull = '#e8eed8', bordFull = '#b8c898';
+      const colShort = '#ece0f0', bordShort = '#c8a8d8';
+
+      let allHoles = [];
+      let cursor = 0;
+      parts.forEach(part => {
+        for (let h = 0; h < part.n; h++) allHoles.push(cursor + part.gStart + h * F);
+        cursor += part.L;
+      });
+
+      let svg_html = '';
+      svg_html += cpDimH(mg, mg + totalLen * sc, 16, '#0c2c65', `L totaal = ${totalLen} mm`, 12, 700);
+
+      if (allHoles.length > 0) {
+        svg_html += cpDimH(mg, mg + allHoles[0] * sc, rY + rH + 10, '#be0068', `G1=${g1}`, 11);
+        const lastHole = allHoles[allHoles.length - 1];
+        svg_html += cpDimH(mg + lastHole * sc, mg + totalLen * sc, rY + rH + 10, '#be0068', `G2=${g2}`, 11);
+      }
+      if (allHoles.length > 1) {
+        svg_html += cpDimH(mg + allHoles[0] * sc, mg + allHoles[1] * sc, rY - 22, '#8898bb', `F=${F}`, 10);
+      }
+
+      cursor = 0;
+      parts.forEach((part, i) => {
+        const isShort = part.isLast && parts.length > 1;
+        const rx = mg + cursor * sc;
+        const rw = part.L * sc;
+        const col = isShort ? colShort : colFull;
+        const brd = isShort ? bordShort : bordFull;
+
+        svg_html += `<rect x="${rx}" y="${rY}" width="${rw}" height="${rH}" fill="${col}" stroke="${brd}" stroke-width="1.5" rx="2"/>`;
+        const tag = isShort ? ' · op maat' : '';
+        svg_html += `<text x="${rx + rw / 2}" y="${rY - 8}" text-anchor="middle" font-family="Fugue,Trebuchet MS" font-size="12" fill="#6b7594" font-weight="600">Deel ${i + 1} · ${part.L} mm${tag}</text>`;
+
+        if (!part.isLast) {
+          const jx = rx + rw;
+          const lastHoleRel = part.gStart + (part.n - 1) * F;
+          const kStartPx = mg + (cursor + lastHoleRel) * sc;
+          svg_html += `<rect x="${kStartPx}" y="${rY}" width="${jx - kStartPx}" height="${rH}" fill="#be0068" opacity=".13"/>`;
+          const nextPart = parts[i + 1];
+          const kEndPx = mg + (cursor + part.L + nextPart.gStart) * sc;
+          svg_html += `<rect x="${jx}" y="${rY}" width="${kEndPx - jx}" height="${rH}" fill="#be0068" opacity=".13"/>`;
+          svg_html += `<line x1="${jx}" y1="${rY - 5}" x2="${jx}" y2="${rY + rH + 5}" stroke="#be0068" stroke-width="1.5" stroke-dasharray="3,2"/>`;
+          svg_html += `<text x="${jx}" y="${svgH - 6}" text-anchor="middle" font-family="Fugue,Trebuchet MS" font-size="10" fill="#be0068" font-weight="600">K=${K}</text>`;
+        }
+        cursor += part.L;
+      });
+
+      allHoles.forEach(absPos => {
+        const hx = mg + absPos * sc;
+        svg_html += `<circle cx="${hx}" cy="${hY}" r="${hR}" fill="#2c6fad" stroke="#1a4a7a" stroke-width="1"/>`;
+        svg_html += `<circle cx="${hx}" cy="${hY}" r="${hR * .4}" fill="#fff" opacity=".6"/>`;
+      });
+
+      svg.setAttribute('viewBox', `0 0 ${W} ${svgH}`);
+      svg.setAttribute('width', W);
+      svg.setAttribute('height', svgH);
+      svg.innerHTML = svg_html;
+    }
+
+    function cpDimH(x1, x2, y, color, label, fs = 10, fw = 400) {
+      const mid = (x1 + x2) / 2;
+      return `
+    <line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${color}" stroke-width="1.2"/>
+    <line x1="${x1}" y1="${y - 4}" x2="${x1}" y2="${y + 4}" stroke="${color}" stroke-width="1.2"/>
+    <line x1="${x2}" y1="${y - 4}" x2="${x2}" y2="${y + 4}" stroke="${color}" stroke-width="1.2"/>
+    <text x="${mid}" y="${y + 14}" text-anchor="middle" font-family="Fugue,Trebuchet MS" font-size="${fs}" fill="${color}" font-weight="${fw}">${label}</text>`;
+    }
+
+    // ── Samenvatting / kopiëren / PNG-export ──
+    function cpBuildBreakdownText() {
+      if (!cpLastParts) return '';
+      const type = cpGetRailType();
+      const lines = [];
+      lines.push('Type:          SBI' + type);
+      lines.push('Totale lengte: ' + document.getElementById('cpRTotal').textContent);
+      lines.push('G1 / G2:       ' + document.getElementById('cpRG1G2').textContent);
+      lines.push('K:             ' + document.getElementById('cpRK').textContent);
+      if (cpMaxLEnabled) lines.push('Max. deellengte (inbouwbeperking): ' + document.getElementById('cpRMaxLUser').textContent);
+      lines.push('Aantal delen:  ' + document.getElementById('cpRParts').textContent);
+      lines.push('');
+      lines.push('Verdeling:');
+      document.querySelectorAll('#cpRailList .rail-card').forEach((card, i) => {
+        const hdr = card.querySelector('.rail-card-header strong');
+        const formula = card.querySelector('.formula');
+        if (hdr && formula) lines.push('  Deel ' + (i + 1) + ': ' + hdr.textContent + '  —  ' + formula.textContent);
+      });
+      return lines.join('\n');
+    }
+
+    function cpCopySummary() {
+      const text = cpBuildBreakdownText();
+      const btn = document.getElementById('cpBtnCopy');
+      const restore = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Kopieer koppelverdeling';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          btn.classList.add('copied');
+          btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Gekopieerd!';
+          setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = restore; }, 2000);
+        });
+      }
+    }
+
+    function cpDownloadSvgAsPng() {
+      try {
+        const svg = document.getElementById('cpRailSvg');
+        if (!svg || !svg.innerHTML) { console.warn('PNG-export: geen visualisatie beschikbaar om te exporteren.'); return; }
+
+        let svgData = new XMLSerializer().serializeToString(svg);
+        // Een losstaand SVG-document heeft de xmlns nodig — bij inline-SVG in HTML
+        // wordt dit niet altijd door de serializer toegevoegd.
+        if (!/xmlns=/.test(svgData)) {
+          svgData = svgData.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+
+        const fallbackW = parseFloat(svg.getAttribute('width'))  || 480;
+        const fallbackH = parseFloat(svg.getAttribute('height')) || 175;
+
+        // Data-URI i.p.v. blob: URL — werkt betrouwbaarder binnen (gesandboxte) iframes,
+        // zoals wanneer deze tool als Custom HTML in YOOtheme/WordPress wordt ingeladen.
+        const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
+
+        const img = new Image();
+        img.onload = function () {
+          try {
+            const scale = 2;
+            const w = Math.max(1, Math.round(img.naturalWidth  || fallbackW));
+            const h = Math.max(1, Math.round(img.naturalHeight || fallbackH));
+            const canvas = document.createElement('canvas');
+            canvas.width  = w * scale;
+            canvas.height = h * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.scale(scale, scale);
+            ctx.drawImage(img, 0, 0, w, h);
+
+            const a = document.createElement('a');
+            a.download = 'rail-koppelverdeling.png';
+            a.href = canvas.toDataURL('image/png');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          } catch (err) {
+            console.error('PNG-export mislukt bij het tekenen op canvas:', err);
+          }
+        };
+        img.onerror = function (err) {
+          console.error('PNG-export mislukt: de SVG kon niet als afbeelding geladen worden.', err);
+        };
+        img.src = svgDataUrl;
+      } catch (err) {
+        console.error('PNG-export mislukt:', err);
+      }
+    }
+
+    // ── Doorgaan naar stap 13 vanuit stap 12B ──
+    function cpGoNext12b() {
+      if (!cpValid) return;
+      const card = document.getElementById('step12b');
+      card.classList.remove('active');
+      card.classList.add('done');
+      const next = document.getElementById('step13');
+      if (next) {
+        next.classList.add('active');
+        setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+      }
+    }
+
+    window.addEventListener('resize', () => { if (cpCouplingActive && cpLastParts) cpCalculate(); });
+  </script>
+</body>
+
+</html>
