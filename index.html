@@ -72,7 +72,8 @@
     }
 
     .logo-text span {
-      color: var(--lavender);
+      color: white;
+      outline: solid 1px var(--lavender);
       font-weight: 400;
     }
 
@@ -1327,7 +1328,7 @@
         <div class="step-header" onclick="toggleStep(2)">
           <div class="step-num">2</div>
           <div class="step-title-wrap">
-            <div class="step-title">Bloktype</div>
+            <div class="step-title">Loopwagen</div>
             <div class="step-selected" id="sel2">Nog niet geselecteerd</div>
           </div>
           <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1336,7 +1337,7 @@
           </svg>
         </div>
         <div class="step-body">
-          <div class="step-desc">Kies hieronder het gewenste bloktype.</div>
+          <div class="step-desc">Kies hieronder de gewenste loopwagen.</div>
           <div class="option-grid wide">
             <button class="opt-btn" onclick="select(2,'FL','Flens uitvoering',this)"><span
                 class="opt-code">FL</span><span class="opt-label">Flens uitvoering</span></button>
@@ -1950,14 +1951,14 @@
       <div class="breakdown-card">
         <div class="breakdown-title">Specificatieoverzicht</div>
         <div class="breakdown-row"><span class="bd-field">Model</span><span class="bd-value" id="bd1">–</span></div>
-        <div class="breakdown-row"><span class="bd-field">Bloktype</span><span class="bd-value" id="bd2">–</span></div>
+        <div class="breakdown-row"><span class="bd-field">Loopwagen</span><span class="bd-value" id="bd2">–</span></div>
         <div class="breakdown-row"><span class="bd-field">Nauwkeurigheid</span><span class="bd-value" id="bd4">–</span>
         </div>
         <div class="breakdown-row"><span class="bd-field">Voorspanning</span><span class="bd-value" id="bd5">–</span>
         </div>
         <div class="breakdown-row"><span class="bd-field">Afdichting</span><span class="bd-value" id="bd7">–</span>
         </div>
-        <div class="breakdown-row"><span class="bd-field">Loopwagens / rail</span><span class="bd-value"
+        <div class="breakdown-row"><span class="bd-field">Loopwagens per rail</span><span class="bd-value"
             id="bd8">–</span></div>
         <div class="breakdown-row"><span class="bd-field">Raillengte</span><span class="bd-value" id="bd12">–</span>
         </div>
@@ -2018,7 +2019,7 @@
 
     function select(step, code, label, btn) {
       ensureDefaultsApplied();
-      // Als eerder 'geen loopwagen' gekozen was en nu bij stap 2 alsnog een echt bloktype
+      // Als eerder 'geen loopwagen' gekozen was en nu bij stap 2 alsnog een echt Loopwagen
       // gekozen wordt, herstel stap 3–8 dan naar 'nog niet geselecteerd'.
       if (step === 2 && code !== '' && carriageSkipped) {
         restoreCarriageSteps();
@@ -2524,7 +2525,7 @@
 
       const lines = [
         'Model: ' + (selections[1] || '–'),
-        'Bloktype: ' + (selections[2] || '–'),
+        'Loopwagen: ' + (selections[2] || '–'),
         'Smeernippel: ' + (selections[3] || 'Voorkant standaard'),
         'Container: ' + (selections[6] || 'Standaard'),
         'Afdichting: ' + (selections[7] || 'Standaard'),
