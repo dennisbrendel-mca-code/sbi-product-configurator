@@ -483,6 +483,18 @@
             background: #edfbf2;
         }
 
+        .toggle-couple-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            margin-top: 12px; padding: 8px 14px;
+            border-radius: 5px; border: 1.5px solid var(--border);
+            background: var(--offwhite); color: var(--muted);
+            font-family: 'Fugue', 'Trebuchet MS', sans-serif; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all .15s; width: 100%; justify-content: center;
+        }
+        .toggle-couple-btn:hover { border-color: var(--navy); color: var(--navy); }
+        .toggle-couple-btn.active { border-color: var(--warn); color: var(--warn); background: #fff7ed; }
+        .toggle-couple-btn .icon { font-size: 16px; }
+
         .next-btn {
             display: inline-flex;
             align-items: center;
@@ -1271,7 +1283,7 @@
     <header class="header">
         <div class="logo-wrap">
             <div class="logo-box">
-                <img src="https://www.mcabv.nl/wp-content/uploads/2022/04/MCA-A-RUBIX-COMP.svg" alt="MCA Logo" />
+                <img src="https://www.mcabv.nl/wp-content/uploads/2022/04/MCA-A-RUBIX-COMP.svg" alt="MCA Logo"></img>
             </div>
             <div class="logo-text">MCA <span>linear motion robotics</span></div>
         </div>
@@ -1477,7 +1489,7 @@
                 <div class="step-header" onclick="toggleStep(6)">
                     <div class="step-num">6</div>
                     <div class="step-title-wrap">
-                        <div class="step-title">Container / smering</div>
+                        <div class="step-title">Smeercontainer</div>
                         <div class="step-selected" id="sel6">Nog niet geselecteerd</div>
                     </div>
                     <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -1486,15 +1498,14 @@
                     </svg>
                 </div>
                 <div class="step-body">
-                    <div class="step-desc">MF (Zelfsmeermiddel) voor onderhoudsarme toepassingen waarbij nasmeren
-                        moeilijk
-                        bereikbaar is.</div>
+                    <div class="step-desc">MF (Smeervilt) voor toepassingen waarbij smeerpunt(en) lastig bereikbaar
+                        zijn.</div>
                     <div class="option-grid">
                         <button class="opt-btn" onclick="select(6,'','Standaard',this)"><span
                                 class="opt-code">—</span><span class="opt-label">Standaard <br>(geen
                                 symbool)</span></button>
-                        <button class="opt-btn" onclick="select(6,'MF','Zelfsmeermiddel',this)"><span
-                                class="opt-code">MF</span><span class="opt-label">Zelfsmeermiddel</span></button>
+                        <button class="opt-btn" onclick="select(6,'MF','Smeervilt',this)"><span
+                                class="opt-code">MF</span><span class="opt-label">Smeervilt</span></button>
                     </div>
                     <button class="next-btn" id="next6" disabled onclick="goNext(6)">Volgende stap →</button>
                 </div>
@@ -1514,9 +1525,7 @@
                     </svg>
                 </div>
                 <div class="step-body">
-                    <div class="step-desc">Kies afdichting op basis van omgevingsomstandigheden. DD/ZZ/KK voor
-                        bescherming tegen
-                        stof en spatwater.</div>
+                    <div class="step-desc">Kies afdichting op basis van omgevingsomstandigheden.</div>
                     <div class="option-grid">
                         <button class="opt-btn" onclick="select(7,'','Standaard',this)"><span
                                 class="opt-code">—</span><span class="opt-label">Standaard <br>(Normale
@@ -1529,7 +1538,7 @@
                                 <br>(Lasspatten)</span></button>
                         <button class="opt-btn" onclick="select(7,'KK','Afdichting KK',this)"><span
                                 class="opt-code">KK</span><span class="opt-label">Afdichting KK <br>(Stof en
-                                spaanders)</span></button>
+                                lasspatten)</span></button>
                     </div>
                     <button class="next-btn" id="next7" disabled onclick="goNext(7)">Volgende stap →</button>
                 </div>
@@ -1626,7 +1635,7 @@
                 <div class="step-header" onclick="toggleStep(11)">
                     <div class="step-num">11</div>
                     <div class="step-title-wrap">
-                        <div class="step-title">Rail montage onderzijde</div>
+                        <div class="step-title">Rail montage</div>
                         <div class="step-selected" id="sel11">Nog niet geselecteerd</div>
                     </div>
                     <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -1635,14 +1644,14 @@
                     </svg>
                 </div>
                 <div class="step-body">
-                    <div class="step-desc">B = onderste montagerail voor bevestiging van onderen. Standaard =
+                    <div class="step-desc">B = draadgaten onderzijde voor bevestiging van onderen. Standaard =
                         bovenmontage.</div>
                     <div class="option-grid">
                         <button class="opt-btn" onclick="select(11,'','Standaard bovenmontage',this)"><span
                                 class="opt-code">—</span><span class="opt-label">Standaard <br>(geen
                                 symbool)</span></button>
-                        <button class="opt-btn" onclick="select(11,'B','Onderste montagerail',this)"><span
-                                class="opt-code">B</span><span class="opt-label">Onderste montagerail</span></button>
+                        <button class="opt-btn" onclick="select(11,'B','Draadgaten onderzijde',this)"><span
+                                class="opt-code">B</span><span class="opt-label">Draadgaten onderzijde</span></button>
                     </div>
                     <button class="next-btn" id="next11" disabled onclick="goNext(11)">Volgende stap →</button>
                 </div>
@@ -1678,6 +1687,11 @@
                         <div class="wizard-sug-label">Suggesties in de buurt (nette G1/G2)</div>
                         <div id="step12SugList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
                     </div>
+                    <button type="button" class="toggle-couple-btn" id="toggleCoupleBtn"
+                        style="display:none" onclick="toggleManualCouple()">
+                        <span class="icon">⛓</span>
+                        <span id="toggleCoupleBtnLabel">Zelf koppelen (optioneel)</span>
+                    </button>
                     <div class="cp-banner" id="cpBanner" style="display:none">
                         ⚠ <span id="cpBannerText"></span>
                     </div>
@@ -1886,7 +1900,7 @@
                     </svg>
                 </div>
                 <div class="step-body">
-                    <div class="step-desc" id="step13Desc">Afstand van het eerste en laatste bevestigingsgat tot het
+                    <div class="step-desc" id="step13Desc">Hartafstand van het eerste en laatste bevestigingsgat tot het
                         railuiteinde
                         in mm (bv. 20/20).</div>
                     <div class="pitch-row" id="pitchInputsWrap">
@@ -2362,11 +2376,11 @@
                 { step: 3, idx: 0 },  // Smeernippelpositie: Voorzijde (geen symbool)
                 { step: 4, idx: 0 },  // Nauwkeurigheidsklasse: H Hoog (voorkeurstype)
                 { step: 5, idx: 1 },  // Voorspanning: K1 Normaal (voorkeurstype)
-                { step: 6, idx: 0 },  // Container/smering: Standaard (geen symbool)
+                { step: 6, idx: 0 },  // Smeercontainer/smering: Standaard (geen symbool)
                 { step: 7, idx: 0 },  // Afdichting: Standaard (normale condities)
                 { step: 9, idx: 0 },  // Eindplaat hoge temperatuur: Standaard (geen symbool)
                 { step: 10, idx: 0 }, // Oppervlaktebehandeling: Standaard (geen symbool)
-                { step: 11, idx: 0 }, // Rail montage onderzijde: Standaard (geen symbool)
+                { step: 11, idx: 0 }, // Rail montage: Standaard (geen symbool)
             ];
             defaults.forEach(d => {
                 const btns = document.querySelectorAll('#step' + d.step + ' .opt-btn');
@@ -2587,7 +2601,7 @@
                 'Model: ' + (selections[1] || '–'),
                 'Loopwagen: ' + (selections[2] || '–'),
                 'Smeernippel: ' + (selections[3] || 'Voorkant standaard'),
-                'Container: ' + (selections[6] || 'Standaard'),
+                'Smeercontainer: ' + (selections[6] || 'Standaard'),
                 'Afdichting: ' + (selections[7] || 'Standaard'),
                 'Loopwagens/rail: ' + (selections[8] || 'Standaard'),
                 'Voorspanning: ' + (selections[5] || '–'),
@@ -2616,19 +2630,20 @@
 
         // ── Catalogusdata (SBI_Rail_maatgegevens_absoluut_26-3-26.xlsx) — identiek aan v9.1 ──
         const RAILS = {
-            15: { F: 60, Gmin: 6, maxL: 2960, minLast: 240 },
-            20: { F: 60, Gmin: 7, maxL: 3960, minLast: 320 },
-            25: { F: 60, Gmin: 8, maxL: 3960, minLast: 320 },
-            30: { F: 80, Gmin: 9, maxL: 3960, minLast: 320 },
-            35: { F: 80, Gmin: 9, maxL: 3960, minLast: 320 },
-            45: { F: 105, Gmin: 12, maxL: 3960, minLast: 420 },
-            55: { F: 120, Gmin: 14, maxL: 3960, minLast: 480 },
-            65: { F: 150, Gmin: 15, maxL: 3960, minLast: 600 },
+            15: { F: 60, Gmin: 6, maxL: 2960, minLast: 216 },
+            20: { F: 60, Gmin: 7, maxL: 3960, minLast: 217 },
+            25: { F: 60, Gmin: 8, maxL: 3960, minLast: 218 },
+            30: { F: 80, Gmin: 9, maxL: 3960, minLast: 289 },
+            35: { F: 80, Gmin: 9, maxL: 3960, minLast: 289 },
+            45: { F: 105, Gmin: 12, maxL: 3960, minLast: 379.5 },
+            55: { F: 120, Gmin: 14, maxL: 3960, minLast: 434 },
+            65: { F: 150, Gmin: 15, maxL: 3960, minLast: 540 },
         };
 
         let cpGMode = 'auto';   // 'manual' | 'auto'
         let cpMaxLEnabled = false;    // inbouwbeperking toggle
         let cpCouplingActive = false;    // true zodra lengte > catalogus max voor gekozen model
+        let cpManualCouple   = false;    // true zodra klant zelf de toggle 'Zelf koppelen' heeft ingedrukt
         let cpValid = false;    // true zodra een geldige verdeling gevonden is
         let cpLastParts = null;
         let cpLastG1 = null;
@@ -2653,7 +2668,7 @@
             } else {
                 hint.textContent = 'Min. 100 mm – kies eerst een model (stap 1) voor de max. handelslengte';
             }
-            // Steek-stap (13) toelichting aanscherpen als koppeling actief is
+            cpResetManualCouple();
             cpUpdateCoupling();
             updateLengthSuggestions();
             syncStep13FromLength();
@@ -2872,35 +2887,73 @@
             cpUpdateStep13Lock();
         }
 
+        // Reset de handmatige koppel-toggle (bijv. bij model-wissel of lengte wissen)
+        function cpResetManualCouple() {
+            cpManualCouple = false;
+            const btn = document.getElementById('toggleCoupleBtn');
+            if (btn) { btn.classList.remove('active'); btn.style.display = 'none'; }
+            document.getElementById('toggleCoupleBtnLabel').textContent = 'Zelf koppelen (optioneel)';
+        }
+
+        function toggleManualCouple() {
+            cpManualCouple = !cpManualCouple;
+            const btn   = document.getElementById('toggleCoupleBtn');
+            const label = document.getElementById('toggleCoupleBtnLabel');
+            if (cpManualCouple) {
+                btn.classList.add('active');
+                label.textContent = 'Zelf koppelen — aan (klik om uit te zetten)';
+            } else {
+                btn.classList.remove('active');
+                label.textContent = 'Zelf koppelen (optioneel)';
+            }
+            cpUpdateCoupling();
+        }
+
         // ── Hoofdorkestratie: wordt aangeroepen bij elke lengte- of modelwijziging ──
         function cpUpdateCoupling() {
             const type = cpGetRailType();
             const rail = type ? RAILS[type] : null;
             const desired = +document.getElementById('lengthInput').value;
+            const toggleBtn = document.getElementById('toggleCoupleBtn');
 
             document.getElementById('next12').disabled = !(rail && desired && desired >= 100);
 
             if (!rail || !desired || desired <= 0) {
                 cpCouplingActive = false;
+                cpManualCouple = false;
+                if (toggleBtn) { toggleBtn.style.display = 'none'; toggleBtn.classList.remove('active'); }
+                document.getElementById('toggleCoupleBtnLabel').textContent = 'Zelf koppelen (optioneel)';
                 cpHideStep12b();
                 document.getElementById('next12').disabled = true;
                 return;
             }
 
-            if (desired <= rail.maxL) {
+            const forcedCouple = desired > rail.maxL;
+            const manualCouple = cpManualCouple && !forcedCouple;
+
+            // Toggle zichtbaar zodra er een geldige lengte binnen de handelslengte is
+            if (toggleBtn) toggleBtn.style.display = (desired >= 100 && !forcedCouple) ? 'flex' : 'none';
+
+            if (!forcedCouple && !manualCouple) {
                 cpCouplingActive = false;
                 cpHideStep12b();
                 document.getElementById('next12').disabled = false;
                 return;
             }
 
-            // Koppeling nodig
             cpCouplingActive = true;
-            document.getElementById('cpBannerText').textContent =
-                `Deze lengte (${desired} mm) overschrijdt de maximale handelslengte van ${rail.maxL} mm voor SBI${type}. De rail wordt automatisch opgesplitst in gekoppelde delen — vul stap 12B in om door te gaan.`;
+            document.getElementById('next12').disabled = true;
+
+            if (forcedCouple) {
+                document.getElementById('cpBannerText').textContent =
+                    `Deze lengte (${desired} mm) overschrijdt de maximale handelslengte van ${rail.maxL} mm voor SBI${type}. De rail wordt automatisch opgesplitst in gekoppelde delen — vul stap 12B in om door te gaan.`;
+            } else {
+                document.getElementById('cpBannerText').textContent =
+                    `Handmatige koppeling ingeschakeld voor ${desired} mm. Configureer de verdeling in stap 12B hieronder.`;
+            }
+
             document.getElementById('cpModelInfo').innerHTML =
                 `Geselecteerd model: <strong>SBI${type}</strong> — F=${rail.F} mm, K=${rail.F / 2} mm, max. handelslengte ${rail.maxL} mm, min. laatste deel ${rail.minLast} mm.`;
-            document.getElementById('next12').disabled = true; // doorgaan kan alleen via stap 12B
             cpShowStep12b();
             if (cpGMode === 'auto') cpSyncAutoG();
             cpCalculate();
