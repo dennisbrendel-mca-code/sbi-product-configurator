@@ -109,6 +109,49 @@ for (const [soort, naam] of teVerwijderen) {
   rapport.push(`  − ${naam.padEnd(22)} ${String(r.verwijderd).padStart(5)} tekens`);
 }
 
+/**
+ * Gerichte reparaties in de overgenomen UI-code.
+ *
+ * Elke patch is een BEWUSTE gedragswijziging met een ADR in docs/decisions.md.
+ * Ze staan hier en niet in een los bewerkt bestand, zodat na elke regeneratie
+ * precies aanwijsbaar blijft wat er is veranderd en waarom.
+ */
+const patches = [
+  {
+    id: 'V-008a',
+    waarom:
+      'De tekening tekende per deel n gaten, maar n is het aantal STEEK-INTERVALLEN — ' +
+      'er horen er n+1 te staan. Het laatste gat van elk deel ontbrak daardoor, en de ' +
+      'G2-maatlijn wees een afstand aan van G2+F terwijl hij G2 als label droeg.',
+    van: 'for (let h = 0; h < part.n; h++) allHoles.push(cursor + part.gStart + h * F);',
+    naar: 'for (let h = 0; h <= part.n; h++) allHoles.push(cursor + part.gStart + h * F);',
+  },
+  {
+    id: 'V-008b',
+    waarom: 'Gatentelling per deel in de specificatielijst: n intervallen = n+1 gaten.',
+    van: '` &nbsp;·&nbsp; ${p.n} gaten` +',
+    naar: '` &nbsp;·&nbsp; ${p.n + 1} gaten` +',
+  },
+  {
+    id: 'V-008c',
+    waarom: 'Zelfde telling in de informatiebalk van stap 12.',
+    van: '(automatisch, ${n} gaten)',
+    naar: '(automatisch, ${n + 1} gaten)',
+  },
+];
+
+for (const p of patches) {
+  const aantal = src.split(p.van).length - 1;
+  if (aantal !== 1) {
+    throw new Error(
+      `Patch ${p.id}: verwachtte 1 treffer voor "${p.van.slice(0, 60)}…", vond er ${aantal}. ` +
+        `Is reference/v1.8.html gewijzigd?`
+    );
+  }
+  src = src.replace(p.van, p.naar);
+  rapport.push(`  ~ ${p.id.padEnd(22)} gerepareerd`);
+}
+
 // De UI roept deze namen aan vanuit 94 inline onclick-attributen. Zolang die er
 // staan (fase 2 ruimt ze op) moeten de functies op `window` blijven.
 const globalNamen = [

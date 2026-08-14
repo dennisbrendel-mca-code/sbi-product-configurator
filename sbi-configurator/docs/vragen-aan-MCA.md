@@ -141,6 +141,8 @@ alleen de weergave fout) of minimaal 4 (dan klopt alles al en is alleen de
 telling misleidend)? In beide gevallen blijven de waarden ongewijzigd; het
 bepaalt alleen hoe we het straks tonen.
 
+**antwoorden:** minimaal 3 gaten bij minlast.
+
 ### 13. Mag het lettertype in het bestand?
 
 De configurator wordt één zelfstandig HTML-bestand. Om Fugue te tonen zonder
@@ -150,3 +152,5 @@ externe request moet het lettertype als data-URI in dat bestand — ongeveer
 **Vraag:** is de licentie van Fugue daarvoor toereikend? Het gaat om dezelfde
 site en hetzelfde gebruik als nu, alleen ingesloten in plaats van opgehaald.
 Zo niet, dan verwijzen we naar de URL op jullie server met een nette terugval.
+
+**antwoorden:** ja

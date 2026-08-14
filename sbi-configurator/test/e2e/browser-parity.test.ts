@@ -56,11 +56,28 @@ interface Momentopname {
   zijbalkKoppeling: Record<string, string>;
   specificatie: Record<string, string>;
   stap2Melding: string;
+  stap12Info: string;
   verborgenLoopwagens: string[];
   suggesties12: string[];
   illustratie: string;
   fouten: string[];
 }
+
+/**
+ * Velden waarop v2 BEWUST afwijkt van v1.8.
+ *
+ * Deze lijst is de enige plek waar "hier mag het verschillen" staat, met de
+ * reden erbij. Groeit met elke gedragswijziging en hoort te krimpen tot nul
+ * zodra het pariteitsharnas eraf mag (zie plan, einde fase 3).
+ */
+const BEWUSTE_AFWIJKINGEN: Record<keyof Momentopname, string> = {
+  koppelTekening: 'V-008a — de tekening bevat nu het laatste gat van elk deel',
+  koppelDelen: 'V-008b — gatentelling per deel is n+1 in plaats van n',
+  stap12Info: 'V-008c — zelfde gatentelling in de infobalk van stap 12',
+} as Record<keyof Momentopname, string>;
+
+const zonderAfwijkingen = <T extends object>(o: T) =>
+  Object.fromEntries(Object.entries(o).filter(([k]) => !(k in BEWUSTE_AFWIJKINGEN)));
 
 async function openPagina(browser: Browser, bestand: string): Promise<Page> {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
@@ -221,6 +238,7 @@ const LEES_SCRIPT = `(() => {
     zijbalkKoppeling,
     specificatie: spec,
     stap2Melding: tekst('step2FilterNotice').replace(/\\s+/g, ' '),
+    stap12Info: tekst('step12Info').replace(/\\s+/g, ' '),
     verborgenLoopwagens: verborgen,
     suggesties12: sug,
     illustratie: (document.getElementById('illustrationSvg')?.innerHTML ?? '').replace(/\\s+/g,' ').trim(),
@@ -380,11 +398,94 @@ describe('browser-pariteit: dist tegen v1.8', () => {
 
         const { fouten: _f1, ...aVergelijk } = a;
         const { fouten: _f2, ...bVergelijk } = b;
-        expect(bVergelijk).toEqual(aVergelijk);
+        expect(zonderAfwijkingen(bVergelijk)).toEqual(zonderAfwijkingen(aVergelijk));
       } finally {
         await oud.close();
         await nieuw.close();
       }
     }, 120_000);
   }
+});
+
+/**
+ * V-008 — de koppeltekening.
+ *
+ * v1.8 tekende per deel `n` gaten, terwijl `n` het aantal steek-intervallen is;
+ * er horen er `n + 1` te staan. Het laatste gat van elk deel ontbrak, en de
+ * maatlijn die `G2` aanwees besloeg in werkelijkheid `G2 + F`.
+ *
+ * Deze tekening gaat als bijlage mee in de offerteaanvraag, dus hij moet met de
+ * berekening overeenkomen.
+ */
+describe('V-008: de koppeltekening klopt met de berekening', () => {
+  let browser: Browser;
+
+  beforeAll(async () => {
+    browser = await chromium.launch();
+  }, 120_000);
+
+  afterAll(async () => {
+    await browser?.close();
+  });
+
+  /** Leest de tekening geometrisch uit: gatposities teruggerekend naar mm. */
+  const METING = `(() => {
+    const svg = document.getElementById('cpRailSvg');
+    const cx = [...svg.querySelectorAll('circle[fill="#2c6fad"]')].map((c) => +c.getAttribute('cx'));
+    if (cx.length < 2) return { gaten: cx.length };
+    const kaarten = [...document.querySelectorAll('#cpRailList .rail-card')]
+      .map((c) => c.textContent.replace(/\\s+/g, ' '));
+    const perDeel = kaarten.map((t) => +((t.match(/(\\d+) gaten/) || [0, 0])[1]));
+    return { gaten: cx.length, perDeel, cxEerste: cx[0], cxTweede: cx[1], cxLaatste: Math.max(...cx) };
+  })()`;
+
+  it('SBI15 @ 9000 mm: n+1 gaten per deel, en de laatste gatafstand is G2', async () => {
+    const page = await openPagina(browser, DIST);
+    try {
+      await voerUit(page, [
+        { doe: 'kies', stap: 1, code: 'SBI15' },
+        { doe: 'kies', stap: 2, code: 'FL' },
+        { doe: 'lengte', mm: 9000 },
+      ]);
+      const m = (await page.evaluate(METING)) as {
+        gaten: number;
+        perDeel: number[];
+        cxEerste: number;
+        cxTweede: number;
+        cxLaatste: number;
+      };
+
+      // De verdeling is 2880/2940/2940/240 met n = 47/48/48/3 (golden master).
+      expect(m.perDeel).toEqual([48, 49, 49, 4]);
+      expect(m.gaten).toBe(150);
+
+      // Schaal terugrekenen uit de eerste twee gaten: die liggen exact F=60 mm uit elkaar.
+      const sc = (m.cxTweede - m.cxEerste) / 60;
+      const mg = m.cxEerste - 30 * sc; // G1 = 30 mm
+      const eindeVanDeRail = mg + 9000 * sc;
+      const restMm = (eindeVanDeRail - m.cxLaatste) / sc;
+
+      // Moet G2 = 30 mm zijn; v1.8 kwam hier op 90 mm uit (= G2 + F).
+      expect(restMm).toBeCloseTo(30, 1);
+    } finally {
+      await page.close();
+    }
+  }, 120_000);
+
+  it('het kortste deel haalt het minimum van 3 bevestigingsgaten van MCA', async () => {
+    // minLast = K + 3·F + Gmin geeft n = 3, dus 4 gaten — ruim boven het
+    // minimum van 3 dat MCA heeft opgegeven (vraag 12).
+    const page = await openPagina(browser, DIST);
+    try {
+      await voerUit(page, [
+        { doe: 'kies', stap: 1, code: 'SBI15' },
+        { doe: 'kies', stap: 2, code: 'FL' },
+        { doe: 'lengte', mm: 9000 },
+      ]);
+      const m = (await page.evaluate(METING)) as { perDeel: number[] };
+      for (const gaten of m.perDeel) expect(gaten).toBeGreaterThanOrEqual(3);
+    } finally {
+      await page.close();
+    }
+  }, 120_000);
 });

@@ -191,15 +191,36 @@ juist symmetrie afdwingt.
 Dezelfde telling zit in de teksten: `${p.n} gaten` (regel 3176) en
 `(automatisch, ${n} gaten)` (regel 2227) tellen allebei één te weinig.
 
-**Let op — dit raakt de betekenis van V-007.** MCA zegt dat `minLast` het
-kortste deel "drie bevestigingsgaten" geeft. Met `minLast = K + 3F + Gmin` is
-`n = 3`, en dus zijn er in werkelijkheid **vier** gaten. De tool laat "3 gaten"
-zien omdat hij `n` toont. MCA's toelichting sluit dus aan bij het foutieve
-label, niet bij de werkelijke geometrie. Terug te leggen bij MCA (vraag 12)
-vóórdat we de telling corrigeren — de getallen zelf blijven hoe dan ook staan.
+**Antwoord MCA (vraag 12):** minimaal 3 gaten bij `minLast`. Met
+`minLast = K + 3F + Gmin` is `n = 3`, dus zijn er in werkelijkheid **vier**
+gaten. Het minimum wordt dus gehaald, met één gat marge — er is geen conflict.
+Alleen de wéérgave klopte niet.
 
-Fix in fase 3: `h <= part.n` in de tekenlus, `n + 1` in de teksten, en de
-G2-maatlijn vanaf het werkelijke laatste gat.
+#### Opgelost — vervroegd naar fase 1 op verzoek
+
+Drie gerichte patches, vastgelegd in `scripts/wire-legacy.mjs` zodat ze elke
+regeneratie overleven en aanwijsbaar blijven:
+
+| Patch | Wijziging |
+|---|---|
+| V-008a | `h < part.n` → `h <= part.n` in de tekenlus |
+| V-008b | `${p.n} gaten` → `${p.n + 1} gaten` in de deelspecificatie |
+| V-008c | idem in de infobalk van stap 12 |
+
+De G2-maatlijn corrigeert zichzelf mee: die wordt vanaf het láátste gat
+getekend, en dat is nu het juiste gat.
+
+Gemeten in de browser, SBI15 @ 9000 mm:
+
+| | v1.8 | v2.0 |
+|---|---|---|
+| Getekende gaten | 146 | **150** |
+| Per deel | 47 / 48 / 48 / 3 | **48 / 49 / 49 / 4** |
+| Laatste gat → raileinde | 90 mm | **30 mm** (= G2) |
+
+De patches staan als bewuste afwijking in `BEWUSTE_AFWIJKINGEN` in de
+browser-pariteitstest, met twee eigen tests die de gecorrigeerde geometrie
+vastleggen — inclusief de eis dat elk deel minimaal 3 gaten houdt.
 
 ### V-006 · Valkuil bij het toetsen: de koppelstatus staat niet op `window`
 

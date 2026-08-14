@@ -192,7 +192,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
             const { G, n } = cpCalcAutoGDetailed(val, rail.F, rail.Gmin);
             infoBox.style.display = 'block';
-            infoBox.innerHTML = `Bij deze lengte: G1 = G2 = <strong>${G} mm</strong> (automatisch, ${n} gaten). Dit wordt al ingevuld bij stap 13.`;
+            infoBox.innerHTML = `Bij deze lengte: G1 = G2 = <strong>${G} mm</strong> (automatisch, ${n + 1} gaten). Dit wordt al ingevuld bij stap 13.`;
 
             const sugs = step9FindSuggestions(val, rail.F, rail.Gmin, rail.maxL, 6);
             if (!sugs.length) { sugWrap.style.display = 'none'; return; }
@@ -1042,7 +1042,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
                     `</div>` +
                     `<div class="rail-card-body">` +
                     `<span class="formula">${formula}</span>` +
-                    ` &nbsp;·&nbsp; ${p.n} gaten` +
+                    ` &nbsp;·&nbsp; ${p.n + 1} gaten` +
                     (p.isFirst ? ` &nbsp;·&nbsp; G1: <strong>${p.gStart} mm</strong>` : '') +
                     (p.isLast ? ` &nbsp;·&nbsp; G2: <strong>${p.gEnd} mm</strong>` : '') +
                     (!p.isLast ? `<br><span class="joint-note">→ koppelpunt naar deel ${i + 2}: K = ${K} mm aan beide zijden</span>` : '') +
@@ -1065,7 +1065,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             let allHoles = [];
             let cursor = 0;
             parts.forEach(part => {
-                for (let h = 0; h < part.n; h++) allHoles.push(cursor + part.gStart + h * F);
+                for (let h = 0; h <= part.n; h++) allHoles.push(cursor + part.gStart + h * F);
                 cursor += part.L;
             });
 
