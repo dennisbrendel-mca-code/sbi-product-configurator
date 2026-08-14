@@ -1,9 +1,8 @@
 # Vragen aan MCA
 
-Deze vragen blokkeren de bouw niet — het gedrag blijft tot ze beantwoord zijn
-exact zoals v1.8 het doet. Ze bepalen wél wat er in fase 3 en 4 gebeurt.
-
-Op volgorde van belang.
+**Stand: 14 augustus 2026 — vragen 1 t/m 11 beantwoord door Dennis Brendel.**
+De antwoorden staan hieronder ongewijzigd, met daaronder wat ermee gedaan is.
+Vraag 12 is nieuw en volgt uit het antwoord op vraag 2.
 
 ---
 
@@ -13,101 +12,141 @@ Bij **SBI30, SBI35, SBI45 en SBI65** geeft de configurator nóóit een
 lengtesuggestie, ook niet als er prima alternatieven bestaan. Bij SBI15, 20, 25
 en 55 werkt het wel. Oorzaak gevonden en te repareren (zie `decisions.md` V-001).
 
-**Vraag:** is dit ooit gemeld door klanten of verkoop? En: mag ik dit in fase 3
-repareren — de tool gaat dan bij die vier maten opeens suggesties tonen waar hij
-nu zwijgt.
+**Antwoord:** lengtesuggesties mogen gegeven worden bij alle varianten, alleen
+dit hoeft niet op te vallen.
+
+> **Verwerkt:** V-001 wordt in fase 3 gerepareerd (itereren over het aantal
+> stappen in plaats van over een absolute afstand). De suggesties verschijnen
+> dan bij alle acht maten, in dezelfde vormgeving als nu — geen banner, geen
+> "nieuw"-melding. Voor de klant ziet het eruit alsof het altijd zo werkte.
 
 ### 2. Waar komt `minLast` vandaan?
 
-De waarden **216 / 217 / 218 / 289 / 289 / 379,5 / 434 / 540** (minimale lengte
-van het laatste, op maat gezaagde deel) staan niet in `SBI maatgegevens
-(absoluut).xlsx` en ik vind ze niet terug in de catalogus.
+**Antwoord:** minLast mag niet veranderd worden. Deze waarden hebben wij gegeven
+zodat de kleinste rail, dus de kortste maat, altijd drie bevestigingsgaten
+heeft. Dus laat deze data staan.
 
-**Vraag:** wie is de eigenaar van deze getallen en waarop zijn ze gebaseerd?
-Zonder bron kunnen we ze nooit verantwoorden of bijwerken. Tot die tijd blijven
-ze exact zoals ze zijn, vastgezet met een test.
+> **Verwerkt — en dit leverde een regel op.** De acht waarden blijken exact te
+> volgen uit `minLast = K + 3·F + Gmin` (met K = F/2), op alle acht modellen tot
+> op de halve millimeter. Zie `decisions.md` V-007.
+>
+> De waarden blijven letterlijk staan zoals gevraagd. De formule staat er als
+> bewaking naast: een test vergelijkt beide, zodat het opvalt als iemand ooit
+> `Gmin` of `F` wijzigt zonder `minLast` mee te nemen. Dat gat bestond tot nu toe.
 
 ### 3. Stap 8 spreekt zichzelf tegen
 
-De omschrijving zegt *"Geen symbool = 1 loopwagen per rail"* en het knoplabel
-zegt *"1 loopwagen (geen symbool)"* — maar de code zet een `1` in de bestelcode.
-Stap 14 doet het bij "1 rail" wél met een leeg veld.
+**Antwoord:** geen symbool heeft te maken met de code die hij genereert, dus in
+de bestelcode komt dan geen één te staan.
 
-**Vraag:** hoort `SBI20-FL-1-K1-…` of `SBI20-FL-K1-…`? Ik wijzig hier niets
-zonder antwoord.
+> **Verwerkt:** in fase 3 wordt stap 8 "1 loopwagen" een leeg codeveld, net
+> zoals stap 14 dat bij "1 rail" al doet. `SBI20-FL-K1-…` dus, niet
+> `SBI20-FL-1-K1-…`. Dit verandert de uitvoer, dus eigen commit met ADR en
+> verschuivende golden fixtures.
 
 ### 4. Rails zonder bevestigingsgaten
 
-Bij SBI45, 55 en 65 kan een korte rail (vanaf de ondergrens van 100 mm) uitkomen
-op **nul** bevestigingsgaten. De configurator waarschuwt daar niet over.
+**Antwoord:** waarschuwing, maar zie antwoord bij vraag 2.
 
-**Vraag:** is dat leverbaar, of hoort daar een blokkade of waarschuwing?
+> **Verwerkt:** wordt een waarschuwing, geen blokkade. Met het antwoord op
+> vraag 2 erbij ligt de drempel voor de hand: waarschuw zodra een rail korter is
+> dan `minLast`, want dat is precies de grens waaronder de zaagregel van drie
+> gaten niet meer gehaald wordt. Die grens gold tot nu toe alleen voor het
+> laatste deel van een gekoppelde rail, niet voor een gewone losse rail.
 
 ### 5. Maximale raillengte: 2960/3960 of 3000/4000?
 
-De xlsx noemt 2960 (SBI15) en 3960 (overige) als "Max. raillengte"; de catalogus
-noemt bij `L0 max` 3000 respectievelijk 4000.
+**Antwoord:** dit is een bewuste veiligheidsmarge voor zaagverlies, dus niet
+aankomen, laten staan.
 
-**Vraag:** is 2960/3960 een bewuste veiligheidsmarge (zaagverlies?), of is een
-van beide verouderd?
+> **Verwerkt:** blijft 2960/3960. Vastgelegd met bron in `catalog.rails.ts`,
+> zodat niemand het later "corrigeert" naar de catalogusgetallen.
 
 ### 6. Bloktype-matrix: welke types in welke maten?
 
-De bronnen spreken elkaar tegen:
+**Antwoord:** laten zoals het is.
 
-| Bron | Wat het zegt |
-|---|---|
-| v1.8 (huidig) | FLS/SLS/HLS alleen 15-35; CLS alleen 20; overige tien types onbeperkt |
-| Catalogus V13-2019 (p7/p8) | noemt FLS en SLS helemaal niet |
-| SBC Linear (leverancier) | voert FLS/SLS/HLS/CLS wel, als "Short Block Length" |
-| SBC-USA | FL-familie 15-30 · CL 20/25 · SL 15-25 · FV 15-25 · HL 15/25 · SV 15-25 |
-
-**Vraag:** kun je de leverancier om de actuele matrix vragen? Tot die tijd
-blijven de vier bestaande beperkingen ongewijzigd en voegen we niets toe.
+> **Verwerkt:** de vier bestaande beperkingen (FLS/SLS/HLS bij 15-35, CLS bij
+> 20) blijven ongewijzigd; er komt niets bij. De matrix wordt wel data in plaats
+> van HTML-attributen, zodat een toekomstige wijziging één regel is.
 
 ### 7. Optie `-B` (railmontage van onderaf)
 
-Catalogus p21 geeft `-B` een eigen **G min. van 20 mm** (22,5 bij SBI45) en kent
-geen SBI55-B/65-B. De configurator gebruikt bij `-B` nog steeds de gewone Gmin
-van 6-15 mm.
+**Antwoord:** op dit moment is de tool leidend.
 
-Jij gaf aan dit voorlopig te laten zoals het is, dus daar houd ik me aan.
-**Vraag ter bevestiging:** klopt de catalogus hier, of is de huidige tool
-leidend? Als de catalogus klopt, rekent de tool op dit moment te kleine
-eindmaten bij elke `-B`-configuratie.
+> **Verwerkt:** geen wijziging aan `Gmin` bij `-B`. Wel vastgelegd dat de
+> catalogus hier iets anders zegt, zodat het terugvindbaar is als het ooit
+> alsnog blijkt te knellen.
 
 ### 8. Nauwkeurigheidsklasse `N`
 
-De catalogus kent N (Normal), H (High, voorkeur) en P (Precision). De tool biedt
-alleen H en P.
+**Antwoord:** ja, bewust.
 
-**Vraag:** bewust weggelaten omdat MCA geen N levert?
+> **Verwerkt:** blijft H en P. Genoteerd als bewuste keuze, niet als omissie.
 
 ### 9. Canoniek codeformaat
 
-De catalogus schrijft `SBI20 FL - N - MF - ZZ - 2 - K1 - HT - 800 - H - FCR - B - G1/G2 - II`
-(spatie na het model, spaties rond de streepjes). De tool produceert
-`SBI20-FL-N-MF-ZZ-2-K1-HT-800-H-FCR-B-20/20-II`.
+**Antwoord:** maakt niet zoveel uit. Laat het voor nu maar staan.
 
-**Vraag:** welk formaat moet de kopieerknop opleveren? Dit gaat rechtstreeks in
-jullie ordersysteem, dus het luistert nauw.
+> **Verwerkt:** blijft `SBI20-FL-N-…` met kale streepjes.
 
 ### 10. Rail zonder loopwagen
 
-Catalogus p7 kent daarvoor een eigen 5-velds formaat mét `L`-achtervoegsel:
-`SBI20 - 1200L - B - FCR - 20/20`. De tool laat nu simpelweg de lege velden weg
-uit het 14-velds formaat.
+**Antwoord:** zolang dit geen problemen levert bij de gekoppelde rails.
 
-**Vraag:** moet de "geen loopwagen"-route het 5-velds formaat produceren?
+> **Verwerkt:** blijft het uitgeklede 14-velds formaat. De "geen
+> loopwagen"-route en de koppelroute staan los van elkaar — het weglaten van
+> lege velden gebeurt pas bij het samenstellen van de code en raakt de
+> berekening niet. De browsertest dekt de combinatie af.
 
 ### 11. Techniek — voor jullie IT
 
-- Mag er een must-use plugin met een REST-endpoint op de site (±30 regels PHP)
-  die de offerteaanvraag valideert, opslaat en mailt naar `linear@mcabv.nl`?
-  De huidige `mailto:`-route kapt bij gekoppelde rails af (>2000 tekens) en
-  faalt stil — er gaan waarschijnlijk nu al aanvragen verloren.
-- Hoeveel offerteaanvragen komen er feitelijk binnen via de configurator,
-  afgezet tegen het aantal bezoeken? Dat vertelt of punt 1 hierboven klopt.
-- Is er een woff2-bestand met weblicentie voor het huislettertype **Fugue**? De
-  CSS vraagt er 39 keer om maar laadt het nergens, dus de tool draait vandaag in
-  Trebuchet MS.
+- **REST-endpoint:** *op dit moment nog onbekend.*
+  > **Verwerkt:** de verzending komt achter één `QuoteTransport`-interface met
+  > `mailto` als startimplementatie. Overschakelen naar een endpoint is later
+  > een configuratievlag, geen herbouw. Ondertussen wordt de mailto-route wel
+  > robuuster gemaakt (body kort houden, lengte meten en waarschuwen, echte
+  > link in plaats van `location.href`, en altijd "kopieer aanvraagtekst").
+- **Aantal aanvragen:** *dit weten we niet.*
+  > **Verwerkt:** geen meting mogelijk, dus we gaan uit van het slechtste geval.
+  > Reden te meer om niet op mailto te blijven leunen.
+- **Lettertype Fugue:** *we hebben dit lettertype op onze website staan.*
+  > **Verwerkt:** gevonden op
+  > `https://www.mcabv.nl/wp-content/uploads/useanyfont/6526Fugue.woff2` —
+  > 30,7 kB, **alleen gewicht 400**. De configurator gebruikt halfvet en vet;
+  > die worden dus door de browser nagebootst, net als op de rest van de site.
+  > Plan voor fase 4: subsetten (de tool heeft alleen Latijn plus een handvol
+  > tekens nodig) en inline zetten als data-URI, zodat het bestand zelfstandig
+  > blijft. Zie vraag 13.
+
+---
+
+## Nieuwe vragen
+
+### 12. Drie of vier bevestigingsgaten?
+
+Volgt rechtstreeks uit het antwoord op vraag 2, en er zit een telfout tussen.
+
+Het rekenmodel is `L = G1 + n·F + G2`, waarbij `n` het aantal **steken** is. Het
+aantal gaten is dan `n + 1`. De tool toont overal `n` en tekent er ook `n` — dus
+consequent één te weinig (zie `decisions.md` V-008).
+
+Met `minLast = K + 3·F + Gmin` komt `n` op 3 uit. Dat betekent:
+
+- de tool **toont** "3 gaten" — wat aansluit bij jullie omschrijving;
+- er zitten in werkelijkheid **4 gaten** in dat kortste deel.
+
+**Vraag:** wat was de bedoeling — minimaal 3 gaten (dan klopt `minLast` en is
+alleen de weergave fout) of minimaal 4 (dan klopt alles al en is alleen de
+telling misleidend)? In beide gevallen blijven de waarden ongewijzigd; het
+bepaalt alleen hoe we het straks tonen.
+
+### 13. Mag het lettertype in het bestand?
+
+De configurator wordt één zelfstandig HTML-bestand. Om Fugue te tonen zonder
+externe request moet het lettertype als data-URI in dat bestand — ongeveer
+15 kB na subsetten.
+
+**Vraag:** is de licentie van Fugue daarvoor toereikend? Het gaat om dezelfde
+site en hetzelfde gebruik als nu, alleen ingesloten in plaats van opgehaald.
+Zo niet, dan verwijzen we naar de URL op jullie server met een nette terugval.

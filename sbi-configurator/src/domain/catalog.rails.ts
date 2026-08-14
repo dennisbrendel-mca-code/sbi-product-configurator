@@ -27,6 +27,23 @@ export const RAILS: Readonly<Record<ModelSize, RailSpec>> = Object.freeze({
   65: Object.freeze({ size: 65, F: 150, Gmin: 15, maxL: 3960, minLast: 540 }),
 });
 
+/**
+ * De regel achter `minLast`, zoals MCA hem heeft gegeven: het kortste (op maat
+ * gezaagde) deel moet altijd genoeg bevestigingsgaten houden.
+ *
+ *     minLast = K + 3·F + Gmin       met K = F/2   →   3,5·F + Gmin
+ *
+ * Reproduceert alle acht waarden uit v1.8 exact (zie docs/decisions.md V-007).
+ *
+ * Dit is bewust een CONTROLE en geen vervanging: de tabel hierboven blijft
+ * leidend omdat MCA heeft gezegd dat die waarden niet mogen veranderen. Een
+ * test vergelijkt beide, zodat een toekomstige wijziging aan Gmin of F meteen
+ * opvalt in plaats van stilletjes de zaagregel te breken.
+ */
+export function afgeleidMinLast(F: number, Gmin: number): number {
+  return F / 2 + 3 * F + Gmin;
+}
+
 /** Zet 'SBI20' om naar 20. Geeft null bij een onbekende of ontbrekende code. */
 export function parseModelCode(code: string | undefined | null): ModelSize | null {
   if (!code) return null;

@@ -128,6 +128,79 @@ HTML (`min="100"`) als `onLengthInput()` afdwingen. Het is een theoretisch
 robuustheidsgat, geen live defect. **Verlaagd van "te repareren" naar "een
 guard toevoegen bij het porteren"**; geen aparte fase-3-commit nodig.
 
+### V-007 · `minLast` is afleidbaar: `K + 3·F + Gmin`
+
+**Opgelost.** MCA heeft de herkomst gegeven (vraag 2): de waarden zijn zo
+gekozen dat het kortste deel altijd drie bevestigingsgaten heeft.
+
+Die regel reproduceert de tabel exact:
+
+```
+minLast = K + 3·F + Gmin        met K = F/2,  dus  minLast = 3,5·F + Gmin
+```
+
+| Model | F | Gmin | K | K+3F+Gmin | minLast in v1.8 |
+|---|---|---|---|---|---|
+| SBI15 | 60 | 6 | 30 | 216 | 216 |
+| SBI20 | 60 | 7 | 30 | 217 | 217 |
+| SBI25 | 60 | 8 | 30 | 218 | 218 |
+| SBI30 | 80 | 9 | 40 | 289 | 289 |
+| SBI35 | 80 | 9 | 40 | 289 | 289 |
+| SBI45 | 105 | 12 | 52,5 | 379,5 | 379,5 |
+| SBI55 | 120 | 14 | 60 | 434 | 434 |
+| SBI65 | 150 | 15 | 75 | 540 | 540 |
+
+Acht op acht. Daarmee is `minLast` geen lijst magische getallen meer maar een
+regel met een reden.
+
+MCA heeft gezegd dat de wáárden niet mogen veranderen. Dat blijft zo: de tabel
+staat letterlijk in `catalog.rails.ts` en wordt door een test vastgezet. De
+formule staat er als **controle** naast, niet als vervanging — als iemand ooit
+een maat toevoegt of `Gmin` wijzigt, valt de test om zodra de afgeleide waarde
+niet meer klopt. Dat is precies de bewaking die ontbrak.
+
+### V-008 · De koppeltekening mist per deel één gat, en een maatlijn is fout gelabeld
+
+**Ernst: hoog.** Deze tekening gaat als bijlage mee in de offerteaanvraag.
+
+Het rekenmodel is ondubbelzinnig: `L = gStart + n·F + gEnd`, waarbij `gStart` de
+afstand is van de rand tot het eerste gat en `gEnd` die van het laatste gat tot
+de rand. Daaruit volgt dat `n` het aantal **steek-intervallen** is en het aantal
+gaten dus `n + 1`.
+
+`cpDrawSvg` tekent er `n` (regel 3199):
+
+```js
+for (let h = 0; h < part.n; h++) allHoles.push(cursor + part.gStart + h * F);
+```
+
+Het laatste gat komt daardoor op `gStart + (n−1)·F` in plaats van `gStart + n·F`.
+
+Gemeten in de browser, SBI15 @ 9000 mm (4 delen, n = 47/48/48/3):
+
+| | Verwacht | Getekend |
+|---|---|---|
+| Aantal gaten | 150 | **146** |
+| Afstand laatste gat → raileinde | 30 mm | **90 mm** |
+| Label op die maatlijn (regel 3209) | `G2=30` | `G2=30` |
+
+De maatlijn zegt dus 30 mm bij een afstand die 90 mm is — precies één steek
+ernaast. Ook het gatenpatroon wordt asymmetrisch getekend terwijl de berekening
+juist symmetrie afdwingt.
+
+Dezelfde telling zit in de teksten: `${p.n} gaten` (regel 3176) en
+`(automatisch, ${n} gaten)` (regel 2227) tellen allebei één te weinig.
+
+**Let op — dit raakt de betekenis van V-007.** MCA zegt dat `minLast` het
+kortste deel "drie bevestigingsgaten" geeft. Met `minLast = K + 3F + Gmin` is
+`n = 3`, en dus zijn er in werkelijkheid **vier** gaten. De tool laat "3 gaten"
+zien omdat hij `n` toont. MCA's toelichting sluit dus aan bij het foutieve
+label, niet bij de werkelijke geometrie. Terug te leggen bij MCA (vraag 12)
+vóórdat we de telling corrigeren — de getallen zelf blijven hoe dan ook staan.
+
+Fix in fase 3: `h <= part.n` in de tekenlus, `n + 1` in de teksten, en de
+G2-maatlijn vanaf het werkelijke laatste gat.
+
 ### V-006 · Valkuil bij het toetsen: de koppelstatus staat niet op `window`
 
 Bij het opzetten van de browser-pariteitstest las ik `window.cpCouplingActive`,

@@ -20,7 +20,7 @@ import {
 } from '../tools/sweeps.mjs';
 import type { PartsCase, SuggestionCase } from '../tools/sweeps.mjs';
 
-import { RAILS } from '../../src/domain/catalog.rails';
+import { RAILS, afgeleidMinLast } from '../../src/domain/catalog.rails';
 import { calcAutoG } from '../../src/domain/pitch';
 import { computeParts, autoNumParts, findSuggestions, findLengthSuggestions } from '../../src/domain/coupling';
 import type { CouplingInput } from '../../src/domain/coupling';
@@ -58,6 +58,27 @@ describe('pariteit — de maattabel', () => {
   it('K is exact een halve steek, zodat de gatafstand over een naad F blijft', () => {
     for (const size of MODEL_SIZES) {
       expect(RAILS[size].F / 2 + RAILS[size].F / 2).toBe(RAILS[size].F);
+    }
+  });
+
+  it('minLast volgt de zaagregel van MCA: K + 3·F + Gmin', () => {
+    // MCA (vraag 2): minLast is zo gekozen dat het kortste deel altijd genoeg
+    // bevestigingsgaten houdt. Deze test bewaakt dat de tabel en die regel niet
+    // uit elkaar lopen — zie docs/decisions.md V-007.
+    for (const size of MODEL_SIZES) {
+      const rail = RAILS[size];
+      expect(afgeleidMinLast(rail.F, rail.Gmin)).toBeCloseTo(rail.minLast, 9);
+    }
+  });
+
+  it('een deel van precies minLast heeft 3 steek-intervallen', () => {
+    // Dit is de eigenschap die de zaagregel bedoelt te garanderen.
+    // Let op de telling: 3 intervallen betekent 4 gaten — zie V-008.
+    for (const size of MODEL_SIZES) {
+      const rail = RAILS[size];
+      const K = rail.F / 2;
+      const intervallen = (rail.minLast - K - rail.Gmin) / rail.F;
+      expect(intervallen).toBeCloseTo(3, 9);
     }
   });
 });
