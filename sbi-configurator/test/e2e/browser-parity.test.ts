@@ -79,6 +79,21 @@ const BEWUSTE_AFWIJKINGEN: Record<keyof Momentopname, string> = {
 const zonderAfwijkingen = <T extends object>(o: T) =>
   Object.fromEntries(Object.entries(o).filter(([k]) => !(k in BEWUSTE_AFWIJKINGEN)));
 
+/**
+ * Vindt de wortel waarin de configurator staat.
+ *
+ * v1.8 rendert in het document; v2 in de shadow root van
+ * `<mca-sbi-configurator>`. Beide leveren een object met `getElementById` en
+ * `querySelectorAll` — ShadowRoot heeft die net als Document.
+ *
+ * Als expressie-string, omdat vitest functie-literals transformeert.
+ */
+const ROOT_JS = `(() => {
+  const el = document.querySelector('mca-sbi-configurator');
+  window.root = (el && el.shadowRoot) ? el.shadowRoot : document;
+  return window.root;
+})()`;
+
 async function openPagina(browser: Browser, bestand: string): Promise<Page> {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   // Snel falen: een niet-klikbaar element is hier een bevinding, geen wachtspel.
@@ -101,8 +116,13 @@ async function openPagina(browser: Browser, bestand: string): Promise<Page> {
   );
   await page.goto(pathToFileURL(bestand).href);
   // Als string, niet als functie: vitest transformeert functie-literals en dan
-  // is de predicaat in de browsercontext niet meer uitvoerbaar.
-  await page.waitForFunction("typeof window.buildCode === 'function'", null, { timeout: 15_000 });
+  // is het predicaat in de browsercontext niet meer uitvoerbaar.
+  //
+  // v1.8 zet zijn markup in het document; v2 in de shadow root van het custom
+  // element. Wachten op #codeDisplay dekt beide.
+  await page.waitForFunction(`${ROOT_JS} && root.getElementById('codeDisplay')`, null, {
+    timeout: 15_000,
+  });
   (page as any).__fouten = fouten;
   return page;
 }
@@ -125,7 +145,7 @@ function stapVan(s: Stap): number {
  */
 async function opendeStap(page: Page, stap: number): Promise<void> {
   const open = await page.evaluate(
-    `!!document.getElementById('step${stap}')?.classList.contains('active')`
+    `${ROOT_JS}.getElementById('step${stap}')?.classList.contains('active') === true`
   );
   if (!open) {
     await page.locator(`#step${stap} .step-header`).first().click();
@@ -172,12 +192,13 @@ async function voerUit(page: Page, stappen: Stap[]): Promise<void> {
  */
 const LEES_SCRIPT = `(() => {
   const w = window;
-  const tekst = (id) => (document.getElementById(id)?.textContent ?? '').trim();
+  const root = ${ROOT_JS};
+  const tekst = (id) => (root.getElementById(id)?.textContent ?? '').trim();
   const zichtbaar = (id) => {
-    const el = document.getElementById(id);
+    const el = root.getElementById(id);
     return el ? getComputedStyle(el).display !== 'none' : false;
   };
-  const knopUit = (id) => !!document.getElementById(id)?.disabled;
+  const knopUit = (id) => !!root.getElementById(id)?.disabled;
 
   const spec = {};
   for (const id of ['bd1','bd2','bd4','bd5','bd7','bd8','bd12','bd13','bd14','bd15']) {
@@ -185,14 +206,14 @@ const LEES_SCRIPT = `(() => {
   }
 
   const verborgen = [];
-  document.querySelectorAll('#step2 .opt-btn[data-models]').forEach((el) => {
+  root.querySelectorAll('#step2 .opt-btn[data-models]').forEach((el) => {
     if (el.style.display === 'none') {
       verborgen.push((el.querySelector('.opt-code')?.textContent ?? '?').trim());
     }
   });
 
   const sug = [];
-  document.querySelectorAll('#step12SugList .wizard-sug-pill, #cpSugList .sug-pill').forEach((p) => {
+  root.querySelectorAll('#step12SugList .wizard-sug-pill, #cpSugList .sug-pill').forEach((p) => {
     sug.push((p.textContent ?? '').replace(/\\s+/g, ' ').trim());
   });
 
@@ -202,7 +223,7 @@ const LEES_SCRIPT = `(() => {
   // laten. Daarom lezen we hier wat de klant daadwerkelijk ziet: de gerenderde
   // deellijst, de uitvoertabel en de zijbalk.
   const koppelDelen = [];
-  document.querySelectorAll('#cpRailList .rail-card').forEach((el) => {
+  root.querySelectorAll('#cpRailList .rail-card').forEach((el) => {
     koppelDelen.push((el.textContent ?? '').replace(/\\s+/g, ' ').trim());
   });
 
@@ -217,7 +238,7 @@ const LEES_SCRIPT = `(() => {
   }
 
   // De tekening is de tweede zichtbare uitkomst van de koppelberekening.
-  const svg = document.getElementById('cpRailSvg');
+  const svg = root.getElementById('cpRailSvg');
   const tekening = svg ? (svg.innerHTML || '').replace(/\\s+/g, ' ').trim() : '';
 
   return {
@@ -241,7 +262,7 @@ const LEES_SCRIPT = `(() => {
     stap12Info: tekst('step12Info').replace(/\\s+/g, ' '),
     verborgenLoopwagens: verborgen,
     suggesties12: sug,
-    illustratie: (document.getElementById('illustrationSvg')?.innerHTML ?? '').replace(/\\s+/g,' ').trim(),
+    illustratie: (root.getElementById('illustrationSvg')?.innerHTML ?? '').replace(/\\s+/g,' ').trim(),
   };
 })()`;
 
@@ -430,10 +451,10 @@ describe('V-008: de koppeltekening klopt met de berekening', () => {
 
   /** Leest de tekening geometrisch uit: gatposities teruggerekend naar mm. */
   const METING = `(() => {
-    const svg = document.getElementById('cpRailSvg');
+    const svg = ${ROOT_JS}.getElementById('cpRailSvg');
     const cx = [...svg.querySelectorAll('circle[fill="#2c6fad"]')].map((c) => +c.getAttribute('cx'));
     if (cx.length < 2) return { gaten: cx.length };
-    const kaarten = [...document.querySelectorAll('#cpRailList .rail-card')]
+    const kaarten = [...window.root.querySelectorAll('#cpRailList .rail-card')]
       .map((c) => c.textContent.replace(/\\s+/g, ' '));
     const perDeel = kaarten.map((t) => +((t.match(/(\\d+) gaten/) || [0, 0])[1]));
     return { gaten: cx.length, perDeel, cxEerste: cx[0], cxTweede: cx[1], cxLaatste: Math.max(...cx) };

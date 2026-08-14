@@ -1,9 +1,10 @@
 /**
  * Instappunt van de configurator.
  *
- * Fase 1 houdt de UI van v1.8 ongewijzigd en vervangt alleen het rekenhart —
- * zie src/ui/legacy-ui.js. Vanaf fase 2 wordt dit een custom element met
- * shadow DOM en een uit data gegenereerde interface.
+ * Het enige wat hier gebeurt is het registreren van het custom element. Alles
+ * daarna zit in de shadow root, zodat de configurator en de pagina eromheen
+ * elkaars opmaak niet kunnen raken.
  */
-import './ui/styles/legacy.css';
-import './ui/legacy-ui.js';
+import { registreer } from './element';
+
+registreer();

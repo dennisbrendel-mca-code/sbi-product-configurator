@@ -32,6 +32,53 @@ ADR-regel hieronder bij die uitlegt welke fixture waarom verschuift.
 
 ---
 
+## Fase 2 — inkapseling
+
+### B-001 · De configurator wordt een custom element met shadow DOM
+
+`<mca-sbi-configurator>` met een open shadow root. De markup en de stylesheet
+van v1.8 gaan er letterlijk in; de 162 DOM-opzoekingen zijn gescoopt op die
+wortel.
+
+**Waarom.** Dit was de harde blokkade om de tool op de site te zetten. Wat er
+zonder inkapseling gebeurt is nagemeten in `test/e2e/embed.test.ts` (derde test,
+met de échte CSS van v1.8 in een themapagina):
+
+| | Zonder v1.8-CSS | Met v1.8-CSS |
+|---|---|---|
+| Site-lettertype | Georgia | **Fugue/Trebuchet** |
+| Achtergrond | crème | **grijs** |
+| `h2` bovenmarge | 19,92 px | **0 px** |
+| `ul` inspringing | 40 px | **0 px** |
+| `blockquote` inspringing | 40 px | **0 px** |
+| `.header` padding | 32 px | **0 px** |
+| `.header` achtergrond | donkerblauw | **wit** |
+
+**Correctie op een eerdere inschatting.** Ik heb gemeld dat de reset "de opmaak
+van de hele pagina weghaalt". Dat is te stellig. `*` heeft specificiteit (0,0,0)
+en verliest van élke themaregel die een element of class noemt — de `body`-marge
+en de alineamarges van het thema bleven in de meting gewoon staan. Wat wél
+sneuvelt: de browserstandaarden van alles wat het thema niet expliciet opmaakt
+(koppen, lijsten, citaten — dus de hele bodytekst verliest zijn ritme), plus het
+lettertype, de achtergrond en elk element met een botsende class-naam. Nog
+steeds ernstig genoeg om te blokkeren, maar het is geen totale verwoesting.
+
+**Wat de shadow root oplost:**
+- de `*`-reset raakt alleen nog de configurator zelf en mag dus blijven staan;
+- `:root` en `body` zijn omgezet naar `:host` (anders matchen ze niets meer);
+- ID-botsingen zijn weg: de gastpagina in de test heeft een eigen `#step1`,
+  `#codeDisplay` en `#lengthInput` en die blijven onaangeroerd;
+- UIkit-stijlen van YOOtheme lekken niet naar binnen — de test zet
+  `button { border: 3px dotted }` op de gastpagina en de knoppen in de
+  configurator trekken zich er niets van aan.
+
+**Wat nog niet af is.** De 94 inline `onclick`-attributen dwingen af dat 61
+functienamen op `window` blijven staan. Daarmee is er nog één instantie per
+pagina mogelijk en werkt de tool nog niet onder een strikte CSP. Fase 2c
+vervangt ze door gedelegeerde listeners; dan kan dat blok weg.
+
+---
+
 ## Bevindingen tijdens fase 0
 
 ### V-001 · `cpFindSuggestions` werkt niet voor SBI30, 35, 45 en 65 — vier van de acht modellen

@@ -152,6 +152,42 @@ for (const p of patches) {
   rapport.push(`  ~ ${p.id.padEnd(22)} gerepareerd`);
 }
 
+/**
+ * DOM-opzoekingen scopen naar de shadow root.
+ *
+ * v1.8 zocht 154 keer met `document.getElementById`. Binnen een shadow root
+ * vindt dat niets — en erger: als de hostpagina toevallig een `#header` of
+ * `#step1` heeft, schrijft de configurator zijn uitvoer in een element van het
+ * WordPress-thema. Scopen lost beide op.
+ *
+ * `document.createElement`, `document.body` en `document.readyState` blijven
+ * bewust ongemoeid: die horen op documentniveau. De PNG-download hangt er zelfs
+ * van af — `document.body.appendChild(a)` moet in het hoofddocument gebeuren,
+ * anders werkt de download niet.
+ */
+const scopePatches = [
+  [/document\.getElementById\(/g, '$id('],
+  [/document\.querySelectorAll\(/g, '$qa('],
+  [/document\.querySelector\(/g, '$q('],
+];
+let scopeTellingen = [];
+for (const [re, vervanger] of scopePatches) {
+  const n = (src.match(re) || []).length;
+  src = src.replace(re, vervanger);
+  scopeTellingen.push(`${n}x ${vervanger.slice(0, -1)}`);
+}
+
+// Wat er ná het scopen nog naar `document` wijst, moet daar bewust staan.
+const restDocument = [...src.matchAll(/document\.([A-Za-z]+)/g)].map((m) => m[1]);
+const toegestaan = new Set(['createElement', 'body', 'readyState', 'addEventListener']);
+const onverwacht = [...new Set(restDocument)].filter((k) => !toegestaan.has(k));
+if (onverwacht.length) {
+  throw new Error(
+    `Onverwachte document-toegang na het scopen: ${onverwacht.join(', ')}. ` +
+      `Controleer of die op documentniveau hoort of gescoped moet worden.`
+  );
+}
+
 // De UI roept deze namen aan vanuit 94 inline onclick-attributen. Zolang die er
 // staan (fase 2 ruimt ze op) moeten de functies op `window` blijven.
 const globalNamen = [
@@ -200,6 +236,18 @@ import {
 } from '../domain/coupling';
 import { buildOrderCode, fromLegacySelections } from '../domain/ordercode';
 
+/**
+ * Start de configurator binnen een shadow root.
+ *
+ * @param {ShadowRoot|Document} root  waar de markup in staat
+ */
+export function initLegacyUI(root) {
+
+// ── Opzoekingen, gescoped op de shadow root ─────────────────────────────────
+const $id = (id) => root.getElementById(id);
+const $qa = (sel) => root.querySelectorAll(sel);
+const $q = (sel) => root.querySelector(sel);
+
 // ── Adapters: zelfde signatuur als v1.8, implementatie uit het domein ────────
 
 /** v1.8 las RAILS[20].F etc.; het domein levert dezelfde velden plus \`size\`. */
@@ -230,21 +278,23 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 const footer = `
 
 // ── Bedrading naar de inline onclick-attributen ─────────────────────────────
-// Vite bundelt naar een module, dus top-level declaraties komen níét meer op
-// window terecht. De 94 \`onclick="select(1,…)"\`-attributen in de markup hebben
-// ze daar wél nodig. Dit is de brug tot fase 2 ze vervangt door listeners.
+// De markup van v1.8 bevat 94 \`onclick="select(1,…)"\`-attributen. Inline
+// handlers zoeken hun functie op \`window\`, ook binnen een shadow root — dus
+// zolang die attributen er staan, moeten deze namen daar staan.
+//
+// Dit is de laatste rest globale ruimte. Fase 2c vervangt de inline handlers
+// door gedelegeerde listeners op de shadow root; dan kan dit blok weg en is de
+// configurator volledig ingekapseld. Tot die tijd: één instantie per pagina.
 Object.assign(window, {
 ${globalNamen.map((n) => `  ${n},`).join('\n')}
   // Adapters naar src/domain — in v1.8 waren dit gewone globale functies.
 ${adapterNamen.map((n) => `  ${n},`).join('\n')}
 });
 
-// v1.8 hing dit aan DOMContentLoaded, dat níét meer vuurt als de configurator
-// later wordt ingevoegd (page builder, AJAX-tab) — daar liep de illustratie op
-// leeg. Dit dekt beide gevallen af.
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => updateIllustration());
-} else {
+  // v1.8 hing dit aan DOMContentLoaded, dat níét meer vuurt als de configurator
+  // later wordt ingevoegd (page builder, AJAX-tab) — daar liep de illustratie
+  // op leeg. Binnen een custom element is de markup bij aanroep sowieso al
+  // aanwezig, dus we tekenen direct.
   updateIllustration();
 }
 `;

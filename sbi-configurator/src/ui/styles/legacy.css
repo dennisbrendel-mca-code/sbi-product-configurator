@@ -1,4 +1,18 @@
-:root {
+/* GEGENEREERD door scripts/split-legacy.mjs uit reference/v1.8.html.
+   Handmatige wijzigingen gaan bij de volgende run verloren.
+
+   Twee selectors zijn omgezet voor de shadow root:
+     :root {  -> :host {   (custom properties horen op de host, niet op het document)
+     body {   -> :host {   (achtergrond en tekstkleur gelden voor het element, niet voor de pagina)
+
+   De `*`-reset mag daardoor blijven staan: binnen een shadow root
+   raakt hij alleen de configurator, niet de pagina eromheen. */
+
+:host {
+  display: block;
+}
+
+:host {
             --linear: #be0068;
             --navy: #0c2c65;
             --lavender: #9fa0d0;
@@ -22,7 +36,7 @@
             padding: 0;
         }
 
-        body {
+        :host {
             font-family: 'Fugue', Trebuchet MS;
             background: var(--offwhite);
             color: var(--text);

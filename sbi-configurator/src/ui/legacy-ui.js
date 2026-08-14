@@ -26,6 +26,18 @@ import {
 } from '../domain/coupling';
 import { buildOrderCode, fromLegacySelections } from '../domain/ordercode';
 
+/**
+ * Start de configurator binnen een shadow root.
+ *
+ * @param {ShadowRoot|Document} root  waar de markup in staat
+ */
+export function initLegacyUI(root) {
+
+// ── Opzoekingen, gescoped op de shadow root ─────────────────────────────────
+const $id = (id) => root.getElementById(id);
+const $qa = (sel) => root.querySelectorAll(sel);
+const $q = (sel) => root.querySelector(sel);
+
 // ── Adapters: zelfde signatuur als v1.8, implementatie uit het domein ────────
 
 /** v1.8 las RAILS[20].F etc.; het domein levert dezelfde velden plus `size`. */
@@ -80,13 +92,13 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             }
             selections[step] = code;
             labels[step] = label;
-            const body = document.querySelector('#step' + step + ' .step-body');
+            const body = $q('#step' + step + ' .step-body');
             body.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            document.getElementById('next' + step).disabled = false;
-            document.getElementById('sel' + step).textContent = label;
+            $id('next' + step).disabled = false;
+            $id('sel' + step).textContent = label;
             if (bdMap[step]) {
-                document.getElementById(bdMap[step]).textContent = code || 'Standaard';
+                $id(bdMap[step]).textContent = code || 'Standaard';
             }
             updateCode();
             updateProgress();
@@ -105,21 +117,21 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             [3, 4, 5, 6, 7, 8, 9].forEach(s => {
                 selections[s] = '';
                 labels[s] = 'N.v.t. (geen loopwagen)';
-                const selEl = document.getElementById('sel' + s);
+                const selEl = $id('sel' + s);
                 if (selEl) selEl.textContent = 'N.v.t. (geen loopwagen)';
-                const nextBtn = document.getElementById('next' + s);
+                const nextBtn = $id('next' + s);
                 if (nextBtn) nextBtn.disabled = false;
-                const card = document.getElementById('step' + s);
+                const card = $id('step' + s);
                 if (card) { card.classList.remove('active'); card.classList.add('done'); }
-                const opts = document.querySelectorAll('#step' + s + ' .opt-btn');
+                const opts = $qa('#step' + s + ' .opt-btn');
                 opts.forEach(b => b.classList.remove('selected'));
             });
-            ['bd2', 'bd4', 'bd5', 'bd7', 'bd8'].forEach(id => { document.getElementById(id).textContent = 'n.v.t.'; });
+            ['bd2', 'bd4', 'bd5', 'bd7', 'bd8'].forEach(id => { $id(id).textContent = 'n.v.t.'; });
 
-            const step2card = document.getElementById('step2');
+            const step2card = $id('step2');
             step2card.classList.remove('active');
             step2card.classList.add('done');
-            const stepAfterCard = document.getElementById('step10');
+            const stepAfterCard = $id('step10');
             stepAfterCard.classList.add('active');
             setTimeout(() => stepAfterCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
 
@@ -133,16 +145,16 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             [3, 4, 5, 6, 7, 8, 9].forEach(s => {
                 delete selections[s];
                 delete labels[s];
-                const selEl = document.getElementById('sel' + s);
+                const selEl = $id('sel' + s);
                 if (selEl) selEl.textContent = 'Nog niet geselecteerd';
-                const nextBtn = document.getElementById('next' + s);
+                const nextBtn = $id('next' + s);
                 if (nextBtn) nextBtn.disabled = true;
-                const card = document.getElementById('step' + s);
+                const card = $id('step' + s);
                 if (card) card.classList.remove('done');
-                const opts = document.querySelectorAll('#step' + s + ' .opt-btn');
+                const opts = $qa('#step' + s + ' .opt-btn');
                 opts.forEach(b => b.classList.remove('selected'));
             });
-            ['bd4', 'bd5', 'bd7', 'bd8'].forEach(id => { document.getElementById(id).textContent = '–'; });
+            ['bd4', 'bd5', 'bd7', 'bd8'].forEach(id => { $id(id).textContent = '–'; });
             updateCode();
             updateProgress();
             updateIllustration();
@@ -150,12 +162,12 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
         function onLengthInput() {
             ensureDefaultsApplied();
-            const val = document.getElementById('lengthInput').value;
+            const val = $id('lengthInput').value;
             if (val && parseInt(val) >= 100) {
                 selections[12] = val;
                 labels[12] = val + ' mm';
-                document.getElementById('sel12').textContent = val + ' mm';
-                document.getElementById('bd12').textContent = val + ' mm';
+                $id('sel12').textContent = val + ' mm';
+                $id('bd12').textContent = val + ' mm';
             } else {
                 delete selections[12];
             }
@@ -171,18 +183,18 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
 
         function applyLengthSuggestion(len) {
-            document.getElementById('lengthInput').value = len;
+            $id('lengthInput').value = len;
             onLengthInput();
         }
 
         function updateLengthSuggestions() {
-            const infoBox = document.getElementById('step12Info');
-            const sugWrap = document.getElementById('step12SugWrap');
-            const sugList = document.getElementById('step12SugList');
+            const infoBox = $id('step12Info');
+            const sugWrap = $id('step12SugWrap');
+            const sugList = $id('step12SugList');
 
             const type = cpGetRailType();
             const rail = type ? RAILS[type] : null;
-            const val = +document.getElementById('lengthInput').value;
+            const val = +$id('lengthInput').value;
 
             if (!rail || !val || val <= 0 || val > rail.maxL) {
                 infoBox.style.display = 'none';
@@ -214,31 +226,31 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             if (cpCouplingActive) return; // bij koppeling regelt stap 12B / de vergrendeling dit zelf
             const type = cpGetRailType();
             const rail = type ? RAILS[type] : null;
-            const val = +document.getElementById('lengthInput').value;
+            const val = +$id('lengthInput').value;
             if (!rail || !val || val <= 0 || val > rail.maxL) return;
 
             const { G } = cpCalcAutoGDetailed(val, rail.F, rail.Gmin);
-            document.getElementById('pitchFirst').value = G;
-            document.getElementById('pitchLast').value = G;
+            $id('pitchFirst').value = G;
+            $id('pitchLast').value = G;
             onPitchInput();
         }
 
         function onPitchInput() {
             ensureDefaultsApplied();
-            const f = document.getElementById('pitchFirst').value;
-            const l = document.getElementById('pitchLast').value;
-            const alertBox = document.getElementById('pitchAlertBox');
+            const f = $id('pitchFirst').value;
+            const l = $id('pitchLast').value;
+            const alertBox = $id('pitchAlertBox');
 
             const type = cpGetRailType();
             const rail = type ? RAILS[type] : null;
-            const totalLen = +(document.getElementById('lengthInput').value || 0);
+            const totalLen = +($id('lengthInput').value || 0);
 
             function invalidate(msgHtml, selText, bdText) {
                 alertBox.innerHTML = msgHtml;
                 alertBox.className = 'wizard-alert wizard-alert-err show';
-                document.getElementById('next13').disabled = true;
-                document.getElementById('sel13').textContent = selText;
-                document.getElementById('bd13').textContent = bdText;
+                $id('next13').disabled = true;
+                $id('sel13').textContent = selText;
+                $id('bd13').textContent = bdText;
                 delete selections[13];
                 updateCode();
                 updateProgress();
@@ -291,11 +303,11 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
                 const code = f + '/' + l;
                 selections[13] = code;
                 labels[13] = code + ' mm';
-                document.getElementById('next13').disabled = false;
-                document.getElementById('sel13').textContent = code + ' mm';
-                document.getElementById('bd13').textContent = code + ' mm';
+                $id('next13').disabled = false;
+                $id('sel13').textContent = code + ' mm';
+                $id('bd13').textContent = code + ' mm';
             } else {
-                document.getElementById('next13').disabled = true;
+                $id('next13').disabled = true;
                 delete selections[13];
             }
             updateCode();
@@ -303,14 +315,14 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         }
 
         function pitchApplyExact(val) {
-            document.getElementById('pitchFirst').value = val;
-            document.getElementById('pitchLast').value = val;
+            $id('pitchFirst').value = val;
+            $id('pitchLast').value = val;
             onPitchInput();
         }
 
         function pitchApplyMinG(minVal) {
-            const f = document.getElementById('pitchFirst');
-            const l = document.getElementById('pitchLast');
+            const f = $id('pitchFirst');
+            const l = $id('pitchLast');
             if (!f.value || +f.value < minVal) f.value = minVal;
             if (!l.value || +l.value < minVal) l.value = minVal;
             onPitchInput();
@@ -318,16 +330,16 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
         function onQtyInput() {
             ensureDefaultsApplied();
-            const val = document.getElementById('qtyInput').value;
+            const val = $id('qtyInput').value;
             if (val && parseInt(val) >= 1) {
                 const n = parseInt(val);
                 selections[15] = val;
                 labels[15] = n + (n === 1 ? ' set' : ' sets');
-                document.getElementById('next15').disabled = false;
-                document.getElementById('sel15').textContent = labels[15];
-                document.getElementById('bd15').textContent = labels[15];
+                $id('next15').disabled = false;
+                $id('sel15').textContent = labels[15];
+                $id('bd15').textContent = labels[15];
             } else {
-                document.getElementById('next15').disabled = true;
+                $id('next15').disabled = true;
                 delete selections[15];
             }
             updateCode();
@@ -352,7 +364,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
                 { step: 11, idx: 0 }, // Rail montage: Standaard (geen symbool)
             ];
             defaults.forEach(d => {
-                const btns = document.querySelectorAll('#step' + d.step + ' .opt-btn');
+                const btns = $qa('#step' + d.step + ' .opt-btn');
                 if (btns[d.idx]) btns[d.idx].click();
             });
             onQtyInput(); // registreert de standaardwaarde (1 set) uit stap 15
@@ -392,13 +404,13 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         }
 
         function updateIllustration() {
-            const svg = document.getElementById('illustrationSvg');
+            const svg = $id('illustrationSvg');
             if (!svg) return;
 
             const numWagons = getNumWagons();
             const numRails = getNumRails();
             const hasWagon = selections[2] !== '';
-            const lenInput = document.getElementById('lengthInput');
+            const lenInput = $id('lengthInput');
             const lenVal = lenInput ? lenInput.value : '';
 
             const railX = 10, railW = 320;
@@ -469,21 +481,21 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
         // ── Stap 13 vergrendelen wanneer G1/G2 in stap 12B op automatisch staat ──
         function cpUpdateStep13Lock() {
-            const wrap = document.getElementById('pitchInputsWrap');
-            const notice = document.getElementById('pitchLockedNotice');
-            const desc = document.getElementById('step13Desc');
+            const wrap = $id('pitchInputsWrap');
+            const notice = $id('pitchLockedNotice');
+            const desc = $id('step13Desc');
             const locked = cpCouplingActive && cpGMode === 'auto' && cpValid;
 
             if (locked) {
                 wrap.style.display = 'none';
                 notice.style.display = 'block';
                 const val = cpLastG1 + '/' + cpLastG2;
-                document.getElementById('pitchLockedValue').textContent = val + ' mm';
+                $id('pitchLockedValue').textContent = val + ' mm';
                 selections[13] = val;
                 labels[13] = val + ' mm';
-                document.getElementById('sel13').textContent = val + ' mm (stap 12B)';
-                document.getElementById('bd13').textContent = val + ' mm (stap 12B)';
-                document.getElementById('next13').disabled = false;
+                $id('sel13').textContent = val + ' mm (stap 12B)';
+                $id('bd13').textContent = val + ' mm (stap 12B)';
+                $id('next13').disabled = false;
                 desc.textContent = 'Automatisch overgenomen van stap 12B: G1/G2 staat daar op automatisch, dus deze waarde kan hier niet los aangepast worden.';
             } else {
                 wrap.style.display = '';
@@ -496,17 +508,17 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         }
 
         function toggleStep(step) {
-            const card = document.getElementById('step' + step);
+            const card = $id('step' + step);
             const isActive = card.classList.contains('active');
-            document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+            $qa('.step-card').forEach(c => c.classList.remove('active'));
             if (!isActive) card.classList.add('active');
         }
 
         function goNext(step) {
-            const card = document.getElementById('step' + step);
+            const card = $id('step' + step);
             card.classList.remove('active');
             card.classList.add('done');
-            const next = document.getElementById('step' + (step + 1));
+            const next = $id('step' + (step + 1));
             if (next) {
                 next.classList.add('active');
                 setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
@@ -517,7 +529,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
         function updateCode() {
             const code = buildCode();
-            const display = document.getElementById('codeDisplay');
+            const display = $id('codeDisplay');
             if (!code) {
                 display.innerHTML = '<span class="code-part empty">– – –</span>';
                 return;
@@ -530,18 +542,18 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         function updateProgress() {
             const filled = Object.keys(selections).length;
             const pct = Math.round((filled / TOTAL_STEPS) * 100);
-            document.getElementById('progressFill').style.width = pct + '%';
-            document.getElementById('progressPct').textContent = pct + '%';
+            $id('progressFill').style.width = pct + '%';
+            $id('progressPct').textContent = pct + '%';
             const allDone = filled >= TOTAL_STEPS;
-            document.getElementById('requestBtn').disabled = !allDone;
-            document.getElementById('ctaIncomplete').style.display = allDone ? 'none' : 'block';
+            $id('requestBtn').disabled = !allDone;
+            $id('ctaIncomplete').style.display = allDone ? 'none' : 'block';
         }
 
         function copyCode() {
             const code = buildCode();
             if (!code) return;
             navigator.clipboard.writeText(code).then(() => {
-                const btn = document.querySelector('.code-copy-btn');
+                const btn = $q('.code-copy-btn');
                 const orig = btn.innerHTML;
                 btn.innerHTML = '✓ Gekopieerd!';
                 setTimeout(() => { btn.innerHTML = orig; }, 2000);
@@ -554,7 +566,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             if (cpCouplingActive && cpLastParts) {
                 couplingBlock = '\n\nKoppelverdeling (rail overschrijdt catalogus max. handelslengte, automatisch opgesplitst):\n' + cpBuildBreakdownText();
                 cpDownloadSvgAsPng();
-                document.getElementById('ctaPngNotice').style.display = 'block';
+                $id('ctaPngNotice').style.display = 'block';
                 couplingBlock += '\n\n[Zie bijgevoegde afbeelding: rail-koppelverdeling.png voor de visualisatie — voeg deze toe als bijlage aan de mail.]';
             }
 
@@ -613,8 +625,8 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         // ── Model-wissel (stap 1) ──
         function filterBlockTypes() {
             const type = cpGetRailType(); // bv. 20, 35, 45
-            const notice = document.getElementById('step2FilterNotice');
-            const btns = document.querySelectorAll('#step2 .opt-btn[data-models]');
+            const notice = $id('step2FilterNotice');
+            const btns = $qa('#step2 .opt-btn[data-models]');
             let hiddenNames = [];
 
             btns.forEach(btn => {
@@ -627,9 +639,9 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
                     btn.classList.remove('selected');
                     delete selections[2];
                     delete labels[2];
-                    document.getElementById('sel2').textContent = 'Nog niet geselecteerd';
-                    document.getElementById('bd2').textContent = '–';
-                    document.getElementById('next2').disabled = true;
+                    $id('sel2').textContent = 'Nog niet geselecteerd';
+                    $id('bd2').textContent = '–';
+                    $id('next2').disabled = true;
                     updateCode();
                     updateProgress();
                 }
@@ -651,7 +663,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         function cpOnModelChange() {
             const type = cpGetRailType();
             const rail = type ? RAILS[type] : null;
-            const hint = document.getElementById('lengthHint');
+            const hint = $id('lengthHint');
             if (rail) {
                 hint.textContent = 'Min. 100 mm – max. handelslengte SBI' + type + ': ' + rail.maxL + ' mm (langere lengtes worden automatisch gekoppeld)';
             } else {
@@ -667,30 +679,30 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         // ── Max deellengte toggle ──
         function cpToggleMaxL() {
             cpMaxLEnabled = !cpMaxLEnabled;
-            const row = document.getElementById('cpMaxlToggleRow');
-            const wrap = document.getElementById('cpMaxlInputWrap');
-            const label = document.getElementById('cpMaxlLabel');
+            const row = $id('cpMaxlToggleRow');
+            const wrap = $id('cpMaxlInputWrap');
+            const label = $id('cpMaxlLabel');
             row.classList.toggle('active', cpMaxLEnabled);
             wrap.style.display = cpMaxLEnabled ? '' : 'none';
             label.textContent = cpMaxLEnabled ? 'Aan — deellengte beperkt' : 'Uit — catalogus handelslengte geldt';
             if (cpMaxLEnabled) {
                 const rail = RAILS[cpGetRailType()];
-                if (rail) document.getElementById('cpMaxlHint').textContent =
+                if (rail) $id('cpMaxlHint').textContent =
                     `Alle delen blijven ≤ deze lengte. Minimum voor dit type: ${rail.minLast} mm (minLast).`;
             }
-            document.getElementById('cpRMaxLUserRow').style.display = cpMaxLEnabled ? '' : 'none';
+            $id('cpRMaxLUserRow').style.display = cpMaxLEnabled ? '' : 'none';
             cpCalculate();
         }
 
         // ── UI helpers ──
         function cpSetAlert(msg, type) {
-            const el = document.getElementById('cpAlertBox');
+            const el = $id('cpAlertBox');
             el.innerHTML = msg;
             el.className = 'alert show alert-' + type;
         }
-        function cpClearAlert() { document.getElementById('cpAlertBox').className = 'alert'; }
+        function cpClearAlert() { $id('cpAlertBox').className = 'alert'; }
         function cpSetOut(id, html, cls) {
-            const el = document.getElementById(id);
+            const el = $id(id);
             el.innerHTML = html;
             el.className = 'out-box' + (cls ? ' ' + cls : '');
         }
@@ -704,16 +716,16 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         function cpSyncAutoG() {
             const type = cpGetRailType();
             const rail = type ? RAILS[type] : null;
-            const desired = +document.getElementById('lengthInput').value;
+            const desired = +$id('lengthInput').value;
             if (!rail || !desired) return;
             const G = cpCalcAutoG(desired, rail.F, rail.Gmin);
-            document.getElementById('cpG1').value = G;
-            document.getElementById('cpG2').value = G;
+            $id('cpG1').value = G;
+            $id('cpG2').value = G;
         }
 
         function cpApplyMinG(minVal) {
-            const g1el = document.getElementById('cpG1');
-            const g2el = document.getElementById('cpG2');
+            const g1el = $id('cpG1');
+            const g2el = $id('cpG2');
             if (+g1el.value < minVal) g1el.value = minVal;
             if (+g2el.value < minVal) g2el.value = minVal;
             cpCalculate();
@@ -721,19 +733,19 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
         function cpSetGMode(mode) {
             cpGMode = mode;
-            document.getElementById('cpBtnGManual').classList.toggle('active', mode === 'manual');
-            document.getElementById('cpBtnGAuto').classList.toggle('active', mode === 'auto');
-            document.getElementById('cpGInputs').style.display = mode === 'manual' ? '' : 'none';
-            document.getElementById('cpGAutoInfo').style.display = mode === 'auto' ? '' : 'none';
+            $id('cpBtnGManual').classList.toggle('active', mode === 'manual');
+            $id('cpBtnGAuto').classList.toggle('active', mode === 'auto');
+            $id('cpGInputs').style.display = mode === 'manual' ? '' : 'none';
+            $id('cpGAutoInfo').style.display = mode === 'auto' ? '' : 'none';
             if (mode === 'auto') cpSyncAutoG();
             cpCalculate();
             cpUpdateStep13Lock();
         }
 
         function cpOnPartsModeChange() {
-            const manual = document.getElementById('cpNumPartsMode').value === 'manual';
-            document.getElementById('cpNumPartsManual').style.display = manual ? 'block' : 'none';
-            document.getElementById('cpNumPartsHint').textContent = manual
+            const manual = $id('cpNumPartsMode').value === 'manual';
+            $id('cpNumPartsManual').style.display = manual ? 'block' : 'none';
+            $id('cpNumPartsHint').textContent = manual
                 ? 'Vul het gewenste aantal delen in'
                 : 'Configurator bepaalt het minimale aantal delen';
             cpCalculate();
@@ -745,14 +757,14 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
 
         function cpApplySuggestion(len) {
-            document.getElementById('lengthInput').value = len;
+            $id('lengthInput').value = len;
             onLengthInput();
         }
 
         function cpShowSuggestions(desired, G1, G2, F, K, maxL, minLast) {
             const sugs = cpFindSuggestions(desired, G1, G2, F, K, maxL, minLast, 6);
-            const wrap = document.getElementById('cpSugWrap');
-            const list = document.getElementById('cpSugList');
+            const wrap = $id('cpSugWrap');
+            const list = $id('cpSugList');
             if (!sugs.length) { wrap.style.display = 'none'; return; }
 
             wrap.style.display = 'block';
@@ -770,27 +782,27 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         }
 
         function cpHideSuggestions() {
-            document.getElementById('cpSugWrap').style.display = 'none';
+            $id('cpSugWrap').style.display = 'none';
         }
 
 
 
         // ── Zichtbaarheid stap 12B ──
         function cpShowStep12b() {
-            const card = document.getElementById('step12b');
+            const card = $id('step12b');
             card.style.display = '';
             if (!card.classList.contains('done')) card.classList.add('active');
-            document.getElementById('cpBanner').style.display = 'flex';
-            document.getElementById('couplingBreakdownWrap').style.display = '';
+            $id('cpBanner').style.display = 'flex';
+            $id('couplingBreakdownWrap').style.display = '';
         }
 
         function cpHideStep12b() {
-            const card = document.getElementById('step12b');
+            const card = $id('step12b');
             card.style.display = 'none';
             card.classList.remove('active', 'done');
-            document.getElementById('cpBanner').style.display = 'none';
-            document.getElementById('couplingBreakdownWrap').style.display = 'none';
-            document.getElementById('next12b').disabled = true;
+            $id('cpBanner').style.display = 'none';
+            $id('couplingBreakdownWrap').style.display = 'none';
+            $id('next12b').disabled = true;
             cpValid = false;
             cpUpdateStep13Lock();
         }
@@ -798,15 +810,15 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         // Reset de handmatige koppel-toggle (bijv. bij model-wissel of lengte wissen)
         function cpResetManualCouple() {
             cpManualCouple = false;
-            const btn = document.getElementById('toggleCoupleBtn');
+            const btn = $id('toggleCoupleBtn');
             if (btn) { btn.classList.remove('active'); btn.style.display = 'none'; }
-            document.getElementById('toggleCoupleBtnLabel').textContent = 'Zelf koppelen (optioneel)';
+            $id('toggleCoupleBtnLabel').textContent = 'Zelf koppelen (optioneel)';
         }
 
         function toggleManualCouple() {
             cpManualCouple = !cpManualCouple;
-            const btn   = document.getElementById('toggleCoupleBtn');
-            const label = document.getElementById('toggleCoupleBtnLabel');
+            const btn   = $id('toggleCoupleBtn');
+            const label = $id('toggleCoupleBtnLabel');
             if (cpManualCouple) {
                 btn.classList.add('active');
                 label.textContent = 'Zelf koppelen — aan (klik om uit te zetten)';
@@ -821,18 +833,18 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         function cpUpdateCoupling() {
             const type = cpGetRailType();
             const rail = type ? RAILS[type] : null;
-            const desired = +document.getElementById('lengthInput').value;
-            const toggleBtn = document.getElementById('toggleCoupleBtn');
+            const desired = +$id('lengthInput').value;
+            const toggleBtn = $id('toggleCoupleBtn');
 
-            document.getElementById('next12').disabled = !(rail && desired && desired >= 100);
+            $id('next12').disabled = !(rail && desired && desired >= 100);
 
             if (!rail || !desired || desired <= 0) {
                 cpCouplingActive = false;
                 cpManualCouple = false;
                 if (toggleBtn) { toggleBtn.style.display = 'none'; toggleBtn.classList.remove('active'); }
-                document.getElementById('toggleCoupleBtnLabel').textContent = 'Zelf koppelen (optioneel)';
+                $id('toggleCoupleBtnLabel').textContent = 'Zelf koppelen (optioneel)';
                 cpHideStep12b();
-                document.getElementById('next12').disabled = true;
+                $id('next12').disabled = true;
                 return;
             }
 
@@ -845,22 +857,22 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             if (!forcedCouple && !manualCouple) {
                 cpCouplingActive = false;
                 cpHideStep12b();
-                document.getElementById('next12').disabled = false;
+                $id('next12').disabled = false;
                 return;
             }
 
             cpCouplingActive = true;
-            document.getElementById('next12').disabled = true;
+            $id('next12').disabled = true;
 
             if (forcedCouple) {
-                document.getElementById('cpBannerText').textContent =
+                $id('cpBannerText').textContent =
                     `Deze lengte (${desired} mm) overschrijdt de maximale handelslengte van ${rail.maxL} mm voor SBI${type}. De rail wordt automatisch opgesplitst in gekoppelde delen — vul stap 12B in om door te gaan.`;
             } else {
-                document.getElementById('cpBannerText').textContent =
+                $id('cpBannerText').textContent =
                     `Handmatige koppeling ingeschakeld voor ${desired} mm. Configureer de verdeling in stap 12B hieronder.`;
             }
 
-            document.getElementById('cpModelInfo').innerHTML =
+            $id('cpModelInfo').innerHTML =
                 `Geselecteerd model: <strong>SBI${type}</strong> — F=${rail.F} mm, K=${rail.F / 2} mm, max. handelslengte ${rail.maxL} mm, min. laatste deel ${rail.minLast} mm.`;
             cpShowStep12b();
             if (cpGMode === 'auto') cpSyncAutoG();
@@ -871,7 +883,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         function cpCalculate() {
             const type = cpGetRailType();
             const rail = type ? RAILS[type] : null;
-            const desired = +document.getElementById('lengthInput').value;
+            const desired = +$id('lengthInput').value;
             if (!rail || !desired || desired <= 0) { cpClearOutputs(); return; }
 
             const { F, Gmin, maxL, minLast } = rail;
@@ -879,7 +891,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
             let effectiveMaxL = maxL;
             if (cpMaxLEnabled) {
-                const userMaxL = +document.getElementById('cpMaxlValue').value;
+                const userMaxL = +$id('cpMaxlValue').value;
                 if (!userMaxL || userMaxL <= 0) {
                     cpSetAlert('⚠ Vul een geldige max. deellengte in.', 'err');
                     cpClearOutputs(); return;
@@ -889,18 +901,18 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
                     cpClearOutputs(); return;
                 }
                 effectiveMaxL = Math.min(maxL, userMaxL);
-                document.getElementById('cpRMaxLUser').textContent = `${userMaxL} mm → effectief ${effectiveMaxL} mm`;
+                $id('cpRMaxLUser').textContent = `${userMaxL} mm → effectief ${effectiveMaxL} mm`;
             }
 
             let g1, g2;
             if (cpGMode === 'auto') {
                 const G = cpCalcAutoG(desired, F, Gmin);
                 g1 = g2 = G;
-                document.getElementById('cpG1').value = G;
-                document.getElementById('cpG2').value = G;
+                $id('cpG1').value = G;
+                $id('cpG2').value = G;
             } else {
-                g1 = +document.getElementById('cpG1').value;
-                g2 = +document.getElementById('cpG2').value;
+                g1 = +$id('cpG1').value;
+                g2 = +$id('cpG2').value;
             }
             if (!g1 || !g2) return;
 
@@ -920,7 +932,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
                 return;
             }
 
-            const mode = document.getElementById('cpNumPartsMode').value;
+            const mode = $id('cpNumPartsMode').value;
             let numParts, parts;
 
             if (mode === 'auto') {
@@ -934,7 +946,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
                 numParts = result.numParts;
                 parts = result.parts;
             } else {
-                numParts = +document.getElementById('cpNumPartsManual').value;
+                numParts = +$id('cpNumPartsManual').value;
                 if (numParts < 1) return;
                 parts = cpComputeParts(desired, g1, g2, F, K, effectiveMaxL, minLast, numParts);
                 if (!parts) {
@@ -972,13 +984,13 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             cpSetOut('cpOutNumParts', `<strong style="font-size:1.3rem">${numParts}</strong> <span class="unit">${numParts === 1 ? 'deel' : 'delen'}</span>`, 'ok');
             cpSetOut('cpOutK', `${K} <span class="unit">mm</span>`, 'ok');
 
-            document.getElementById('cpRF').textContent = `${F} mm`;
-            document.getElementById('cpRK').textContent = `${K} mm (= F/2)`;
-            document.getElementById('cpRMaxL').textContent = cpMaxLEnabled ? `${maxL} mm (catalogus)` : `${maxL} mm`;
-            document.getElementById('cpRMinLast').textContent = `${minLast} mm`;
-            document.getElementById('cpRParts').textContent = `${numParts}`;
-            document.getElementById('cpRG1G2').textContent = `${g1} / ${g2} mm`;
-            document.getElementById('cpRTotal').textContent = `${totalAct} mm${Math.abs(totalAct - desired) < 0.01 ? ' ✓' : ''}`;
+            $id('cpRF').textContent = `${F} mm`;
+            $id('cpRK').textContent = `${K} mm (= F/2)`;
+            $id('cpRMaxL').textContent = cpMaxLEnabled ? `${maxL} mm (catalogus)` : `${maxL} mm`;
+            $id('cpRMinLast').textContent = `${minLast} mm`;
+            $id('cpRParts').textContent = `${numParts}`;
+            $id('cpRG1G2').textContent = `${g1} / ${g2} mm`;
+            $id('cpRTotal').textContent = `${totalAct} mm${Math.abs(totalAct - desired) < 0.01 ? ' ✓' : ''}`;
 
             cpRenderParts(parts, F, K, numParts);
             cpDrawSvg(parts, g1, g2, F, K, totalAct);
@@ -991,14 +1003,14 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             cpLastK = K;
             cpLastTotal = totalAct;
 
-            document.getElementById('next12b').disabled = false;
-            document.getElementById('cpSelSummary').textContent = `${numParts} ${numParts === 1 ? 'deel' : 'delen'} · K=${K} mm · G1/G2 = ${g1}/${g2} mm`;
+            $id('next12b').disabled = false;
+            $id('cpSelSummary').textContent = `${numParts} ${numParts === 1 ? 'deel' : 'delen'} · K=${K} mm · G1/G2 = ${g1}/${g2} mm`;
 
             // Specificatieoverzicht bijwerken
-            document.getElementById('bdCoupling').textContent = 'Ja — SBI' + type + ' > ' + maxL + ' mm handelslengte';
-            document.getElementById('bdCouplingParts').textContent = numParts + (numParts === 1 ? ' deel' : ' delen');
-            document.getElementById('bdCouplingK').textContent = K + ' mm';
-            document.getElementById('bdCouplingG').textContent = g1 + ' / ' + g2 + ' mm';
+            $id('bdCoupling').textContent = 'Ja — SBI' + type + ' > ' + maxL + ' mm handelslengte';
+            $id('bdCouplingParts').textContent = numParts + (numParts === 1 ? ' deel' : ' delen');
+            $id('bdCouplingK').textContent = K + ' mm';
+            $id('bdCouplingG').textContent = g1 + ' / ' + g2 + ' mm';
 
             cpUpdateStep13Lock();
         }
@@ -1009,22 +1021,22 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             cpLastParts = null;
             ['cpOutNumParts', 'cpOutK'].forEach(id => cpSetOut(id, '—', ''));
             ['cpRF', 'cpRK', 'cpRMaxL', 'cpRMinLast', 'cpRParts', 'cpRG1G2', 'cpRTotal'].forEach(id => {
-                document.getElementById(id).textContent = '—';
+                $id(id).textContent = '—';
             });
-            document.getElementById('cpRailList').innerHTML = '<div style="color:var(--muted);font-size:.88rem">Geen geldige verdeling.</div>';
-            document.getElementById('cpRailSvg').innerHTML = '';
-            document.getElementById('next12b').disabled = true;
-            document.getElementById('cpSelSummary').textContent = 'Geen geldige verdeling gevonden';
-            document.getElementById('bdCoupling').textContent = 'Nog niet geldig';
-            document.getElementById('bdCouplingParts').textContent = '–';
-            document.getElementById('bdCouplingK').textContent = '–';
-            document.getElementById('bdCouplingG').textContent = '–';
+            $id('cpRailList').innerHTML = '<div style="color:var(--muted);font-size:.88rem">Geen geldige verdeling.</div>';
+            $id('cpRailSvg').innerHTML = '';
+            $id('next12b').disabled = true;
+            $id('cpSelSummary').textContent = 'Geen geldige verdeling gevonden';
+            $id('bdCoupling').textContent = 'Nog niet geldig';
+            $id('bdCouplingParts').textContent = '–';
+            $id('bdCouplingK').textContent = '–';
+            $id('bdCouplingG').textContent = '–';
 
             cpUpdateStep13Lock();
         }
 
         function cpRenderParts(parts, F, K, numParts) {
-            const list = document.getElementById('cpRailList');
+            const list = $id('cpRailList');
             list.innerHTML = '';
             parts.forEach((p, i) => {
                 const isShort = p.isLast && numParts > 1;
@@ -1053,7 +1065,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
         // ── SVG (identiek aan v9.1) ──
         function cpDrawSvg(parts, g1, g2, F, K, totalLen) {
-            const svg = document.getElementById('cpRailSvg');
+            const svg = $id('cpRailSvg');
             const W = Math.max(480, svg.parentElement.clientWidth - 4);
             const mg = 36;
             const sc = (W - mg * 2) / totalLen;
@@ -1134,14 +1146,14 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             const type = cpGetRailType();
             const lines = [];
             lines.push('Type:          SBI' + type);
-            lines.push('Totale lengte: ' + document.getElementById('cpRTotal').textContent);
-            lines.push('G1 / G2:       ' + document.getElementById('cpRG1G2').textContent);
-            lines.push('K:             ' + document.getElementById('cpRK').textContent);
-            if (cpMaxLEnabled) lines.push('Max. deellengte (inbouwbeperking): ' + document.getElementById('cpRMaxLUser').textContent);
-            lines.push('Aantal delen:  ' + document.getElementById('cpRParts').textContent);
+            lines.push('Totale lengte: ' + $id('cpRTotal').textContent);
+            lines.push('G1 / G2:       ' + $id('cpRG1G2').textContent);
+            lines.push('K:             ' + $id('cpRK').textContent);
+            if (cpMaxLEnabled) lines.push('Max. deellengte (inbouwbeperking): ' + $id('cpRMaxLUser').textContent);
+            lines.push('Aantal delen:  ' + $id('cpRParts').textContent);
             lines.push('');
             lines.push('Verdeling:');
-            document.querySelectorAll('#cpRailList .rail-card').forEach((card, i) => {
+            $qa('#cpRailList .rail-card').forEach((card, i) => {
                 const hdr = card.querySelector('.rail-card-header strong');
                 const formula = card.querySelector('.formula');
                 if (hdr && formula) lines.push('  Deel ' + (i + 1) + ': ' + hdr.textContent + '  —  ' + formula.textContent);
@@ -1151,7 +1163,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
         function cpCopySummary() {
             const text = cpBuildBreakdownText();
-            const btn = document.getElementById('cpBtnCopy');
+            const btn = $id('cpBtnCopy');
             const restore = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Kopieer koppelverdeling';
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(text).then(() => {
@@ -1164,7 +1176,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
         function cpDownloadSvgAsPng() {
             try {
-                const svg = document.getElementById('cpRailSvg');
+                const svg = $id('cpRailSvg');
                 if (!svg || !svg.innerHTML) { console.warn('PNG-export: geen visualisatie beschikbaar om te exporteren.'); return; }
 
                 let svgData = new XMLSerializer().serializeToString(svg);
@@ -1218,10 +1230,10 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         // ── Doorgaan naar stap 13 vanuit stap 12B ──
         function cpGoNext12b() {
             if (!cpValid) return;
-            const card = document.getElementById('step12b');
+            const card = $id('step12b');
             card.classList.remove('active');
             card.classList.add('done');
-            const next = document.getElementById('step13');
+            const next = $id('step13');
             if (next) {
                 next.classList.add('active');
                 setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
@@ -1231,9 +1243,13 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
         window.addEventListener('resize', () => { if (cpCouplingActive && cpLastParts) cpCalculate(); });
 
 // ── Bedrading naar de inline onclick-attributen ─────────────────────────────
-// Vite bundelt naar een module, dus top-level declaraties komen níét meer op
-// window terecht. De 94 `onclick="select(1,…)"`-attributen in de markup hebben
-// ze daar wél nodig. Dit is de brug tot fase 2 ze vervangt door listeners.
+// De markup van v1.8 bevat 94 `onclick="select(1,…)"`-attributen. Inline
+// handlers zoeken hun functie op `window`, ook binnen een shadow root — dus
+// zolang die attributen er staan, moeten deze namen daar staan.
+//
+// Dit is de laatste rest globale ruimte. Fase 2c vervangt de inline handlers
+// door gedelegeerde listeners op de shadow root; dan kan dit blok weg en is de
+// configurator volledig ingekapseld. Tot die tijd: één instantie per pagina.
 Object.assign(window, {
   ensureDefaultsApplied,
   select,
@@ -1299,11 +1315,9 @@ Object.assign(window, {
   buildCode,
 });
 
-// v1.8 hing dit aan DOMContentLoaded, dat níét meer vuurt als de configurator
-// later wordt ingevoegd (page builder, AJAX-tab) — daar liep de illustratie op
-// leeg. Dit dekt beide gevallen af.
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => updateIllustration());
-} else {
+  // v1.8 hing dit aan DOMContentLoaded, dat níét meer vuurt als de configurator
+  // later wordt ingevoegd (page builder, AJAX-tab) — daar liep de illustratie
+  // op leeg. Binnen een custom element is de markup bij aanroep sowieso al
+  // aanwezig, dus we tekenen direct.
   updateIllustration();
 }
