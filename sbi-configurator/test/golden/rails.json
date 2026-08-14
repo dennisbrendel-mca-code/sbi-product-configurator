@@ -1,0 +1,55 @@
+{
+  "_bron": "reference/v1.8.html regel 2633 (const RAILS), afgeleid uit SBI maatgegevens (absoluut).xlsx",
+  "_let_op": "minLast heeft geen aantoonbare bron — zie docs/vragen-aan-MCA.md vraag 2",
+  "referenceSha256": "4419952c52b6547ea4d2bdaea9dbc1bfaa64d935b29dacc8f0381543d52ede9f",
+  "RAILS": {
+    "15": {
+      "F": 60,
+      "Gmin": 6,
+      "maxL": 2960,
+      "minLast": 216
+    },
+    "20": {
+      "F": 60,
+      "Gmin": 7,
+      "maxL": 3960,
+      "minLast": 217
+    },
+    "25": {
+      "F": 60,
+      "Gmin": 8,
+      "maxL": 3960,
+      "minLast": 218
+    },
+    "30": {
+      "F": 80,
+      "Gmin": 9,
+      "maxL": 3960,
+      "minLast": 289
+    },
+    "35": {
+      "F": 80,
+      "Gmin": 9,
+      "maxL": 3960,
+      "minLast": 289
+    },
+    "45": {
+      "F": 105,
+      "Gmin": 12,
+      "maxL": 3960,
+      "minLast": 379.5
+    },
+    "55": {
+      "F": 120,
+      "Gmin": 14,
+      "maxL": 3960,
+      "minLast": 434
+    },
+    "65": {
+      "F": 150,
+      "Gmin": 15,
+      "maxL": 3960,
+      "minLast": 540
+    }
+  }
+}
