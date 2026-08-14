@@ -1,0 +1,658 @@
+{
+  "stappen": [
+    {
+      "id": "step1",
+      "titel": "Model (maatcode)",
+      "omschrijving": "Kies het railmodel op basis van de gewenste afmetingen.",
+      "opties": [
+        {
+          "code": "SBI15",
+          "labelInAanroep": "Maat 15",
+          "optCode": "SBI15",
+          "optLabel": "Maat 15",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "SBI20",
+          "labelInAanroep": "Maat 20",
+          "optCode": "SBI20",
+          "optLabel": "Maat 20",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "SBI25",
+          "labelInAanroep": "Maat 25",
+          "optCode": "SBI25",
+          "optLabel": "Maat 25",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "SBI30",
+          "labelInAanroep": "Maat 30",
+          "optCode": "SBI30",
+          "optLabel": "Maat 30",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "SBI35",
+          "labelInAanroep": "Maat 35",
+          "optCode": "SBI35",
+          "optLabel": "Maat 35",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "SBI45",
+          "labelInAanroep": "Maat 45",
+          "optCode": "SBI45",
+          "optLabel": "Maat 45",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "SBI55",
+          "labelInAanroep": "Maat 55",
+          "optCode": "SBI55",
+          "optLabel": "Maat 55",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "SBI65",
+          "labelInAanroep": "Maat 65",
+          "optCode": "SBI65",
+          "optLabel": "Maat 65",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step2",
+      "titel": "Loopwagen",
+      "omschrijving": "Kies hieronder de gewenste loopwagen.",
+      "opties": [
+        {
+          "code": "FL",
+          "labelInAanroep": "Flens uitvoering",
+          "optCode": "FL",
+          "optLabel": "Flens uitvoering",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "FLL",
+          "labelInAanroep": "Flens uitvoering lang",
+          "optCode": "FLL",
+          "optLabel": "Flens uitvoering lang",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "FLS",
+          "labelInAanroep": "Flens uitvoering kort",
+          "optCode": "FLS",
+          "optLabel": "Flens uitvoering kort",
+          "models": [
+            15,
+            20,
+            25,
+            30,
+            35
+          ],
+          "bijzonder": null
+        },
+        {
+          "code": "SL",
+          "labelInAanroep": "Blok uitvoering",
+          "optCode": "SL",
+          "optLabel": "Blok uitvoering",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "SLL",
+          "labelInAanroep": "Blok uitvoering lang",
+          "optCode": "SLL",
+          "optLabel": "Blok uitvoering lang",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "SLS",
+          "labelInAanroep": "Blok uitvoering kort",
+          "optCode": "SLS",
+          "optLabel": "Blok uitvoering kort",
+          "models": [
+            15,
+            20,
+            25,
+            30,
+            35
+          ],
+          "bijzonder": null
+        },
+        {
+          "code": "HL",
+          "labelInAanroep": "Lage uitvoering",
+          "optCode": "HL",
+          "optLabel": "Lage uitvoering",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "HLS",
+          "labelInAanroep": "Lage uitvoering kort",
+          "optCode": "HLS",
+          "optLabel": "Lage uitvoering kort",
+          "models": [
+            15,
+            20,
+            25,
+            30,
+            35
+          ],
+          "bijzonder": null
+        },
+        {
+          "code": "HLL",
+          "labelInAanroep": "Lage uitvoering lang",
+          "optCode": "HLL",
+          "optLabel": "Lage uitvoering lang",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "CL",
+          "labelInAanroep": "Compacte uitvoering",
+          "optCode": "CL",
+          "optLabel": "Compacte uitvoering",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "CLS",
+          "labelInAanroep": "Compacte uitvoering kort",
+          "optCode": "CLS",
+          "optLabel": "Compacte uitvoering kort",
+          "models": [
+            20
+          ],
+          "bijzonder": null
+        },
+        {
+          "code": "CLL",
+          "labelInAanroep": "Compacte uitvoering lang",
+          "optCode": "CLL",
+          "optLabel": "Compacte uitvoering lang",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "FV",
+          "labelInAanroep": "Flens uitvoering kort",
+          "optCode": "FV",
+          "optLabel": "Flens uitvoering kort",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "SV",
+          "labelInAanroep": "Blok uitvoering kort",
+          "optCode": "SV",
+          "optLabel": "Blok uitvoering kort",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": null,
+          "labelInAanroep": null,
+          "optCode": null,
+          "optLabel": "Ik heb geen loopwagen nodig, alleen een railconfiguratie (slaat stap 3 t/m 8 automatisch over)",
+          "models": null,
+          "bijzonder": "selectNoCarriage"
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step3",
+      "titel": "Smeernippelpositie",
+      "omschrijving": "Standaard zit de smeernippel aan de voorkant. Voor zijkant neemt MCA contact met u op.",
+      "opties": [
+        {
+          "code": "",
+          "labelInAanroep": "Voorzijde (standaard)",
+          "optCode": "—",
+          "optLabel": "Voorzijde (geen symbool)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "N",
+          "labelInAanroep": "Zijkant – overleg",
+          "optCode": "N",
+          "optLabel": "Zijkant (contact opnemen)",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step4",
+      "titel": "Nauwkeurigheidsklasse",
+      "omschrijving": "Klasse H (Hoog, voorkeurstype) voor de meeste machinebouwtoepassingen.",
+      "opties": [
+        {
+          "code": "H",
+          "labelInAanroep": "Hoog (voorkeur)",
+          "optCode": "H",
+          "optLabel": "Hoog (voorkeurstype)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "P",
+          "labelInAanroep": "Precisie – op aanvraag",
+          "optCode": "P",
+          "optLabel": "Precisie (OP AANVRAAG)",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step5",
+      "titel": "Voorspanning",
+      "omschrijving": "K1 is het voorkeurstype voor de meeste toepassingen. K3 voor maximale stijfheid bij zware belasting.",
+      "opties": [
+        {
+          "code": "K0",
+          "labelInAanroep": "Geen voorspanning",
+          "optCode": "K0",
+          "optLabel": "Geen voorspanning (op aanvraag)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "K1",
+          "labelInAanroep": "Standaard – voorkeur",
+          "optCode": "K1",
+          "optLabel": "Standaard (voorkeurstype)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "K2",
+          "labelInAanroep": "Gemiddeld",
+          "optCode": "K2",
+          "optLabel": "Gemiddelde voorspanning (op aanvraag)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "K3",
+          "labelInAanroep": "Zwaar",
+          "optCode": "K3",
+          "optLabel": "Zware voorspanning (op aanvraag)",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step6",
+      "titel": "Smeercontainer",
+      "omschrijving": "MF (Smeervilt) voor toepassingen waarbij smeerpunt(en) lastig bereikbaar zijn.",
+      "opties": [
+        {
+          "code": "",
+          "labelInAanroep": "Standaard",
+          "optCode": "—",
+          "optLabel": "Standaard (geen symbool)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "MF",
+          "labelInAanroep": "Smeervilt",
+          "optCode": "MF",
+          "optLabel": "Smeervilt",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step7",
+      "titel": "Afdichting",
+      "omschrijving": "Kies afdichting op basis van omgevingsomstandigheden.",
+      "opties": [
+        {
+          "code": "",
+          "labelInAanroep": "Standaard",
+          "optCode": "—",
+          "optLabel": "Standaard (Normale condities)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "DD",
+          "labelInAanroep": "Dubbele afdichting",
+          "optCode": "DD",
+          "optLabel": "Dubbele afdichting (Stoffige condities)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "ZZ",
+          "labelInAanroep": "Afdichting ZZ",
+          "optCode": "ZZ",
+          "optLabel": "Afdichting ZZ (Lasspatten)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "KK",
+          "labelInAanroep": "Afdichting KK",
+          "optCode": "KK",
+          "optLabel": "Afdichting KK (Stof en lasspatten)",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step8",
+      "titel": "Aantal loopwagens per rail",
+      "omschrijving": "Geen symbool = 1 loopwagen per rail. Vermeld het gewenste aantal bij meerdere loopwagens.",
+      "opties": [
+        {
+          "code": "1",
+          "labelInAanroep": "1 loopwagen",
+          "optCode": "1",
+          "optLabel": "1 loopwagen (geen symbool)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "2",
+          "labelInAanroep": "2 loopwagens",
+          "optCode": "2",
+          "optLabel": "2 loopwagens",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "3",
+          "labelInAanroep": "3 loopwagens",
+          "optCode": "3",
+          "optLabel": "3 loopwagens",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "4",
+          "labelInAanroep": "4 loopwagens",
+          "optCode": "4",
+          "optLabel": "4 loopwagens",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step9",
+      "titel": "Eindplaat hoge temperatuur",
+      "omschrijving": "HT-eindplaat is vereist bij aanhoudende omgevingstemperaturen boven 80°C.",
+      "opties": [
+        {
+          "code": "",
+          "labelInAanroep": "Standaard eindplaat",
+          "optCode": "—",
+          "optLabel": "Standaard (geen symbool)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "HT",
+          "labelInAanroep": "Hoge temperatuur",
+          "optCode": "HT",
+          "optLabel": "Hoge temp. eindplaat",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step10",
+      "titel": "Oppervlaktebehandeling",
+      "omschrijving": "FCR (Fluor Carbon Raydent) biedt extra corrosiebescherming voor vochtige of agressieve omgevingen.",
+      "opties": [
+        {
+          "code": "",
+          "labelInAanroep": "Standaard",
+          "optCode": "—",
+          "optLabel": "Standaard (geen symbool)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "FCR",
+          "labelInAanroep": "Fluor Carbon Raydent",
+          "optCode": "FCR",
+          "optLabel": "Fluor Carbon Raydent",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step11",
+      "titel": "Rail montage",
+      "omschrijving": "B = draadgaten onderzijde voor bevestiging van onderen. Standaard = bovenmontage.",
+      "opties": [
+        {
+          "code": "",
+          "labelInAanroep": "Standaard bovenmontage",
+          "optCode": "—",
+          "optLabel": "Standaard (geen symbool)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "B",
+          "labelInAanroep": "Draadgaten onderzijde",
+          "optCode": "B",
+          "optLabel": "Draadgaten onderzijde",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step12",
+      "titel": "Raillengte",
+      "omschrijving": "Voer de gewenste raillengte in millimeters in. Boven de maximale handelslengte van het gekozen model wordt de rail automatisch opgesplitst in gekoppelde delen (zie stap 12B hieronder).",
+      "opties": [],
+      "invoer": [
+        {
+          "id": "lengthInput",
+          "min": "100",
+          "max": "12000",
+          "step": null,
+          "value": null,
+          "placeholder": "bv. 800"
+        }
+      ]
+    },
+    {
+      "id": "step12b",
+      "titel": "Koppelverdeling",
+      "omschrijving": "Deze rail overschrijdt de maximale handelslengte van het gekozen model en wordt daarom opgesplitst in meerdere gekoppelde delen. Controleer of pas de verdeling hieronder aan.",
+      "opties": [],
+      "invoer": [
+        {
+          "id": "cpG1",
+          "min": "1",
+          "max": null,
+          "step": "1",
+          "value": "40",
+          "placeholder": null
+        },
+        {
+          "id": "cpG2",
+          "min": "1",
+          "max": null,
+          "step": "1",
+          "value": "40",
+          "placeholder": null
+        },
+        {
+          "id": "cpNumPartsManual",
+          "min": "1",
+          "max": "20",
+          "step": "1",
+          "value": "3",
+          "placeholder": null
+        },
+        {
+          "id": "cpMaxlValue",
+          "min": "1",
+          "max": null,
+          "step": "1",
+          "value": "2000",
+          "placeholder": "Max. deellengte (mm)"
+        }
+      ]
+    },
+    {
+      "id": "step13",
+      "titel": "Steek eerste/laatste gat",
+      "omschrijving": "Hartafstand van het eerste en laatste bevestigingsgat tot het railuiteinde in mm (bv. 20/20).",
+      "opties": [],
+      "invoer": [
+        {
+          "id": "pitchFirst",
+          "min": "5",
+          "max": "200",
+          "step": null,
+          "value": null,
+          "placeholder": "20"
+        },
+        {
+          "id": "pitchLast",
+          "min": "5",
+          "max": "200",
+          "step": null,
+          "value": null,
+          "placeholder": "20"
+        }
+      ]
+    },
+    {
+      "id": "step14",
+      "titel": "Aantal rails per as",
+      "omschrijving": "Standaard is 1 rij. II, III of IV voor parallelle railconfiguraties.",
+      "opties": [
+        {
+          "code": "",
+          "labelInAanroep": "1 rail (standaard)",
+          "optCode": "I",
+          "optLabel": "1 rij (geen symbool)",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "II",
+          "labelInAanroep": "2 rails",
+          "optCode": "II",
+          "optLabel": "2 rijen",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "III",
+          "labelInAanroep": "3 rails",
+          "optCode": "III",
+          "optLabel": "3 rijen",
+          "models": null,
+          "bijzonder": null
+        },
+        {
+          "code": "IV",
+          "labelInAanroep": "4 rails",
+          "optCode": "IV",
+          "optLabel": "4 rijen",
+          "models": null,
+          "bijzonder": null
+        }
+      ],
+      "invoer": []
+    },
+    {
+      "id": "step15",
+      "titel": "Aantal configuraties",
+      "omschrijving": "Hoeveel identieke sets van bovenstaande configuratie wilt u aanvragen?",
+      "opties": [],
+      "invoer": [
+        {
+          "id": "qtyInput",
+          "min": "1",
+          "max": "500",
+          "step": "1",
+          "value": "1",
+          "placeholder": null
+        }
+      ]
+    }
+  ],
+  "defaults": [
+    {
+      "step": 3,
+      "idx": 0
+    },
+    {
+      "step": 4,
+      "idx": 0
+    },
+    {
+      "step": 5,
+      "idx": 1
+    },
+    {
+      "step": 6,
+      "idx": 0
+    },
+    {
+      "step": 7,
+      "idx": 0
+    },
+    {
+      "step": 9,
+      "idx": 0
+    },
+    {
+      "step": 10,
+      "idx": 0
+    },
+    {
+      "step": 11,
+      "idx": 0
+    }
+  ]
+}
