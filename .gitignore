@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+
+# Backup-archief van deze map zelf (9 MB, bevat niets wat hier niet al staat)
+*.zip
+
+# Vite-cache
+.vite/

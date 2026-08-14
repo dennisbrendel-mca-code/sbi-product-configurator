@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCA – Profielrailgeleiding Configurator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --linear: #be0068;
+    --navy: #0c2c65;
+    --lavender: #9fa0d0;
+    --offwhite: #f4f6f8;
+    --white: #ffffff;
+    --border: #dde2ec;
+    --text: #1a1a2e;
+    --muted: #6b7594;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--offwhite);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--navy);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    border-bottom: 3px solid var(--linear);
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 10px; }
+  .logo-box {
+    width: 36px; height: 36px;
+    background: var(--linear); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 22px; color: white; letter-spacing: 0.04em;
+  }
+  .logo-text span { color: var(--lavender); font-weight: 400; }
+  .header-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--lavender);
+    border: 1px solid rgba(159,160,208,0.3); padding: 4px 12px; border-radius: 20px;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, #0a2255 100%);
+    padding: 32px 40px 28px; position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: ''; position: absolute; right: -60px; top: -40px;
+    width: 320px; height: 320px; border-radius: 50%;
+    border: 60px solid rgba(190,0,104,0.08); pointer-events: none;
+  }
+  .hero-label {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase; color: var(--linear); margin-bottom: 8px;
+  }
+  .hero-title {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 32px;
+    font-weight: 700; color: white; line-height: 1.1; margin-bottom: 6px;
+  }
+  .hero-sub { font-size: 14px; color: rgba(255,255,255,0.6); font-weight: 300; }
+
+  .layout {
+    display: grid; grid-template-columns: 1fr 380px;
+    gap: 24px; max-width: 1280px; margin: 0 auto; padding: 28px 40px 60px;
+  }
+
+  .steps-wrapper { display: flex; flex-direction: column; gap: 16px; }
+
+  .step-card {
+    background: white; border-radius: 10px;
+    border: 1.5px solid var(--border); overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .step-card.active { border-color: var(--linear); box-shadow: 0 0 0 3px rgba(190,0,104,0.07); }
+  .step-card.done { border-color: var(--navy); }
+
+  .step-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px; cursor: pointer; user-select: none;
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px;
+    flex-shrink: 0; transition: background 0.2s, color 0.2s;
+    background: var(--border); color: var(--muted);
+  }
+  .step-card.active .step-num { background: var(--linear); color: white; }
+  .step-card.done .step-num { background: var(--navy); color: white; }
+  .step-title-wrap { flex: 1; }
+  .step-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 15px; color: var(--text); }
+  .step-selected { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .step-card.done .step-selected { color: var(--linear); font-weight: 500; }
+  .step-chevron { color: var(--muted); transition: transform 0.2s; }
+  .step-card.active .step-chevron { transform: rotate(180deg); color: var(--linear); }
+
+  .step-body { display: none; padding: 0 20px 20px; border-top: 1px solid var(--border); }
+  .step-card.active .step-body { display: block; }
+  .step-desc { font-size: 13px; color: var(--muted); padding: 12px 0 14px; line-height: 1.5; }
+
+  .option-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .option-grid.wide { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+
+  .opt-btn {
+    background: var(--offwhite); border: 1.5px solid var(--border);
+    border-radius: 7px; padding: 10px 12px; cursor: pointer;
+    text-align: left; transition: all 0.15s; font-family: 'Barlow', sans-serif;
+  }
+  .opt-btn:hover { border-color: var(--linear); background: rgba(190,0,104,0.04); }
+  .opt-btn.selected { border-color: var(--linear); background: rgba(190,0,104,0.06); }
+  .opt-code { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: var(--navy); display: block; }
+  .opt-btn.selected .opt-code { color: var(--linear); }
+  .opt-label { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.3; display: block; }
+
+  .length-input-wrap { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+  .length-input {
+    width: 140px; height: 44px; border: 1.5px solid var(--border);
+    border-radius: 7px; padding: 0 14px; font-family: 'Barlow', sans-serif;
+    font-size: 16px; font-weight: 600; color: var(--navy); outline: none; transition: border-color 0.15s;
+  }
+  .length-input:focus { border-color: var(--linear); }
+  .length-unit { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; color: var(--muted); font-weight: 600; }
+  .length-hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  .pitch-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .pitch-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .pitch-group input {
+    width: 100%; height: 40px; border: 1.5px solid var(--border);
+    border-radius: 7px; padding: 0 12px; font-family: 'Barlow', sans-serif;
+    font-size: 15px; color: var(--navy); outline: none; transition: border-color 0.15s;
+  }
+  .pitch-group input:focus { border-color: var(--linear); }
+
+  .next-btn {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 16px;
+    background: var(--linear); color: white; border: none; border-radius: 7px;
+    padding: 10px 20px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+    font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.15s, transform 0.1s;
+  }
+  .next-btn:hover { background: #9e0056; transform: translateY(-1px); }
+  .next-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+
+  .sidebar { position: sticky; top: 28px; height: fit-content; }
+
+  .illustration-card {
+    background: white; border-radius: 10px; border: 1.5px solid var(--border);
+    padding: 16px; margin-bottom: 16px;
+  }
+  .illustration-card svg { width: 100%; height: auto; }
+
+  .progress-bar-wrap { margin-bottom: 16px; }
+  .progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .progress-label { font-size: 12px; color: var(--muted); }
+  .progress-pct { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12px; color: var(--linear); }
+  .progress-track { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--navy), var(--linear)); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+
+  .code-card { background: var(--navy); border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+  .code-card-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--lavender); margin-bottom: 14px; }
+  .code-display { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; min-height: 48px; margin-bottom: 8px; }
+  .code-part { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; color: white; }
+  .code-part.empty { color: rgba(255,255,255,0.2); font-weight: 400; }
+  .code-separator { color: rgba(255,255,255,0.3); font-size: 18px; margin: 0 1px; }
+  .code-copy-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.7); border-radius: 5px; padding: 6px 12px;
+    font-family: 'Barlow', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.15s;
+    margin-top: 12px;
+  }
+  .code-copy-btn:hover { background: rgba(255,255,255,0.14); color: white; }
+
+  .breakdown-card { background: white; border-radius: 10px; border: 1.5px solid var(--border); padding: 20px; margin-bottom: 16px; }
+  .breakdown-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .breakdown-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--offwhite); gap: 12px; }
+  .breakdown-row:last-child { border-bottom: none; }
+  .bd-field { font-size: 12px; color: var(--muted); flex: 1; }
+  .bd-value { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: var(--navy); text-align: right; }
+
+  .cta-card { background: white; border-radius: 10px; border: 1.5px solid var(--border); padding: 20px; }
+  .cta-incomplete { font-size: 13px; color: var(--muted); text-align: center; padding: 8px 0; }
+  .request-btn {
+    width: 100%; background: var(--linear); color: white; border: none;
+    border-radius: 8px; padding: 14px 20px; font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.15s, transform 0.1s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .request-btn:hover { background: #9e0056; transform: translateY(-1px); }
+  .request-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+  .cta-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; line-height: 1.5; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; padding: 20px; }
+    .sidebar { position: static; }
+    .hero { padding: 24px 20px; }
+    .header { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo-wrap">
+    <div class="logo-box">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+        <path d="M3 12h18M3 6h18M3 18h12M17 15l3-3-3-3"/>
+      </svg>
+    </div>
+    <div class="logo-text">MCA <span>Linear Motion</span></div>
+  </div>
+  <div class="header-tag">Productconfigurator</div>
+</header>
+
+<div class="hero">
+  <div class="hero-label">SBC Kogelomloopgeleiding – Nauwkeurig &amp; Betrouwbaar</div>
+  <div class="hero-title">Profielrailgeleiding Configurator</div>
+  <div class="hero-sub">Stel uw rail + loopwagen samen en vraag direct een offerte aan · 14 configuratiestappen</div>
+</div>
+
+<div class="layout">
+  <div class="steps-wrapper">
+
+    <!-- STEP 1 -->
+    <div class="step-card active" id="step1">
+      <div class="step-header" onclick="toggleStep(1)">
+        <div class="step-num">1</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Model (maatcode)</div>
+          <div class="step-selected" id="sel1">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">Kies het railmodel op basis van de gewenste maatcategorie. SBI20 is het meest gangbaar voor algemeen gebruik.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(1,'SBI15','Maat 15 – licht',this)"><span class="opt-code">SBI15</span><span class="opt-label">Maat 15 – licht</span></button>
+          <button class="opt-btn" onclick="select(1,'SBI20','Maat 20 – standaard',this)"><span class="opt-code">SBI20</span><span class="opt-label">Maat 20 – standaard</span></button>
+          <button class="opt-btn" onclick="select(1,'SBI25','Maat 25 – middelzwaar',this)"><span class="opt-code">SBI25</span><span class="opt-label">Maat 25 – middelzwaar</span></button>
+          <button class="opt-btn" onclick="select(1,'SBI30','Maat 30 – zwaar',this)"><span class="opt-code">SBI30</span><span class="opt-label">Maat 30 – zwaar</span></button>
+          <button class="opt-btn" onclick="select(1,'SBI35','Maat 35 – extra zwaar',this)"><span class="opt-code">SBI35</span><span class="opt-label">Maat 35 – extra zwaar</span></button>
+          <button class="opt-btn" onclick="select(1,'SBI45','Maat 45',this)"><span class="opt-code">SBI45</span><span class="opt-label">Maat 45</span></button>
+          <button class="opt-btn" onclick="select(1,'SBI55','Maat 55',this)"><span class="opt-code">SBI55</span><span class="opt-label">Maat 55</span></button>
+          <button class="opt-btn" onclick="select(1,'SBI65','Maat 65 – zeer zwaar',this)"><span class="opt-code">SBI65</span><span class="opt-label">Maat 65 – zeer zwaar</span></button>
+        </div>
+        <button class="next-btn" id="next1" disabled onclick="goNext(1)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-card" id="step2">
+      <div class="step-header" onclick="toggleStep(2)">
+        <div class="step-num">2</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Bloktype</div>
+          <div class="step-selected" id="sel2">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">Het bloktype bepaalt de hoogte en breedte van de loopwagen. FL is standaard; HL/HLS voor meer draagcapaciteit.</div>
+        <div class="option-grid wide">
+          <button class="opt-btn" onclick="select(2,'FL','Flens uitvoering',this)"><span class="opt-code">FL</span><span class="opt-label">Flens uitvoering</span></button>
+          <button class="opt-btn" onclick="select(2,'FLL','Flens uitvoering lang',this)"><span class="opt-code">FLL</span><span class="opt-label">Flens uitvoering lang</span></button>
+          <button class="opt-btn" onclick="select(2,'SL','Blok uitvoering',this)"><span class="opt-code">SL</span><span class="opt-label">Blok uitvoering</span></button>
+          <button class="opt-btn" onclick="select(2,'SLL','Blok uitvoering lang',this)"><span class="opt-code">SLL</span><span class="opt-label">Blok uitvoering lang</span></button>
+          <button class="opt-btn" onclick="select(2,'HL','Blok uitvoering laag hoog',this)"><span class="opt-code">HL</span><span class="opt-label">Blok uitvoering laag hoog</span></button>
+          <button class="opt-btn" onclick="select(2,'HLS','Blok uitvoering laag kort',this)"><span class="opt-code">HLS</span><span class="opt-label">Blok uitvoering laag kort</span></button>
+          <button class="opt-btn" onclick="select(2,'HLL','Blok uitvoering laag lang',this)"><span class="opt-code">HLL</span><span class="opt-label">Blok uitvoering laag lang</span></button>
+          <button class="opt-btn" onclick="select(2,'CL','Compact uitvoering',this)"><span class="opt-code">CL</span><span class="opt-label">Compact uitvoering</span></button>
+          <button class="opt-btn" onclick="select(2,'CLS','Compact uitvoering kort',this)"><span class="opt-code">CLS</span><span class="opt-label">Compact uitvoering kort</span></button>
+          <button class="opt-btn" onclick="select(2,'CLL','Compact uitvoering lang',this)"><span class="opt-code">CLL</span><span class="opt-label">Compact uitvoering lang</span></button>
+          <button class="opt-btn" onclick="select(2,'FV','Flens uitvoering kort',this)"><span class="opt-code">FV</span><span class="opt-label">Flens uitvoering kort</span></button>
+          <button class="opt-btn" onclick="select(2,'SV','Blok uitvoering kort',this)"><span class="opt-code">SV</span><span class="opt-label">Blok uitvoering kort</span></button>
+        </div>
+        <button class="next-btn" id="next2" disabled onclick="goNext(2)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-card" id="step3">
+      <div class="step-header" onclick="toggleStep(3)">
+        <div class="step-num">3</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Smeernippelpositie</div>
+          <div class="step-selected" id="sel3">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">Standaard zit de smeernippel aan de voorkant. Voor zijkant neemt MCA contact met u op.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(3,'','Voorkant (standaard)',this)"><span class="opt-code">—</span><span class="opt-label">Voorkant (geen symbool)</span></button>
+          <button class="opt-btn" onclick="select(3,'N','Zijkant – overleg',this)"><span class="opt-code">N</span><span class="opt-label">Zijkant (contact opnemen)</span></button>
+        </div>
+        <button class="next-btn" id="next3" disabled onclick="goNext(3)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-card" id="step4">
+      <div class="step-header" onclick="toggleStep(4)">
+        <div class="step-num">4</div>
+        <div class="step-title-wrap">
+          <div class="step-title">MF-container</div>
+          <div class="step-selected" id="sel4">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">MF (smeercasette) voor onderhoudsarme toepassingen waarbij nasmeren moeilijk bereikbaar is.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(4,'','Standaard',this)"><span class="opt-code">—</span><span class="opt-label">Standaard (geen symbool)</span></button>
+          <button class="opt-btn" onclick="select(4,'MF','smeercasette',this)"><span class="opt-code">MF</span><span class="opt-label">Smeercasette</span></button>
+        </div>
+        <button class="next-btn" id="next4" disabled onclick="goNext(4)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step-card" id="step5">
+      <div class="step-header" onclick="toggleStep(5)">
+        <div class="step-num">5</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Afdichting</div>
+          <div class="step-selected" id="sel5">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">Kies afdichting op basis van omgevingsomstandigheden. DD/ZZ/KK voor bescherming tegen stof en spatwater.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(5,'','Standaard',this)"><span class="opt-code">—</span><span class="opt-label">Standaard (Normale condities)</span></button>
+          <button class="opt-btn" onclick="select(5,'DD','Dubbele afdichting',this)"><span class="opt-code">DD</span><span class="opt-label">Dubbele afdichting (Stoffige condities)</span></button>
+          <button class="opt-btn" onclick="select(5,'ZZ','Afdichting ZZ',this)"><span class="opt-code">ZZ</span><span class="opt-label">Afdichting ZZ (Lasspatten)</span></button>
+          <button class="opt-btn" onclick="select(5,'KK','Afdichting KK',this)"><span class="opt-code">KK</span><span class="opt-label">Afdichting KK (Stof en spaanders)</span></button>
+        </div>
+        <button class="next-btn" id="next5" disabled onclick="goNext(5)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step-card" id="step6">
+      <div class="step-header" onclick="toggleStep(6)">
+        <div class="step-num">6</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Aantal loopwagens per rail</div>
+          <div class="step-selected" id="sel6">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">Geen symbool = 1 loopwagen per rail. Vermeld het gewenste aantal bij meerdere loopwagens.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(6,'','1 loopwagen',this)"><span class="opt-code">—</span><span class="opt-label">1 loopwagen (geen symbool)</span></button>
+          <button class="opt-btn" onclick="select(6,'2','2 loopwagens',this)"><span class="opt-code">2</span><span class="opt-label">2 loopwagens</span></button>
+          <button class="opt-btn" onclick="select(6,'3','3 loopwagens',this)"><span class="opt-code">3</span><span class="opt-label">3 loopwagens</span></button>
+          <button class="opt-btn" onclick="select(6,'4','4 loopwagens',this)"><span class="opt-code">4</span><span class="opt-label">4 loopwagens</span></button>
+        </div>
+        <button class="next-btn" id="next6" disabled onclick="goNext(6)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step-card" id="step7">
+      <div class="step-header" onclick="toggleStep(7)">
+        <div class="step-num">7</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Voorspanning</div>
+          <div class="step-selected" id="sel7">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">K1 is het voorkeurstype voor de meeste toepassingen. K3 voor maximale stijfheid bij zware belasting.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(7,'K0','Geen voorspanning',this)"><span class="opt-code">K0</span><span class="opt-label">Geen voorspanning</span></button>
+          <button class="opt-btn" onclick="select(7,'K1','Normaal – voorkeur',this)"><span class="opt-code">K1</span><span class="opt-label">Normaal (voorkeurstype)</span></button>
+          <button class="opt-btn" onclick="select(7,'K2','Gemiddeld',this)"><span class="opt-code">K2</span><span class="opt-label">Gemiddelde voorspanning</span></button>
+          <button class="opt-btn" onclick="select(7,'K3','Zwaar',this)"><span class="opt-code">K3</span><span class="opt-label">Zware voorspanning</span></button>
+        </div>
+        <button class="next-btn" id="next7" disabled onclick="goNext(7)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step-card" id="step8">
+      <div class="step-header" onclick="toggleStep(8)">
+        <div class="step-num">8</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Eindplaat hoge temperatuur</div>
+          <div class="step-selected" id="sel8">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">HT-eindplaat is vereist bij aanhoudende omgevingstemperaturen boven 80°C.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(8,'','Standaard eindplaat',this)"><span class="opt-code">—</span><span class="opt-label">Standaard (geen symbool)</span></button>
+          <button class="opt-btn" onclick="select(8,'HT','Hoge temperatuur',this)"><span class="opt-code">HT</span><span class="opt-label">Hoge temp. eindplaat</span></button>
+        </div>
+        <button class="next-btn" id="next8" disabled onclick="goNext(8)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 9 -->
+    <div class="step-card" id="step9">
+      <div class="step-header" onclick="toggleStep(9)">
+        <div class="step-num">9</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Raillengte</div>
+          <div class="step-selected" id="sel9">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">Voer de gewenste raillengte in millimeters in.</div>
+        <div class="length-input-wrap">
+          <input type="number" class="length-input" id="lengthInput" placeholder="bv. 800" min="100" max="6000" oninput="onLengthInput()">
+          <span class="length-unit">mm</span>
+        </div>
+        <div class="length-hint">Min. 100 mm – max. 6000 mm</div>
+        <button class="next-btn" id="next9" disabled onclick="goNext(9)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 10 -->
+    <div class="step-card" id="step10">
+      <div class="step-header" onclick="toggleStep(10)">
+        <div class="step-num">10</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Nauwkeurigheidsklasse</div>
+          <div class="step-selected" id="sel10">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">Klasse H (Hoog, voorkeurstype P) voor de meeste machinebouwtoepassingen. N voor standaard gebruik.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(10,'N','Normaal',this)"><span class="opt-code">N</span><span class="opt-label">Normaal</span></button>
+          <button class="opt-btn" onclick="select(10,'H','Hoog (voorkeur)',this)"><span class="opt-code">H</span><span class="opt-label">Hoog (voorkeurstype P)</span></button>
+          <button class="opt-btn" onclick="select(10,'','Precisie – op aanvraag',this)"><span class="opt-code">—</span><span class="opt-label">Precisie (op aanvraag)</span></button>
+        </div>
+        <button class="next-btn" id="next10" disabled onclick="goNext(10)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 11 -->
+    <div class="step-card" id="step11">
+      <div class="step-header" onclick="toggleStep(11)">
+        <div class="step-num">11</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Oppervlaktebehandeling</div>
+          <div class="step-selected" id="sel11">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">FCR (Fluor Carbon Raydent) biedt extra corrosiebescherming voor vochtige of agressieve omgevingen.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(11,'','Standaard',this)"><span class="opt-code">—</span><span class="opt-label">Standaard (geen symbool)</span></button>
+          <button class="opt-btn" onclick="select(11,'FCR','Fluor Carbon Raydent',this)"><span class="opt-code">FCR</span><span class="opt-label">Fluor Carbon Raydent</span></button>
+        </div>
+        <button class="next-btn" id="next11" disabled onclick="goNext(11)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 12 -->
+    <div class="step-card" id="step12">
+      <div class="step-header" onclick="toggleStep(12)">
+        <div class="step-num">12</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Rail montage onderzijde</div>
+          <div class="step-selected" id="sel12">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">B = onderste montagerail voor bevestiging van onderen. Standaard = bovenmontage.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(12,'','Standaard bovenmontage',this)"><span class="opt-code">—</span><span class="opt-label">Standaard (geen symbool)</span></button>
+          <button class="opt-btn" onclick="select(12,'B','Onderste montagerail',this)"><span class="opt-code">B</span><span class="opt-label">Onderste montagerail</span></button>
+        </div>
+        <button class="next-btn" id="next12" disabled onclick="goNext(12)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 13 -->
+    <div class="step-card" id="step13">
+      <div class="step-header" onclick="toggleStep(13)">
+        <div class="step-num">13</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Steek eerste/laatste gat</div>
+          <div class="step-selected" id="sel13">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">Afstand van het eerste en laatste bevestigingsgat tot het railuiteinde in mm (bv. 20/20).</div>
+        <div class="pitch-row">
+          <div class="pitch-group">
+            <label>Eerste gat (mm)</label>
+            <input type="number" id="pitchFirst" placeholder="20" min="5" max="200" oninput="onPitchInput()">
+          </div>
+          <div class="pitch-group">
+            <label>Laatste gat (mm)</label>
+            <input type="number" id="pitchLast" placeholder="20" min="5" max="200" oninput="onPitchInput()">
+          </div>
+        </div>
+        <button class="next-btn" id="next13" disabled onclick="goNext(13)">Volgende stap →</button>
+      </div>
+    </div>
+
+    <!-- STEP 14 -->
+    <div class="step-card" id="step14">
+      <div class="step-header" onclick="toggleStep(14)">
+        <div class="step-num">14</div>
+        <div class="step-title-wrap">
+          <div class="step-title">Aantal rails per as</div>
+          <div class="step-selected" id="sel14">Nog niet geselecteerd</div>
+        </div>
+        <svg class="step-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="step-body">
+        <div class="step-desc">Standaard is 1 rij. II, III of IV voor parallelle railconfiguraties.</div>
+        <div class="option-grid">
+          <button class="opt-btn" onclick="select(14,'','1 rail (standaard)',this)"><span class="opt-code">—</span><span class="opt-label">1 rij (geen symbool)</span></button>
+          <button class="opt-btn" onclick="select(14,'II','2 rails',this)"><span class="opt-code">II</span><span class="opt-label">2 rijen</span></button>
+          <button class="opt-btn" onclick="select(14,'III','3 rails',this)"><span class="opt-code">III</span><span class="opt-label">3 rijen</span></button>
+          <button class="opt-btn" onclick="select(14,'IV','4 rails',this)"><span class="opt-code">IV</span><span class="opt-label">4 rijen</span></button>
+        </div>
+        <button class="next-btn" id="next14" disabled onclick="goNext(14)">Klaar – bekijk bestelcode</button>
+      </div>
+    </div>
+
+  </div><!-- /steps-wrapper -->
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <div class="illustration-card">
+      <svg viewBox="0 0 340 96" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="32" width="320" height="30" rx="4" fill="#e8edf5" stroke="#0c2c65" stroke-width="1.5"/>
+        <rect x="10" y="39" width="320" height="16" rx="2" fill="#c8d2e8"/>
+        <rect x="10" y="27" width="18" height="40" rx="3" fill="#0c2c65"/>
+        <rect x="312" y="27" width="18" height="40" rx="3" fill="#0c2c65"/>
+        <circle cx="40" cy="47" r="4" fill="white" stroke="#0c2c65" stroke-width="1"/>
+        <circle cx="82" cy="47" r="4" fill="white" stroke="#0c2c65" stroke-width="1"/>
+        <circle cx="258" cy="47" r="4" fill="white" stroke="#0c2c65" stroke-width="1"/>
+        <circle cx="300" cy="47" r="4" fill="white" stroke="#0c2c65" stroke-width="1"/>
+        <rect x="128" y="20" width="84" height="54" rx="5" fill="#0c2c65"/>
+        <rect x="136" y="28" width="68" height="38" rx="3" fill="#1a4080"/>
+        <circle cx="150" cy="37" r="3" fill="#be0068"/>
+        <circle cx="196" cy="37" r="3" fill="#be0068"/>
+        <circle cx="150" cy="57" r="3" fill="#be0068"/>
+        <circle cx="196" cy="57" r="3" fill="#be0068"/>
+        <text x="170" y="49" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="9" font-weight="700" fill="white" letter-spacing="0.5">LOOPWAGEN</text>
+        <line x1="10" y1="80" x2="330" y2="80" stroke="#be0068" stroke-width="1" stroke-dasharray="3,2"/>
+        <text id="svgLength" x="170" y="91" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-size="10" fill="#be0068" font-weight="600">Lengte: – mm</text>
+      </svg>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-header">
+        <span class="progress-label">Voortgang configuratie</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="code-card">
+      <div class="code-card-label">Bestelcode</div>
+      <div class="code-display" id="codeDisplay"><span class="code-part empty">– – –</span></div>
+      <button class="code-copy-btn" onclick="copyCode()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Kopieer bestelcode
+      </button>
+    </div>
+
+    <div class="breakdown-card">
+      <div class="breakdown-title">Specificatieoverzicht</div>
+      <div class="breakdown-row"><span class="bd-field">Model</span><span class="bd-value" id="bd1">–</span></div>
+      <div class="breakdown-row"><span class="bd-field">Bloktype</span><span class="bd-value" id="bd2">–</span></div>
+      <div class="breakdown-row"><span class="bd-field">Afdichting</span><span class="bd-value" id="bd5">–</span></div>
+      <div class="breakdown-row"><span class="bd-field">Loopwagens / rail</span><span class="bd-value" id="bd6">–</span></div>
+      <div class="breakdown-row"><span class="bd-field">Voorspanning</span><span class="bd-value" id="bd7">–</span></div>
+      <div class="breakdown-row"><span class="bd-field">Raillengte</span><span class="bd-value" id="bd9">–</span></div>
+      <div class="breakdown-row"><span class="bd-field">Nauwkeurigheid</span><span class="bd-value" id="bd10">–</span></div>
+      <div class="breakdown-row"><span class="bd-field">Steek (eerste/laatste)</span><span class="bd-value" id="bd13">–</span></div>
+      <div class="breakdown-row"><span class="bd-field">Rails per as</span><span class="bd-value" id="bd14">–</span></div>
+    </div>
+
+    <div class="cta-card">
+      <div class="cta-incomplete" id="ctaIncomplete">Vul alle 14 stappen in om een offerte aan te vragen.</div>
+      <button class="request-btn" id="requestBtn" disabled onclick="sendRequest()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        Offerte aanvragen
+      </button>
+      <div class="cta-note">Wij nemen binnen 1 tot 3 werkdagen contact op · Altijd vrijblijvend</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const TOTAL_STEPS = 14;
+const selections = {};
+const labels = {};
+const bdMap = {1:'bd1',2:'bd2',5:'bd5',6:'bd6',7:'bd7',9:'bd9',10:'bd10',13:'bd13',14:'bd14'};
+
+function select(step, code, label, btn) {
+  selections[step] = code;
+  labels[step] = label;
+  // Toggle selected state
+  const body = document.querySelector('#step'+step+' .step-body');
+  body.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  // Enable next
+  document.getElementById('next'+step).disabled = false;
+  // Update summary text
+  document.getElementById('sel'+step).textContent = label;
+  // Update breakdown
+  if (bdMap[step]) {
+    document.getElementById(bdMap[step]).textContent = code || 'Standaard';
+  }
+  updateCode();
+  updateProgress();
+}
+
+function onLengthInput() {
+  const val = document.getElementById('lengthInput').value;
+  if (val && parseInt(val) >= 100) {
+    selections[9] = val;
+    labels[9] = val + ' mm';
+    document.getElementById('next9').disabled = false;
+    document.getElementById('sel9').textContent = val + ' mm';
+    document.getElementById('bd9').textContent = val + ' mm';
+    document.getElementById('svgLength').textContent = 'Lengte: ' + val + ' mm';
+  } else {
+    document.getElementById('next9').disabled = true;
+    delete selections[9];
+  }
+  updateCode();
+  updateProgress();
+}
+
+function onPitchInput() {
+  const f = document.getElementById('pitchFirst').value;
+  const l = document.getElementById('pitchLast').value;
+  if (f && l) {
+    const code = f + '/' + l;
+    selections[13] = code;
+    labels[13] = code + ' mm';
+    document.getElementById('next13').disabled = false;
+    document.getElementById('sel13').textContent = code + ' mm';
+    document.getElementById('bd13').textContent = code + ' mm';
+  } else {
+    document.getElementById('next13').disabled = true;
+    delete selections[13];
+  }
+  updateCode();
+  updateProgress();
+}
+
+function toggleStep(step) {
+  const card = document.getElementById('step'+step);
+  const isActive = card.classList.contains('active');
+  document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+  if (!isActive) card.classList.add('active');
+}
+
+function goNext(step) {
+  const card = document.getElementById('step'+step);
+  card.classList.remove('active');
+  card.classList.add('done');
+  const next = document.getElementById('step'+(step+1));
+  if (next) {
+    next.classList.add('active');
+    setTimeout(() => next.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
+  }
+}
+
+function buildCode() {
+  const order = [1,2,3,4,5,6,7,8,9,10,11,12,13,14];
+  return order
+    .filter(s => selections[s] !== undefined && selections[s] !== '')
+    .map(s => selections[s])
+    .join('-');
+}
+
+function updateCode() {
+  const code = buildCode();
+  const display = document.getElementById('codeDisplay');
+  if (!code) {
+    display.innerHTML = '<span class="code-part empty">– – –</span>';
+    return;
+  }
+  display.innerHTML = code.split('-').map((p, i, arr) =>
+    '<span class="code-part">' + p + '</span>' + (i < arr.length-1 ? '<span class="code-separator">·</span>' : '')
+  ).join('');
+}
+
+function updateProgress() {
+  const filled = Object.keys(selections).length;
+  const pct = Math.round((filled / TOTAL_STEPS) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  const allDone = filled >= TOTAL_STEPS;
+  document.getElementById('requestBtn').disabled = !allDone;
+  document.getElementById('ctaIncomplete').style.display = allDone ? 'none' : 'block';
+}
+
+function copyCode() {
+  const code = buildCode();
+  if (!code) return;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.code-copy-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Gekopieerd!';
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  });
+}
+
+function sendRequest() {
+  const code = buildCode();
+  const lines = [
+    'Model: ' + (selections[1]||'–'),
+    'Bloktype: ' + (selections[2]||'–'),
+    'Smeernippel: ' + (selections[3]||'Voorkant standaard'),
+    'Container: ' + (selections[4]||'Standaard'),
+    'Afdichting: ' + (selections[5]||'Standaard'),
+    'Loopwagens/rail: ' + (selections[6]||'1'),
+    'Voorspanning: ' + (selections[7]||'–'),
+    'Eindplaat: ' + (selections[8]||'Standaard'),
+    'Raillengte: ' + (selections[9]||'–') + ' mm',
+    'Nauwkeurigheid: ' + (selections[10]||'–'),
+    'Oppervlak: ' + (selections[11]||'Standaard'),
+    'Rail montage: ' + (selections[12]||'Standaard'),
+    'Steek: ' + (selections[13]||'–') + ' mm',
+    'Rails per as: ' + (selections[14]||'1'),
+  ].join('\n');
+
+  const subject = encodeURIComponent('Offerte aanvraag profielrailgeleiding \u2013 ' + code);
+  const body = encodeURIComponent(
+'Geachte MCA-team,\n\nHierbij vraag ik een offerte aan voor de volgende profielrailgeleiding:\n\nBestelcode: ' + code + '\n\nSpecificaties:\n' + lines + '\n\nAantal sets: 1\n\nMet vriendelijke groet,\n[Uw naam]\n[Bedrijfsnaam]\n[Telefoonnummer / e-mail]'
+  );
+  window.location.href = 'mailto:linear@mcabv.nl?subject=' + subject + '&body=' + body;
+}
+</script>
+</body>
+</html>
