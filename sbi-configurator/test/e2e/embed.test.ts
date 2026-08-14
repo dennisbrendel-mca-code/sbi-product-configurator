@@ -31,6 +31,8 @@ import { dirname, resolve } from 'node:path';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '../..');
 const DIST = resolve(ROOT, 'dist/mca-sbi-configurator.html');
+/** Het fragment dat daadwerkelijk in YOOtheme geplakt wordt. */
+const EMBED = resolve(ROOT, 'dist/mca-sbi-configurator-embed.html');
 const GASTPAGINA = resolve(ROOT, 'dist/test-inbedding.html');
 
 /** Waarden die het "thema" zet en die onaangeroerd moeten blijven. */
@@ -48,10 +50,9 @@ const THEMA = {
  * precies zoals een "Custom HTML"-blok dat zou doen.
  */
 function bouwGastpagina(): void {
-  const dist = readFileSync(DIST, 'utf8');
-  const m = dist.match(/<script type="module"[^>]*>([\s\S]*?)<\/script>/);
-  if (!m) throw new Error('Geen module-script gevonden in de build');
-  const script = m[1];
+  // Bewust het EMBED-fragment, niet de standalone pagina: dit is letterlijk wat
+  // in het Custom HTML-blok geplakt wordt, dus dat hoort getest te worden.
+  const fragment = readFileSync(EMBED, 'utf8');
 
   writeFileSync(
     GASTPAGINA,
@@ -92,9 +93,7 @@ function bouwGastpagina(): void {
   <div id="codeDisplay">Lokvogel met dezelfde ID als de bestelcode</div>
   <div id="lengthInput">Lokvogel met dezelfde ID als het lengteveld</div>
 
-  <mca-sbi-configurator></mca-sbi-configurator>
-
-  <script type="module">${script}</script>
+  ${fragment}
 </body>
 </html>
 `
@@ -143,7 +142,9 @@ describe('inbedding in een bestaande pagina', () => {
   let browser: Browser;
 
   beforeAll(async () => {
-    if (!existsSync(DIST)) throw new Error(`${DIST} ontbreekt — draai eerst \`npm run build\`.`);
+    for (const f of [DIST, EMBED]) {
+      if (!existsSync(f)) throw new Error(`${f} ontbreekt — draai eerst \`npm run build\`.`);
+    }
     bouwGastpagina();
     browser = await chromium.launch();
   }, 120_000);
@@ -266,7 +267,7 @@ describe('inbedding in een bestaande pagina', () => {
       kapot,
       readFileSync(GASTPAGINA, 'utf8')
         .replace('<mca-sbi-configurator></mca-sbi-configurator>', `<style>${css}</style>`)
-        .replace(/<script type="module">[\s\S]*?<\/script>/, '')
+        .replace(/<script type="module"[^>]*>[\s\S]*?<\/script>/, '')
     );
 
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
