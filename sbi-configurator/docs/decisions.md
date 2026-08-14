@@ -128,6 +128,26 @@ HTML (`min="100"`) als `onLengthInput()` afdwingen. Het is een theoretisch
 robuustheidsgat, geen live defect. **Verlaagd van "te repareren" naar "een
 guard toevoegen bij het porteren"**; geen aparte fase-3-commit nodig.
 
+### V-006 · Valkuil bij het toetsen: de koppelstatus staat niet op `window`
+
+Bij het opzetten van de browser-pariteitstest las ik `window.cpCouplingActive`,
+`window.cpValid` en `window.cpLastParts` uit. Die zijn **undefined** — het zijn
+top-level `let`-declaraties, en die belanden (anders dan `function`-declaraties)
+niet op het globale object. Hetzelfde geldt voor `const RAILS` en `selections`.
+
+Gevolg: de test vergeleek stelselmatig `undefined` met `undefined` en verklaarde
+de koppelroute groen zónder hem aan te raken. Aan het licht gekomen door een
+mutatietest: de zoekrichting in `computeParts` omdraaien liet alle twaalf
+scenario's gewoon slagen.
+
+De test leest nu uit wat de klant daadwerkelijk ziet — de gerenderde deellijst,
+de uitvoertabel, de SVG-tekening en de zijbalk. Met diezelfde mutatie vallen er
+nu vier scenario's om, met een leesbare diff (eerste deel 2880 mm → 180 mm).
+
+**Les voor de rest van het project:** een groene pariteitstest is pas iets waard
+als bewezen is dat hij rood kán worden. Elke nieuwe suite krijgt een
+mutatiecontrole voordat we erop gaan leunen.
+
 ### V-005 · Rails zonder enkel bevestigingsgat worden zonder waarschuwing geaccepteerd
 
 Wél reëel: in **157** van de 29.888 gevallen geeft `cpCalcAutoGDetailed` `n = 0`

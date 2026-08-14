@@ -48,6 +48,33 @@ andere hash.
 defecten zitten er bewust in. Ze worden per stuk gewijzigd, met een ADR in
 `docs/decisions.md`.
 
+## Browser-pariteit
+
+`test/e2e/browser-parity.test.ts` draait twaalf scenario's door zowel
+`reference/v1.8.html` als het gebouwde `dist/mca-sbi-configurator.html` in
+Chromium, en vergelijkt bestelcode, voortgang, zichtbaarheid, meldingen,
+suggesties, de zijbalk, de gerenderde koppeldelen en beide SVG-tekeningen —
+plus de eis dat er geen console-fouten zijn.
+
+Ook deze suite is op gevoeligheid getoetst: de zoekrichting in `computeParts`
+omdraaien laat vier scenario's omvallen met een leesbare diff. Zie
+`docs/decisions.md` V-006 voor waarom die controle nodig bleek.
+
+## Hoe de fase-1 build in elkaar zit
+
+`index.html` en `src/ui/styles/legacy.css` worden letterlijk uit het bevroren
+origineel gehaald; `src/ui/legacy-ui.js` is de UI-code van v1.8 met het
+rekenhart eruit geknipt en vervangen door aanroepen naar `src/domain`.
+
+```bash
+node scripts/split-legacy.mjs   # markup + CSS uit reference/v1.8.html
+node scripts/wire-legacy.mjs    # UI-script bedraden aan src/domain
+```
+
+Beide zijn opnieuw te draaien en overschrijven hun uitvoer. Handmatige
+wijzigingen in `index.html`, `legacy.css` of `legacy-ui.js` gaan dus verloren —
+dat is opzet zolang fase 2 nog niet klaar is.
+
 ## Documentatie
 
 - `docs/decisions.md` — elke bewuste gedragswijziging, met bron
@@ -57,8 +84,8 @@ defecten zitten er bewust in. Ze worden per stuk gewijzigd, met een ADR in
 ## Stand van zaken
 
 - [x] **Fase 0** — vastleggen: git, v1.8 bevroren, golden fixtures, harnas getoetst
-- [ ] **Fase 1** — Vite/TS-toolchain, rekenhart verbatim porteren, gedrag aantoonbaar identiek
-- [ ] Fase 2 — datagedreven herbouw (Preact, shadow DOM, tokens, toegankelijkheid)
+- [x] **Fase 1** — Vite/TS-toolchain, rekenhart geport, gedrag aantoonbaar identiek
+- [ ] **Fase 2** — datagedreven herbouw (Preact, shadow DOM, tokens, toegankelijkheid)
 - [ ] Fase 3 — defecten repareren
 - [ ] Fase 4 — UX en maatvoeringstekening
 - [ ] Fase 5 — deellink, concepten, A4-datasheet

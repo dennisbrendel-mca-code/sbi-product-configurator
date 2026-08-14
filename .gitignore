@@ -9,3 +9,6 @@ node_modules/
 
 # Vite-cache
 .vite/
+
+# Buildresultaat wordt bij elke build opnieuw gegenereerd
+sbi-configurator/dist/
