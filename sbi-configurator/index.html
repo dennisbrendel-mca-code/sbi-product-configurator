@@ -13,6 +13,22 @@
 
       GEGENEREERD met scripts/split-legacy.mjs.
     -->
+    <style>
+      /* De opmaak van de configurator zit in de shadow root en raakt deze
+         pagina niet meer. Zonder onderstaande regels houdt <body> zijn 8px
+         UA-marge en is het document 16px hoger dan het element — wat in de
+         iframe-route een permanente schuifbalk oplevert.
+
+         De achtergrond staat op <html> en niet op <body>: de achtergrond van
+         het wortelelement wordt naar het canvas gepropageerd en vult het
+         venster vanzelf, ook als de inhoud korter is. Daar is dus géén
+         min-height met viewport-eenheid voor nodig — en die zou hier juist
+         schadelijk zijn, want in een meegroeiende iframe koppelt elke
+         viewport-eenheid terug op de zojuist gemelde hoogte.
+         Zie docs/decisions.md B-002. */
+      html { background: #f4f6f8; }
+      html, body { margin: 0; padding: 0; }
+    </style>
 </head>
 
 <body>

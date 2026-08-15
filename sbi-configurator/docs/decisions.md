@@ -34,6 +34,75 @@ ADR-regel hieronder bij die uitlegt welke fixture waarom verschuift.
 
 ## Fase 2 — inkapseling
 
+### B-002 · Geen viewport-eenheden meer, en waarom dat geen smaakkwestie is
+
+**Aanleiding.** Op de MCA-site (iframe met meegroeiende hoogte) werd de pagina
+onnodig lang zodra je onderin de configurator kwam. Eenmalig, daarna stabiel.
+
+**Oorzaak.** `min-height: 100vh` op `:host`, overgenomen uit de `body`-regel van
+v1.8. In een iframe die met zijn inhoud meegroeit is `100vh` niet "het venster"
+maar de hoogte die de ouderpagina zojuist heeft ingesteld — en die kwam uit de
+vórige meting. Daarmee luidt de regel feitelijk:
+
+```
+min-height = max(alle eerder gemelde hoogtes)
+```
+
+Krimpen is daar per definitie uit weggecodeerd. Zodra stap 12B was verschenen
+bleef die hoogte staan, ook nadat de rail weer binnen één deel paste.
+
+**Gemeten** (viewport 1440×900, SBI15 → 9000 mm → terug naar 1200 mm → stap 12
+dicht):
+
+| | Piek | Eind | Lege ruimte | Schuifbalk in iframe |
+|---|---:|---:|---:|---|
+| Met `min-height: 100vh` | 3805 | **3805** | **2240 px** | ja |
+| Na de reparatie | 3805 | **1565** | 0 | nee |
+
+**Besluit.** Er staat nergens in dit project nog een viewport-eenheid.
+
+- `min-height: 100vh` is uit `:host` gehaald (patch in `scripts/split-legacy.mjs`).
+- Wat die regel feitelijk deed — de achtergrond het venster laten vullen bij
+  weinig inhoud — doet nu `html { background: … }` in de gastpagina. De
+  achtergrond van het wortelelement propageert naar het canvas en vult het
+  venster hoe dan ook, zónder viewport-eenheid.
+- De gastpagina kreeg tegelijk `html, body { margin: 0 }`. Sinds de CSS in de
+  shadow root zit, raakte de `*`-reset dat document niet meer en hield `<body>`
+  zijn 8 px UA-marge — 16 px meer dan het element, en dus een permanente
+  schuifbalk in de iframe.
+
+**Verleiding om te weerstaan.** Het ligt voor de hand om `min-height: 100vh`
+"gewoon naar de gastpagina te verplaatsen". Doe dat niet: dan bouw je dezelfde
+val één niveau hoger opnieuw, zeker in combinatie met melden op
+`documentElement.scrollHeight`. Vandaar dat de melding bewust de **elementhoogte**
+gebruikt: die volgt uit de inhoud en niet uit wat de ouder zojuist heeft gezet.
+
+**Wat géén oorzaak bleek.** Bij het onderzoek had ik ook de resize-listener in
+`legacy-ui.js` (regel 1243, `resize` → `cpCalculate()` → SVG hertekenen) als
+mede-oorzaak aangewezen. Nagemeten klopt dat niet: `cpDrawSvg` zet de
+SVG-hoogte hard op een constante (`svgH = 175`), dus een resize kan de hoogte
+niet veranderen en dus ook geen tweede melding uitlokken. Over de hele doorloop
+zijn het 6 meldingen zonder enige oscillatie. De listener is verspilling, geen
+lus — die opruimen is een aparte beslissing met een eigen test.
+
+Idem voor `scrollIntoView`: ik verwachtte dat die in een inhoudshoge iframe zou
+doorbubbelen naar de pagina eromheen. Gemeten gebeurt dat niet — met
+`block: 'nearest'` is elk element in zo'n iframe al "zichtbaar", dus de browser
+scrollt niets. Het gevolg is het omgekeerde: in de iframe-route vervalt het
+springen naar de volgende stap. Een UX-punt voor fase 4, geen defect.
+
+**Bijvangst.** De CSS-patches in `scripts/split-legacy.mjs` telden niet hoeveel
+keer een patroon matchte. `body {` komt vier keer voor in het bronbestand
+(`.step-body`, `.step-card.active .step-body`, `.cp-panel .rail-card-body`), en
+`String.replace` pakt de eerste — die toevallig de goede was. Nu geankerd op het
+regelbegin en met dezelfde faal-bij-niet-precies-1-telling die
+`wire-legacy.mjs` al had.
+
+**Vastgelegd in** `test/e2e/iframe-hoogte.test.ts`: krimpt terug, geen
+schuifbalk, geen dubbele meldingen, geen viewport-eenheid in de build — plus een
+permanente tegenproef die `min-height: 100vh` opnieuw injecteert en aantoont dat
+hij dán wél op de piek blijft hangen.
+
 ### B-001 · De configurator wordt een custom element met shadow DOM
 
 `<mca-sbi-configurator>` met een open shadow root. De markup en de stylesheet

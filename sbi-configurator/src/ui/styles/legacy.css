@@ -1,12 +1,17 @@
 /* GEGENEREERD door scripts/split-legacy.mjs uit reference/v1.8.html.
    Handmatige wijzigingen gaan bij de volgende run verloren.
 
-   Twee selectors zijn omgezet voor de shadow root:
-     :root {  -> :host {   (custom properties horen op de host, niet op het document)
-     body {   -> :host {   (achtergrond en tekstkleur gelden voor het element, niet voor de pagina)
+   Aanpassingen voor de shadow root:
+     :root → :host          custom properties horen op de host, niet op het document
+     body → :host           achtergrond en tekstkleur gelden voor het element, niet voor de pagina
+     min-height: 100vh weg  in een meegroeiende iframe is 100vh gelijk aan de laatst gemelde hoogte, waardoor min-height een ondergrens wordt die alleen maar kan stijgen
 
    De `*`-reset mag daardoor blijven staan: binnen een shadow root
-   raakt hij alleen de configurator, niet de pagina eromheen. */
+   raakt hij alleen de configurator, niet de pagina eromheen.
+
+   Er staat bewust NERGENS meer een viewport-eenheid in dit bestand. In een
+   iframe die met zijn inhoud meegroeit is 100vh niet "het venster" maar de
+   hoogte die de ouderpagina zojuist heeft gezet — en dus de vorige meting. */
 
 :host {
   display: block;
@@ -36,11 +41,11 @@
             padding: 0;
         }
 
-        :host {
+:host {
             font-family: 'Fugue', Trebuchet MS;
             background: var(--offwhite);
             color: var(--text);
-            min-height: 100vh;
+            /* min-height verwijderd — zie docs/decisions.md B-002 */
         }
 
         .header {

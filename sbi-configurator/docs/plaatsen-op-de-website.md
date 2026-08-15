@@ -47,32 +47,78 @@ werkt hij wel, maar dan zie je de mobiele indeling op een desktop.
 ## Route 2 — als losstaand bestand in een iframe
 
 Als route 1 niet lukt: upload `dist/mca-sbi-configurator.html` naar de server
-(bijvoorbeeld `/wp-content/uploads/tools/`) en zet in een Custom HTML-element:
+(bijvoorbeeld `/wp-content/uploads/tools/`) en zet in een Custom HTML-element
+een van de twee varianten hieronder.
+
+### Wat je in deze route opgeeft
+
+Een iframe die met zijn inhoud meegroeit heeft **geen eigen scrollgebied**.
+`position: sticky` op de zijbalk heeft dan niets om aan te plakken, dus het
+paneel met de bestelcode en het specificatieoverzicht scrollt gewoon weg zodra
+je naar beneden gaat. Gemeten: in route 1 blijft de zijbalk op 28 px van de
+vensterrand staan; in een meegroeiende iframe verdwijnt hij 855 px boven beeld.
+
+Dat is geen instelling maar een gevolg van hoe `sticky` werkt, en niet met CSS
+te repareren. Wil je de bestelcode in beeld houden, kies dan variant A of ga
+terug naar route 1.
+
+Ook vervalt in deze route het automatisch doorspringen naar de volgende stap:
+in een iframe op inhoudshoogte is elk element altijd al "zichtbaar", dus de
+browser scrollt niets.
+
+### Variant A — vaste hoogte (zijbalk blijft werken)
 
 ```html
 <iframe
+  id="sbi-configurator"
   src="/wp-content/uploads/tools/mca-sbi-configurator.html"
-  style="width:100%;border:0;height:1400px"
+  style="width:100%;border:0;height:min(900px, 85vh)"
   title="SBI bestelcode-configurator"
   loading="lazy"
   allow="clipboard-write"></iframe>
 ```
 
-Let op `allow="clipboard-write"` — zonder dat werkt de kopieerknop niet.
+De configurator scrollt binnen zijn eigen venster, dus de zijbalk plakt zoals
+bedoeld. Nadeel: scrollen binnen scrollen, wat op mobiel onhandig kan zijn.
 
-Het element meldt zijn hoogte aan de pagina eromheen, dus je kunt de iframe
-laten meegroeien in plaats van een vaste hoogte te kiezen:
+### Variant B — meegroeiend (één doorlopende pagina, geen plakkende zijbalk)
 
 ```html
+<iframe
+  id="sbi-configurator"
+  src="/wp-content/uploads/tools/mca-sbi-configurator.html"
+  style="width:100%;border:0;height:1400px"
+  title="SBI bestelcode-configurator"
+  loading="lazy"
+  allow="clipboard-write"></iframe>
+
 <script>
-window.addEventListener('message', (e) => {
-  if (e.data?.type === 'mca-sbi-configurator:hoogte') {
-    document.querySelector('iframe[title="SBI bestelcode-configurator"]')
-      .style.height = e.data.hoogte + 'px';
-  }
-});
+(function () {
+  var iframe = document.getElementById('sbi-configurator');
+  var vorige = 0;
+  window.addEventListener('message', function (e) {
+    // Alleen berichten van déze iframe — niet van een andere widget op de pagina.
+    if (e.source !== iframe.contentWindow) return;
+    if (!e.data || e.data.type !== 'mca-sbi-configurator:hoogte') return;
+
+    var h = e.data.hoogte;
+    if (typeof h !== 'number' || !Number.isFinite(h)) return;
+
+    // Ruime grenzen: 5100 px is een normale waarde op mobiel. De ondergrens
+    // voorkomt dat een fout bericht de configurator laat verdwijnen.
+    h = Math.min(Math.max(h, 400), 20000);
+    if (h === vorige) return;
+    vorige = h;
+    iframe.style.height = h + 'px';
+  });
+})();
 </script>
 ```
+
+De `height:1400px` in de stijl blijft staan als terugval voor het geval het
+script eruit gefilterd wordt. Laat hem er dus in.
+
+Let op `allow="clipboard-write"` — zonder dat werkt de kopieerknop niet.
 
 ---
 
@@ -93,6 +139,12 @@ Loop dit af op de gepubliceerde pagina, niet in de builder.
 - [ ] De tekening in stap 12B toont gaten en maatlijnen
 - [ ] "Kopieer bestelcode" werkt (vereist HTTPS)
 - [ ] Op een telefoon: alles onder elkaar, geen horizontale schuifbalk
+- [ ] **De pagina wordt weer korter**: voer 9000 mm in, zet hem daarna terug op
+      1200 mm en klap stap 12 dicht. De lege ruimte onderaan hoort mee te
+      krimpen. (Dit ging eerder mis — zie `decisions.md` B-002.)
+- [ ] Bij route 1: het bestelcodepaneel blijft in beeld terwijl je naar beneden
+      scrollt. Blijft het niet plakken, kijk dan of een YOOtheme-sectie eromheen
+      `overflow: hidden` of `clip` zet — dat schakelt `sticky` uit.
 
 **De offerteaanvraag**
 - [ ] Alle stappen invullen → de knop wordt actief

@@ -44,22 +44,63 @@ const body = between('<body>', '</body>')
  * `*` alleen de eigen inhoud, en verwijzen `:host`-regels naar het element zelf.
  */
 const cssPatches = [
-  { van: ':root {', naar: ':host {', waarom: 'custom properties horen op de host, niet op het document' },
-  { van: 'body {', naar: ':host {', waarom: 'achtergrond en tekstkleur gelden voor het element, niet voor de pagina' },
+  {
+    id: ':root → :host',
+    // Ankeren op het regelbegin: het bronbestand gebruikt CRLF.
+    van: /^[ \t]*:root \{/m,
+    naar: ':host {',
+    waarom: 'custom properties horen op de host, niet op het document',
+  },
+  {
+    id: 'body → :host',
+    // LET OP: `body {` komt vier keer voor in dit bestand — `.step-body`,
+    // `.step-card.active .step-body` en `.cp-panel .rail-card-body` matchen
+    // ook. Vandaar het anker op het regelbegin; zonder dat werkte de patch
+    // alleen omdat de échte body-regel toevallig vooraan staat.
+    van: /^[ \t]*body \{/m,
+    naar: ':host {',
+    waarom: 'achtergrond en tekstkleur gelden voor het element, niet voor de pagina',
+  },
+  {
+    id: 'min-height: 100vh weg',
+    van: /min-height: 100vh;/,
+    naar: '/* min-height verwijderd — zie docs/decisions.md B-002 */',
+    waarom:
+      'in een meegroeiende iframe is 100vh gelijk aan de laatst gemelde hoogte, ' +
+      'waardoor min-height een ondergrens wordt die alleen maar kan stijgen',
+  },
 ];
 for (const p of cssPatches) {
-  if (!css.includes(p.van)) throw new Error(`CSS-patch mislukt: "${p.van}" niet gevonden`);
+  // Tellen in plaats van bestaan-controleren, zoals wire-legacy.mjs het al doet.
+  // Een patroon dat per ongeluk op twee plekken past is stiller — en gevaarlijker —
+  // dan een patroon dat nergens past.
+  const treffers = css.match(new RegExp(p.van.source, p.van.flags.replace('m', '') + 'gm')) ?? [];
+  if (treffers.length !== 1) {
+    throw new Error(
+      `CSS-patch "${p.id}" mislukt: verwachtte 1 treffer voor ${p.van}, vond er ${treffers.length}. ` +
+        `Is reference/v1.8.html gewijzigd?`
+    );
+  }
   css = css.replace(p.van, p.naar);
 }
 css =
   `/* GEGENEREERD door scripts/split-legacy.mjs uit reference/v1.8.html.\n` +
   `   Handmatige wijzigingen gaan bij de volgende run verloren.\n\n` +
-  `   Twee selectors zijn omgezet voor de shadow root:\n` +
-  cssPatches.map((p) => `     ${p.van.padEnd(8)} -> ${p.naar.padEnd(8)}  (${p.waarom})`).join('\n') +
+  `   Aanpassingen voor de shadow root:\n` +
+  cssPatches.map((p) => `     ${p.id.padEnd(22)} ${p.waarom}`).join('\n') +
   `\n\n   De \`*\`-reset mag daardoor blijven staan: binnen een shadow root\n` +
-  `   raakt hij alleen de configurator, niet de pagina eromheen. */\n\n` +
+  `   raakt hij alleen de configurator, niet de pagina eromheen.\n\n` +
+  `   Er staat bewust NERGENS meer een viewport-eenheid in dit bestand. In een\n` +
+  `   iframe die met zijn inhoud meegroeit is 100vh niet "het venster" maar de\n` +
+  `   hoogte die de ouderpagina zojuist heeft gezet — en dus de vorige meting. */\n\n` +
   `:host {\n  display: block;\n}\n\n` +
   css;
+
+// De achtergrondkleur van de gastpagina moet dezelfde zijn als die van het
+// element. Uit de CSS trekken in plaats van overtypen, zodat er één bron van
+// waarheid blijft en het script faalt als iemand de variabele hernoemt.
+const offwhite = css.match(/--offwhite:\s*([^;]+);/)?.[1]?.trim();
+if (!offwhite) throw new Error('Kon --offwhite niet uit de stylesheet halen');
 
 mkdirSync(resolve(ROOT, 'src/ui/styles'), { recursive: true });
 writeFileSync(resolve(ROOT, 'src/ui/styles/legacy.css'), css + '\n');
@@ -93,6 +134,22 @@ const html = `<!DOCTYPE html>
 
       GEGENEREERD met scripts/split-legacy.mjs.
     -->
+    <style>
+      /* De opmaak van de configurator zit in de shadow root en raakt deze
+         pagina niet meer. Zonder onderstaande regels houdt <body> zijn 8px
+         UA-marge en is het document 16px hoger dan het element — wat in de
+         iframe-route een permanente schuifbalk oplevert.
+
+         De achtergrond staat op <html> en niet op <body>: de achtergrond van
+         het wortelelement wordt naar het canvas gepropageerd en vult het
+         venster vanzelf, ook als de inhoud korter is. Daar is dus géén
+         min-height met viewport-eenheid voor nodig — en die zou hier juist
+         schadelijk zijn, want in een meegroeiende iframe koppelt elke
+         viewport-eenheid terug op de zojuist gemelde hoogte.
+         Zie docs/decisions.md B-002. */
+      html { background: ${offwhite}; }
+      html, body { margin: 0; padding: 0; }
+    </style>
 </head>
 
 <body>
