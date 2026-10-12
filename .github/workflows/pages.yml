@@ -1,0 +1,70 @@
+# Publiceert de GitHub Pages-site van deze repo.
+#
+# Eén repo heeft maar één Pages-site, dus die wordt hier samengesteld:
+#   /      → de bestanden van branch `main` zoals ze zijn (de oude v1.6)
+#   /v2/   → de build van deze branch (`v2`)
+#
+# Let op: deze workflow staat alleen op `v2`. Een push naar `main` start hem
+# niet; draai hem dan met de hand (Actions → Pages → Run workflow).
+name: Pages
+
+on:
+  push:
+    branches: [v2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout v2
+        uses: actions/checkout@v4
+
+      - name: Checkout main (oude site)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: _main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: sbi-configurator/package-lock.json
+
+      - name: Build v2
+        working-directory: sbi-configurator
+        run: |
+          npm ci
+          npm run build
+
+      - name: Site samenstellen
+        run: |
+          mkdir -p _site/v2
+          rsync -a --exclude .git --exclude .github _main/ _site/
+          cp sbi-configurator/dist/mca-sbi-configurator.html _site/v2/index.html
+          cp sbi-configurator/dist/mca-sbi-configurator-embed.html _site/v2/embed.html
+          touch _site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}v2/
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
