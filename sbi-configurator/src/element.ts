@@ -1,8 +1,8 @@
 import legacyCss from './ui/styles/legacy.css?inline';
-import afbeeldingenCss from './ui/styles/loopwagen-afbeeldingen.css?inline';
+import afbeeldingenCss from './ui/styles/optie-afbeeldingen.css?inline';
 import { LEGACY_MARKUP } from './ui/legacy-markup';
 import { initLegacyUI } from './ui/legacy-ui.js';
-import { voegLoopwagenAfbeeldingenToe } from './ui/loopwagen-afbeeldingen';
+import { voegOptieAfbeeldingenToe } from './ui/optie-afbeeldingen';
 
 /**
  * De configurator als custom element.
@@ -47,7 +47,7 @@ export class McaSbiConfigurator extends HTMLElement {
     houder.innerHTML = LEGACY_MARKUP;
 
     root.append(style, ...Array.from(houder.childNodes));
-    voegLoopwagenAfbeeldingenToe(root);
+    voegOptieAfbeeldingenToe(root);
 
     initLegacyUI(root);
     this.#meldHoogte();

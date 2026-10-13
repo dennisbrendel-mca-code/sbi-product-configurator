@@ -1,17 +1,17 @@
-/* Productfoto's in de loopwagenknoppen van stap 2.
-   Hoort bij src/ui/loopwagen-afbeeldingen.ts. Staat los van legacy.css,
+/* Productfoto's in de keuzeknoppen.
+   Hoort bij src/ui/optie-afbeeldingen.ts. Staat los van legacy.css,
    omdat dat bestand gegenereerd wordt. */
 
-#step2 .option-grid.met-afbeelding {
+.option-grid.met-afbeelding {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 
-#step2 .met-afbeelding .opt-btn {
+.met-afbeelding .opt-btn {
     display: flex;
     flex-direction: column;
 }
 
-#step2 .opt-img {
+.opt-img {
     display: block;
     width: 100%;
     height: 120px;
@@ -22,11 +22,11 @@
 }
 
 @media (max-width: 480px) {
-    #step2 .option-grid.met-afbeelding {
+    .option-grid.met-afbeelding {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    #step2 .opt-img {
+    .opt-img {
         height: 96px;
     }
 }
