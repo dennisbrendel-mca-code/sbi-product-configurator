@@ -4,6 +4,7 @@ import aanpassingenCss from './ui/styles/aanpassingen.css?inline';
 import { LEGACY_MARKUP } from './ui/legacy-markup';
 import { initLegacyUI } from './ui/legacy-ui.js';
 import { voegOptieAfbeeldingenToe } from './ui/optie-afbeeldingen';
+import { bewaakUitsluitingen } from './ui/uitsluitingen';
 
 /**
  * De configurator als custom element.
@@ -51,6 +52,7 @@ export class McaSbiConfigurator extends HTMLElement {
     voegOptieAfbeeldingenToe(root);
 
     initLegacyUI(root);
+    bewaakUitsluitingen(root);
     this.#meldHoogte();
   }
 

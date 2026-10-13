@@ -379,7 +379,11 @@ const scenarios: Scenario[] = [
       { doe: 'kies', stap: 6, code: 'MF' },
       { doe: 'kies', stap: 7, code: 'ZZ' },
       { doe: 'kies', stap: 8, code: '4' },
-      { doe: 'kies', stap: 9, code: 'HT' },
+      // Was HT. Sinds 13-10-2026 is HT niet te combineren met MF en een
+      // afdichting (src/domain/regels.ts); v1.8 kende die regel niet, dus met
+      // HT zou dit scenario geen pariteit meer kunnen toetsen. De regel zelf
+      // staat in test/e2e/uitsluitingen.test.ts.
+      { doe: 'kies', stap: 9, code: '' },
       { doe: 'kies', stap: 10, code: 'FCR' },
       { doe: 'kies', stap: 11, code: 'B' },
       { doe: 'lengte', mm: 2400 },

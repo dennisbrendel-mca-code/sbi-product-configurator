@@ -32,3 +32,16 @@
     color: var(--linear);
     background: transparent;
 }
+
+/* Opties die door een andere keuze niet mogelijk zijn (domain/regels.ts). */
+.opt-btn.opt-uitgesloten,
+.opt-btn.opt-uitgesloten:hover {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: var(--border);
+    background: var(--offwhite);
+}
+
+.uitsluiting-melding {
+    margin-bottom: 10px;
+}

@@ -10,6 +10,8 @@
  * `Bron bestanden/opties/`, omgezet naar WebP van 320 px breed. Door
  * `assetsInlineLimit` gaan ze als data-URI mee in het ene HTML-bestand.
  */
+import { codeVan } from './opt-knop';
+
 const BESTANDEN = import.meta.glob<string>('./afbeeldingen/**/*.webp', {
   eager: true,
   import: 'default',
@@ -63,12 +65,6 @@ const PER_STAP: Record<number, Record<string, string>> = {
     B: 'opties/rail-draadgaten-onderzijde',
   },
 };
-
-/** De standaardknoppen tonen `—` als code; in de bestelcode is dat leeg. */
-function codeVan(knop: Element): string {
-  const tekst = knop.querySelector('.opt-code')?.textContent?.trim() ?? '';
-  return tekst === '—' ? '' : tekst;
-}
 
 export function voegOptieAfbeeldingenToe(root: ParentNode): void {
   for (const [stap, perCode] of Object.entries(PER_STAP)) {

@@ -32,6 +32,29 @@ ADR-regel hieronder bij die uitlegt welke fixture waarom verschuift.
 
 ---
 
+## Productregels
+
+### B-003 · HT-eindplaat sluit MF en elke afdichting uit
+
+**Opgave MCA, 13-10-2026.** Met een HT-eindplaat (stap 9) is geen
+MF-smeercontainer (stap 6) mogelijk, en vervalt de afdichting (stap 7) helemaal:
+de HT-eindplaat ís de afdichting. v1.8 kende deze regel niet.
+
+**Uitwerking.** De regel staat als data in `src/domain/regels.ts`;
+`src/ui/uitsluitingen.ts` past hem toe op de knoppen. Uitgesloten opties worden
+grijs en onklikbaar, met de reden erbij. Koos de klant al MF of een afdichting
+voordat hij HT koos (stap 9 komt ná 6 en 7), dan worden die vervangen door
+Standaard respectievelijk "Geen afdichting (HT-eindplaat)", met een melding bij
+stap 9. In de bestelcode staat dan geen symbool voor stap 6 en 7.
+
+**Gevolg voor de pariteit.** Het browserscenario "volledig ingevuld" koos
+MF + ZZ + HT. Dat is nu een ongeldige combinatie; het scenario kiest daarom
+de standaard eindplaat. De regel zelf wordt getoetst in
+`test/e2e/uitsluitingen.test.ts` (met mutatiecontrole: zonder de regel vallen
+drie van de vier UI-tests om).
+
+---
+
 ## Fase 2 — inkapseling
 
 ### B-002 · Geen viewport-eenheden meer, en waarom dat geen smaakkwestie is
