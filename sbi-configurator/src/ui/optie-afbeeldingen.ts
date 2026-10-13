@@ -42,6 +42,10 @@ const PER_STAP: Record<number, Record<string, string>> = {
     FV: 'loopwagens/FV',
     SV: 'loopwagens/SV',
   },
+  3: {
+    '': 'opties/smeernippel-voorzijde',
+    N: 'opties/smeernippel-zijkant',
+  },
   6: {
     MF: 'opties/smeercontainer-MF',
   },
