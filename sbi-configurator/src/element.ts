@@ -1,5 +1,6 @@
 import legacyCss from './ui/styles/legacy.css?inline';
 import afbeeldingenCss from './ui/styles/optie-afbeeldingen.css?inline';
+import aanpassingenCss from './ui/styles/aanpassingen.css?inline';
 import { LEGACY_MARKUP } from './ui/legacy-markup';
 import { initLegacyUI } from './ui/legacy-ui.js';
 import { voegOptieAfbeeldingenToe } from './ui/optie-afbeeldingen';
@@ -41,7 +42,7 @@ export class McaSbiConfigurator extends HTMLElement {
     const root = this.attachShadow({ mode: 'open' });
 
     const style = document.createElement('style');
-    style.textContent = legacyCss + '\n' + afbeeldingenCss;
+    style.textContent = [legacyCss, afbeeldingenCss, aanpassingenCss].join('\n');
 
     const houder = document.createElement('div');
     houder.innerHTML = LEGACY_MARKUP;
