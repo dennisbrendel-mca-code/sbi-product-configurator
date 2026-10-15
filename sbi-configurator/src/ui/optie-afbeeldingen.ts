@@ -51,6 +51,12 @@ const PER_STAP: Record<number, Record<string, string>> = {
   6: {
     MF: 'opties/smeercontainer-MF',
   },
+  8: {
+    '1': 'opties/loopwagens-per-rail-1',
+    '2': 'opties/loopwagens-per-rail-2',
+    '3': 'opties/loopwagens-per-rail-3',
+    '4': 'opties/loopwagens-per-rail-4',
+  },
   9: {
     // Standaard heeft voorlopig bewust geen foto.
     HT: 'opties/eindplaat-HT',

@@ -30,3 +30,11 @@
         height: 96px;
     }
 }
+
+/* Stap 8: bovenaanzichten van een rail met 1 tot 4 loopwagens. Die zijn
+   breed en laag; een vaste hoogte zou ze tot een dun streepje maken. */
+#step8 .opt-img {
+    height: auto;
+    aspect-ratio: auto;
+    padding: 10px 6px;
+}
