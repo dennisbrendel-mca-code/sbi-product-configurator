@@ -151,25 +151,19 @@ const patches = [
   {
     id: 'B-004b',
     waarom:
-      'Per rail de foto uit stap 8 in plaats van de getekende rail met loopwagens. ' +
-      'Zonder loopwagen is er geen foto en blijft de getekende lege rail staan; ' +
-      'de loopwagentekening verderop in de lus wordt daardoor niet meer bereikt.',
+      'Per rail een foto in plaats van de getekende rail: die uit stap 8, of zonder ' +
+      'loopwagen de kale rail. De tekening verderop in de lus wordt niet meer bereikt.',
     van: 'const dy = r * rowStride;',
     naar:
       'const dy = r * rowStride;\n' +
-      '                if (hasWagon) {\n' +
-      '                    html += `<image href="${afbeeldingVanOptie(8, String(numWagons))}" x="${railX}" y="${fotoY0 + r * fotoStride}" width="${railW}" height="${fotoH}"/>`;\n' +
-      '                    continue;\n' +
-      '                }',
+      '                html += `<image href="${hasWagon ? afbeeldingVanOptie(8, String(numWagons)) : railZonderLoopwagen()}" x="${railX}" y="${fotoY0 + r * fotoStride}" width="${railW}" height="${fotoH}"/>`;\n' +
+      '                continue;',
   },
   {
     id: 'B-004c',
-    waarom: 'De lengtemaat begint onder de laatste rij, die met foto op een andere hoogte staat.',
+    waarom: 'De lengtemaat begint onder de laatste fotorij, die op een andere hoogte staat.',
     van: 'const lastCapBottom = capY0 + (numRails - 1) * rowStride + capH;',
-    naar:
-      'const lastCapBottom = hasWagon\n' +
-      '                ? fotoY0 + (numRails - 1) * fotoStride + fotoH\n' +
-      '                : capY0 + (numRails - 1) * rowStride + capH;',
+    naar: 'const lastCapBottom = fotoY0 + (numRails - 1) * fotoStride + fotoH;',
   },
 ];
 
@@ -268,7 +262,7 @@ import {
   findLengthSuggestions,
 } from '../domain/coupling';
 import { buildOrderCode, fromLegacySelections } from '../domain/ordercode';
-import { afbeeldingVanOptie } from './optie-afbeeldingen';
+import { afbeeldingVanOptie, railZonderLoopwagen } from './optie-afbeeldingen';
 
 /**
  * Start de configurator binnen een shadow root.

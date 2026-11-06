@@ -25,7 +25,7 @@ import {
   findLengthSuggestions,
 } from '../domain/coupling';
 import { buildOrderCode, fromLegacySelections } from '../domain/ordercode';
-import { afbeeldingVanOptie } from './optie-afbeeldingen';
+import { afbeeldingVanOptie, railZonderLoopwagen } from './optie-afbeeldingen';
 
 /**
  * Start de configurator binnen een shadow root.
@@ -424,10 +424,8 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
 
             for (let r = 0; r < numRails; r++) {
                 const dy = r * rowStride;
-                if (hasWagon) {
-                    html += `<image href="${afbeeldingVanOptie(8, String(numWagons))}" x="${railX}" y="${fotoY0 + r * fotoStride}" width="${railW}" height="${fotoH}"/>`;
-                    continue;
-                }
+                html += `<image href="${hasWagon ? afbeeldingVanOptie(8, String(numWagons)) : railZonderLoopwagen()}" x="${railX}" y="${fotoY0 + r * fotoStride}" width="${railW}" height="${fotoH}"/>`;
+                continue;
                 const capY = capY0 + dy;
                 const baseY = 32 + dy;
                 const grooveY = 39 + dy;
@@ -461,9 +459,7 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
                 }
             }
 
-            const lastCapBottom = hasWagon
-                ? fotoY0 + (numRails - 1) * fotoStride + fotoH
-                : capY0 + (numRails - 1) * rowStride + capH;
+            const lastCapBottom = fotoY0 + (numRails - 1) * fotoStride + fotoH;
             const dashY = lastCapBottom + 13;
             const textY = lastCapBottom + 24;
 

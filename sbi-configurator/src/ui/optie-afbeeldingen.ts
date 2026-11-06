@@ -78,6 +78,11 @@ export function afbeeldingVanOptie(stap: number, code: string): string | undefin
   return naam ? bestand(naam) : undefined;
 }
 
+/** De kale rail, voor de zijbalk bij "geen loopwagen". */
+export function railZonderLoopwagen(): string | undefined {
+  return bestand('opties/rail-zonder-loopwagen');
+}
+
 export function voegOptieAfbeeldingenToe(root: ParentNode): void {
   for (const [stap, perCode] of Object.entries(PER_STAP)) {
     const raster = root.querySelector(`#step${stap} .option-grid`);

@@ -98,11 +98,27 @@ describe('illustratie: foto per rail', () => {
     expect(tekst).toMatch(/2× loopwagen per rail · 3 rails parallel/);
   });
 
-  it('zonder loopwagen: geen foto, wel de getekende lege rails', async () => {
+  it('zonder loopwagen: per rail de foto van de kale rail', async () => {
+    const metLoopwagens = await Promise.all([1, 2, 3, 4].map(fotoUitStap8));
     await klik(knop(14, 'II'));
     await klik(c.locator('#step2 .opt-btn-skip'));
-    expect(await fotos().count()).toBe(0);
-    expect(await c.locator('#illustrationSvg rect').count()).toBeGreaterThan(0);
+
+    expect(await fotos().count()).toBe(2);
+    expect(await c.locator('#illustrationSvg rect').count()).toBe(0);
+    for (const foto of await fotos().all()) {
+      const href = await foto.getAttribute('href');
+      expect(href).toMatch(/^data:image\/webp/);
+      expect(metLoopwagens).not.toContain(href);
+    }
     expect(await c.locator('#illustrationSvg').textContent()).toMatch(/Geen loopwagen/);
+  });
+
+  it('een loopwagen kiezen na "geen loopwagen" brengt de foto uit stap 8 terug', async () => {
+    await klik(knop(8, '2'));
+    const verwacht = await fotoUitStap8(2);
+    await klik(c.locator('#step2 .opt-btn-skip'));
+    await klik(knop(2, 'FL'));
+    await klik(knop(8, '2'));
+    expect(await fotos().getAttribute('href')).toBe(verwacht);
   });
 });
