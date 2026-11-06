@@ -74,6 +74,7 @@ const BEWUSTE_AFWIJKINGEN: Record<keyof Momentopname, string> = {
   koppelTekening: 'V-008a — de tekening bevat nu het laatste gat van elk deel',
   koppelDelen: 'V-008b — gatentelling per deel is n+1 in plaats van n',
   stap12Info: 'V-008c — zelfde gatentelling in de infobalk van stap 12',
+  illustratie: 'B-004 — railfoto uit stap 8 in de zijbalk; getoetst in illustratie.test.ts',
 } as Record<keyof Momentopname, string>;
 
 const zonderAfwijkingen = <T extends object>(o: T) =>

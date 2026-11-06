@@ -53,6 +53,21 @@ de standaard eindplaat. De regel zelf wordt getoetst in
 `test/e2e/uitsluitingen.test.ts` (met mutatiecontrole: zonder de regel vallen
 drie van de vier UI-tests om).
 
+### B-004 · Zijbalk toont de railfoto's uit stap 8
+
+**Verzoek MCA, 06-11-2026.** De illustratie rechtsboven gebruikt de bovenaanzichten
+uit stap 8 in plaats van de getekende rail, ook bij meerdere assen (stap 14): één
+foto per rail, met het gekozen aantal loopwagens. Zonder loopwagen is er geen
+passende foto; dan blijft de getekende lege rail van v1.8 staan.
+
+**Uitwerking.** Patches B-004a t/m c in `scripts/wire-legacy.mjs`. De oude
+loopwagentekening in `updateIllustration` wordt niet meer bereikt, maar blijft
+staan: dat bestand is een overgangsbestand dat in fase 2c wordt opgeruimd.
+
+**Gevolg voor de pariteit.** Het veld `illustratie` is een bewuste afwijking van
+v1.8. Foto's, lengtemaat en bijschrift worden getoetst in
+`test/e2e/illustratie.test.ts`.
+
 ---
 
 ## Fase 2 — inkapseling

@@ -25,6 +25,7 @@ import {
   findLengthSuggestions,
 } from '../domain/coupling';
 import { buildOrderCode, fromLegacySelections } from '../domain/ordercode';
+import { afbeeldingVanOptie } from './optie-afbeeldingen';
 
 /**
  * Start de configurator binnen een shadow root.
@@ -417,11 +418,16 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
             const capW = 18, capH = 40, capY0 = 27, rowStride = 74;
             const wagonSizes = { 1: { w: 84, h: 54 }, 2: { w: 60, h: 50 }, 3: { w: 46, h: 46 }, 4: { w: 36, h: 42 } };
             const wSize = wagonSizes[numWagons] || wagonSizes[1];
+            const fotoH = railW * 55 / 480, fotoY0 = 4, fotoStride = fotoH + 10;
 
             let html = '';
 
             for (let r = 0; r < numRails; r++) {
                 const dy = r * rowStride;
+                if (hasWagon) {
+                    html += `<image href="${afbeeldingVanOptie(8, String(numWagons))}" x="${railX}" y="${fotoY0 + r * fotoStride}" width="${railW}" height="${fotoH}"/>`;
+                    continue;
+                }
                 const capY = capY0 + dy;
                 const baseY = 32 + dy;
                 const grooveY = 39 + dy;
@@ -455,7 +461,9 @@ const buildCode = () => buildOrderCode(fromLegacySelections(selections));
                 }
             }
 
-            const lastCapBottom = capY0 + (numRails - 1) * rowStride + capH;
+            const lastCapBottom = hasWagon
+                ? fotoY0 + (numRails - 1) * fotoStride + fotoH
+                : capY0 + (numRails - 1) * rowStride + capH;
             const dashY = lastCapBottom + 13;
             const textY = lastCapBottom + 24;
 

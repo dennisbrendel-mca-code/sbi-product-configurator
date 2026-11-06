@@ -72,6 +72,12 @@ const PER_STAP: Record<number, Record<string, string>> = {
   },
 };
 
+/** De afbeelding van een optie, ook voor gebruik buiten de knoppen (zijbalk). */
+export function afbeeldingVanOptie(stap: number, code: string): string | undefined {
+  const naam = PER_STAP[stap]?.[code];
+  return naam ? bestand(naam) : undefined;
+}
+
 export function voegOptieAfbeeldingenToe(root: ParentNode): void {
   for (const [stap, perCode] of Object.entries(PER_STAP)) {
     const raster = root.querySelector(`#step${stap} .option-grid`);
